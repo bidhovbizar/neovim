@@ -1,9 +1,10 @@
 return {
     'neovim/nvim-lspconfig',
-    --version = "v0.1.7",
+    --version = "v0.1.7-",
     dependencies = {
         { 'williamboman/mason.nvim' },
         { 'williamboman/mason-lspconfig.nvim' },
+        { 'nvimtools/none-ls.nvim' }, -- Added for Black formatter support
         -- Autocompletion
         'hrsh7th/nvim-cmp',
         'hrsh7th/cmp-buffer',
@@ -20,6 +21,15 @@ return {
             "lua",    -- This will only autoformat lua.
             "python", -- This will only autoformat python.
         }
+
+        -- Setup none-ls (null-ls) for Black formatter
+        local null_ls = require("null-ls")
+        null_ls.setup({
+            sources = {
+                null_ls.builtins.formatting.black,
+            },
+        })
+
         -- Create a keymap for vim.lsp.buf.implementation
         vim.api.nvim_create_autocmd('LspAttach', {
             callback = function(args)
@@ -32,7 +42,14 @@ return {
                             vim.lsp.buf.format({
                                 formatting_options = { tabSize = 4, insertSpaces = true },
                                 bufnr = args.buf,
-                                id = client.id
+                                filter = function(c)
+                                    -- For Python, only use null-ls (Black)
+                                    if vim.bo[args.buf].filetype == "python" then
+                                        return c.name == "null-ls"
+                                    end
+                                    -- For other files, use the attached client
+                                    return c.id == client.id
+                                end
                             })
                         end
                     })
@@ -130,7 +147,7 @@ return {
                 end,
 
 
-                -- this is the "custom handler" for `lua_ls`
+                -- this is the "custom handler" for lua_ls
                 lua_ls = function()
                     require('lspconfig').lua_ls.setup({
                         settings = {
@@ -246,3 +263,4 @@ return {
         })
     end
 }
+

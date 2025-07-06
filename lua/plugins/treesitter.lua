@@ -19,6 +19,7 @@ return {
             auto_install = true,
             ensure_installed = {
                 "bash",
+                "python",
                 "c",
                 "html",
                 "javascript",
@@ -40,9 +41,12 @@ return {
             incremental_selection = {
                 enable = true,
                 keymaps = {
+                    -- Place your cursor on a code block and <leader>vv to select it the logical block
                     init_selection = "<leader>vv",
+                    -- After the selection press "+" to select the next higher level block from the cursor
                     node_incremental = "+",
                     scope_incremental = false,
+                    -- After the selection press "_" to select the next lower level block from the cursor
                     node_decremental = "_",
                 },
             },
@@ -53,16 +57,25 @@ return {
 
                     keymaps = {
                         -- You can use the capture groups defined in textobjects.scm
+                        -- This section for change around/in function
                         ["af"] = { query = "@function.outer", desc = "around a function" },
                         ["if"] = { query = "@function.inner", desc = "inner part of a function" },
+                        -- This section for change around/in class
                         ["ac"] = { query = "@class.outer", desc = "around a class" },
                         ["ic"] = { query = "@class.inner", desc = "inner part of a class" },
+                        -- This section for change around/in if or else
                         ["ai"] = { query = "@conditional.outer", desc = "around an if statement" },
                         ["ii"] = { query = "@conditional.inner", desc = "inner part of an if statement" },
+                        -- This section for change around/in loop
                         ["al"] = { query = "@loop.outer", desc = "around a loop" },
                         ["il"] = { query = "@loop.inner", desc = "inner part of a loop" },
-                        ["ap"] = { query = "@parameter.outer", desc = "around parameter" },
-                        ["ip"] = { query = "@parameter.inner", desc = "inside a parameter" },
+                        -- This section for change around/in parameter
+                        ["av"] = { query = "@parameter.outer", desc = "around a parameter or variable" },
+                        ["iv"] = { query = "@parameter.inner", desc = "inside a parameter or variable" },
+                        -- This section for change around/in paragraph 
+                        -- Don't need this block as its already defined in vim and treesitter is not needed
+                        --["ap"] = { query = "@paragraph.outer", desc = "around a paragraph" },
+                        --["ip"] = { query = "@paragraph.inner", desc = "inside a paragraph" },
                     },
                     selection_modes = {
                         ["@parameter.outer"] = "v",   -- charwise
@@ -80,21 +93,27 @@ return {
                     goto_previous_start = {
                         ["[f"] = { query = "@function.outer", desc = "Previous function" },
                         ["[c"] = { query = "@class.outer", desc = "Previous class" },
-                        ["[p"] = { query = "@parameter.inner", desc = "Previous parameter" },
+                        ["[v"] = { query = "@parameter.inner", desc = "Previous parameter" },
+                        ["[t"] = { query = "@statement.outer", desc = "Previous statement" },
+                        ["[b"] = { query = "@block.outer", desc = "Previous block" },
                     },
                     goto_next_start = {
                         ["]f"] = { query = "@function.outer", desc = "Next function" },
                         ["]c"] = { query = "@class.outer", desc = "Next class" },
-                        ["]p"] = { query = "@parameter.inner", desc = "Next parameter" },
+                        ["]v"] = { query = "@parameter.inner", desc = "Next parameter" },
+                        ["]t"] = { query = "@statement.outer", desc = "Next statement" },
+                        ["]b"] = { query = "@block.outer", desc = "Next block" },
                     },
                 },
                 swap = {
                     enable = true,
+                    --- To move a parameter to the next position from where your cursor is placed
                     swap_next = {
-                        ["<leader>a"] = "@parameter.inner",
+                        ["<leader>n"] = "@parameter.inner",
                     },
+                    --- To move a parameter to the previous position from where your cursor is placed
                     swap_previous = {
-                        ["<leader>A"] = "@parameter.inner",
+                        ["<leader>p"] = "@parameter.inner",
                     },
                 },
             },

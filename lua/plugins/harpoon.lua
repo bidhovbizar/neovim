@@ -97,11 +97,16 @@ return {
         }) 
         -- Functionality Check:
         -- To delete an added file in harpoon please <C-e> open explorer and press d on the file you want to remove
+        
         -- <leader>fh → Shows Harpoon file list with previews
-        -- Enter → Opens selected file
+        --      then:
         -- <leader>ga → Live grep in ALL Harpoon files
         -- <leader>gs → Live grep in SELECTED file only
+        --      If you want to just open the file:
+        -- Enter → Opens selected file
+        
         -- <C-h> + d → Remove files persistently
+
         --vim.keymap.set("n", "<C-p>", function() harpoon:list():prev() end)
         --vim.keymap.set("n", "<C-n>", function() harpoon:list():next() end)
     end

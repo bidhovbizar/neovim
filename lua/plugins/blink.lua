@@ -9,13 +9,18 @@ return {
         config = function()
             require("blink.cmp").setup({
                 snippets = { preset = "luasnip" },
+                -- If an LSP server is running then signature will help you with the commands inside it
                 signature = { enabled = true },
-                appearance = {
-                    use_nvim_cmp_as_default = false,
-                    nerd_font_variant = "normal",
-                },
+                -- If you have installed nerd-fonts in windows then you can use it to display icons else ignore this
+                --appearance = {
+                --    use_nvim_cmp_as_default = false,
+                --    nerd_font_variant = "normal",
+                --},
                 sources = {
+                    -- If you want lsp to be the first source then you can use this
                     default = { "lsp", "path", "snippets", "buffer" },
+                    -- If you don't want lsp but all the other features then go with this
+                    --default = { "path", "snippets", "buffer" },
                     providers = {
                         cmdline = {
                             min_keyword_length = 2,
@@ -23,7 +28,12 @@ return {
                     },
                 },
                 keymap = {
-                    ["<C-f>"] = {},
+                    ["<C-f>"] = {}, -- Ensure that we don't clash scroll up and down with documentation scroll.
+                    ["<Enter>"] = { "accept", "fallback" },
+                    ["<C-y>"] = { "accept" },
+                    ["<C-e>"] = { "cancel" },
+                    ["<C-n>"] = { "select_next" },
+                    ["<C-p>"] = { "select_prev" },
                 },
                 cmdline = {
                     enabled = false,

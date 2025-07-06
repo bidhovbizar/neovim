@@ -1,6 +1,8 @@
 return {
     'nvim-telescope/telescope.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
+    cmd = "Telescope",
+    keys = { "<leader>f" }, -- Load when any key starting with <leader>f is pressed
     config = function()
         local builtin = require('telescope.builtin')
         vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })

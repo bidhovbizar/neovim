@@ -1,5 +1,14 @@
 -- Set Neovim options
 --
+-- Benefits of paste mode
+-- 1. Prevents auto-indentation and formatting when pasting code.
+-- Issues of using paste mode
+-- 1. Disables autoindentation for {}, [] and auto tab
+-- 2. Diables copilot accepting suggestions
+-- Remember to keep paste mode off always
+-- :set paste -- To revert it
+-- :set nopaste -- To disable paste mode
+
 -- General
 vim.opt.number = true -- Show line numbers
 vim.opt.mouse = ''

@@ -144,17 +144,9 @@ return {
                             Lua = {
                                 runtime = { version = 'LuaJIT' },
                                 diagnostics = { globals = { 'vim' } },
-                                workspace = {
-                                    library = vim.api.nvim_get_runtime_file("", true),
-                                    checkThirdParty = false,
-                                },
+                                workspace = { library = { vim.env.VIMRUNTIME } },
                             },
                         }
-                        local util = require('lspconfig.util')
-                        config.root_dir = function(fname)
-                            return util.root_pattern(".git", ".luarc.json", ".luarc.jsonc", "init.lua", "lua")(fname)
-                                or vim.fn.getcwd()
-                        end
                     end
 
                     lspconfig[server_name].setup(config)

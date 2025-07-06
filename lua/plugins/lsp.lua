@@ -35,7 +35,23 @@ return {
             callback = function(args)
                 local client = vim.lsp.get_client_by_id(args.data.client_id)
                 if not client then return end
-                if vim.tbl_contains(autoformat_filetypes, vim.bo.filetype) then
+
+                -- Set up keymaps (from your second autocmd)
+                local opts = { buffer = args.buf }
+                vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
+                vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
+                vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
+                vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
+                vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
+                vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
+                vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
+                vim.keymap.set('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
+                vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
+                vim.keymap.set({ 'n', 'x' }, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
+                vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+
+                -- Set up auto-formatting (from your first autocmd)
+                if vim.tbl_contains(autoformat_filetypes, vim.bo[args.buf].filetype) then
                     vim.api.nvim_create_autocmd("BufWritePre", {
                         buffer = args.buf,
                         callback = function()
@@ -46,6 +62,10 @@ return {
                                     -- For Python, only use null-ls (Black)
                                     if vim.bo[args.buf].filetype == "python" then
                                         return c.name == "null-ls"
+                                    end
+                                    -- For Lua and other files, use lua_ls or the current client
+                                    if vim.bo[args.buf].filetype == "lua" then
+                                        return c.name == "lua_ls"
                                     end
                                     -- For other files, use the attached client
                                     return c.id == client.id
@@ -98,72 +118,46 @@ return {
 
         -- This is where you enable features that only work
         -- if there is a language server active in the file
-        vim.api.nvim_create_autocmd('LspAttach', {
-            callback = function(event)
-                local opts = { buffer = event.buf }
-
-                vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
-                vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
-                vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
-                vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
-                vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-                vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-                vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
-                vim.keymap.set('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
-                vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-                vim.keymap.set({ 'n', 'x' }, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-                vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
-            end,
-        })
 
         require('mason').setup({})
         require('mason-lspconfig').setup({
             ensure_installed = {
                 "lua_ls",
-                --"intelephense",  -- Not needed as this is for PHP
-                --"tsserver",      -- Not needed as its for Javascript
                 "eslint",
                 "pyright",
             },
             handlers = {
-                -- this first function is the "default handler"
-                -- it applies to every language server without a custom handler
-                --function(server_name)
-                --    require('lspconfig')[server_name].setup({})
-                --end,
+                -- Single handler for all servers
                 function(server_name)
                     local lspconfig = require('lspconfig')
-
-                    -- Add cmp_nvim_lsp capabilities safely here
                     local capabilities = vim.tbl_deep_extend(
                         'force',
                         vim.lsp.protocol.make_client_capabilities(),
                         require('cmp_nvim_lsp').default_capabilities()
                     )
 
-                    lspconfig[server_name].setup({
-                        capabilities = capabilities,
-                    })
-                end,
+                    local config = { capabilities = capabilities }
 
-
-                -- this is the "custom handler" for lua_ls
-                lua_ls = function()
-                    require('lspconfig').lua_ls.setup({
-                        settings = {
+                    -- Special config for lua_ls
+                    if server_name == "lua_ls" then
+                        config.settings = {
                             Lua = {
-                                runtime = {
-                                    version = 'LuaJIT',
-                                },
-                                diagnostics = {
-                                    globals = { 'vim' },
-                                },
+                                runtime = { version = 'LuaJIT' },
+                                diagnostics = { globals = { 'vim' } },
                                 workspace = {
-                                    library = { vim.env.VIMRUNTIME },
+                                    library = vim.api.nvim_get_runtime_file("", true),
+                                    checkThirdParty = false,
                                 },
                             },
-                        },
-                    })
+                        }
+                        local util = require('lspconfig.util')
+                        config.root_dir = function(fname)
+                            return util.root_pattern(".git", ".luarc.json", ".luarc.jsonc", "init.lua", "lua")(fname)
+                                or vim.fn.getcwd()
+                        end
+                    end
+
+                    lspconfig[server_name].setup(config)
                 end,
             },
         })
@@ -263,4 +257,3 @@ return {
         })
     end
 }
-

@@ -12,14 +12,7 @@ return {
         dependencies = { "williamboman/mason.nvim" },
         config = function()
             require("mason-lspconfig").setup({
-                -- To uninstall any added language servers ensure the following:
-                -- 1. Remove the server from the list below.
-                -- 2. Run :MasonUninstall <server_name> e.g. :MasonUninstall pyright
-                ensure_installed = { -- This installs lua-language-server automatically
-                    "lua_ls",
-                    "ruff",
-                    "pyright"
-                },
+                ensure_installed = { "lua_ls", "pyright", "ruff" }, -- This installs lua-language-server automatically
                 automatic_installation = true,
             })
         end,

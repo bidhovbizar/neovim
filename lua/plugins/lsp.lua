@@ -55,17 +55,48 @@ return {
                             },
                         },
                     },
-                }, -- Uncomment this to enable Python support with pyright
-                -- Don't forget to add comma(,) after the last server if you uncomment
+                },
                 pyright = {
                     settings = {
                         python = {
                             analysis = {
-                                -- Ignore all files so that analysis is handled by ruff
-                                ignore = { "*" },
                                 --typeCheckingMode = "basic",
                                 --autoSearchPaths = true,
                                 --useLibraryCodeForTypes = true,
+                                ignore = { '*' }, -- So that ruff will take over
+                            }
+                        },
+                        pyright = {
+                            disableOrganizeImports = true, -- Disable Pyright's import organizer
+                        },
+                    },
+                },
+                ruff = {
+                    init_options = {
+                        configuration = {
+                            lint = {
+                                unfixable = { "F401" },
+                                ["extend-select"] = { "TID251" },
+                                ["flake8-tidy-imports"] = {
+                                    ["banned-api"] = {
+                                        ["typing.TypedDict"] = {
+                                            msg = "Use `typing_extensions.TypedDict` instead"
+                                        }
+                                    }
+                                }
+                            },
+                            format = {
+                                ["quote-style"] = "single"
+                            }
+                        },
+                        settings = {
+                            logLevel = 'debug',                      -- Set log level to debug for more detailed output
+                            configurationPreference = "editorFirst", -- Other options are filesystemFirst and editorOnly
+                            lineLength = 120,                        -- Set the maximum line length for formatting
+                            organizeImports = false,                 -- Set the maximum line length for formatting
+                            showSyntaxErrors = true,                 -- Enable syntax error checking(Default: true)
+                            lint = {
+                                enable = true,                       -- Enable linting
                             }
                         }
                     }
@@ -89,7 +120,7 @@ return {
                 lspconfig[server].setup(config)
             end
 
-            -- LspAttach autocommand: Runs when any LSP server attaches to a buffer or saves depending on filetype
+            -- LspAttach autocommand: Runs when any LSP server attaches to a buffer or saves
             -- This is where we set up buffer-specific features
             vim.api.nvim_create_autocmd('LspAttach', {
                 callback = function(args)
@@ -100,6 +131,7 @@ return {
                         -- Disable hover in favor of Pyright
                         client.server_capabilities.hoverProvider = false
                     end
+
                     -- Only set up auto-formatting for Lua files
                     if vim.bo.filetype == "lua" then
                         -- Auto-format on save: Automatically format Lua files when saving
@@ -111,16 +143,15 @@ return {
                             end,
                         })
                     end
-                    -- This block is to enable auto-formatting for Python files.
-                    -- This has nothing to do with the type of server you use uncomment if you use pyright, black or ruff
-                    if vim.bo.filetype == "python" then
-                        vim.api.nvim_create_autocmd('BufWritePre', {
-                            buffer = args.buf,
-                            callback = function()
-                                vim.lsp.buf.format({ bufnr = args.buf, id = client.id })
-                            end,
-                        })
-                    end
+                    -- Commenting this so that ruff doesn't interfere with conform for formatting
+                    --if vim.bo.filetype == "python" then
+                    --    vim.api.nvim_create_autocmd('BufWritePre', {
+                    --        buffer = args.buf,
+                    --        callback = function()
+                    --            vim.lsp.buf.format({ bufnr = args.buf, id = client.id })
+                    --        end,
+                    --    })
+                    --end
                 end,
             })
         end,

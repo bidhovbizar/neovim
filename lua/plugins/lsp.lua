@@ -17,7 +17,8 @@ return {
     },
     config = function()
         local autoformat_filetypes = {
-            "lua", -- This will only autoformat lua.
+            "lua",    -- This will only autoformat lua.
+            "python", -- This will only autoformat python.
         }
         -- Create a keymap for vim.lsp.buf.implementation
         vim.api.nvim_create_autocmd('LspAttach', {

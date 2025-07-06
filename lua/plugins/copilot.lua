@@ -12,7 +12,7 @@ return {
                 debounce = 75,
                 keymap = {
                     --accept = "<Tab>",
-                    accept = "C-y",
+                    accept = "<C-y>",
                     next = "<M-]>",
                     prev = "<M-[>",
                     dismiss = "<C-]>",

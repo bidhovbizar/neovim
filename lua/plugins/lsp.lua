@@ -122,7 +122,10 @@ return {
                 config.capabilities = require('blink.cmp').get_lsp_capabilities(config.capabilities)
 
                 -- Actually start the language server with our configuration
-                lspconfig[server].setup(config)
+                --
+                -- Temporarily disabling all servers as they are autospawned somehow with default value
+                --
+                --lspconfig[server].setup(config)
             end
 
             -- LspAttach autocommand: Runs when any LSP server attaches to a buffer or saves
@@ -132,10 +135,6 @@ return {
                     -- Get the LSP client that just attached
                     local client = vim.lsp.get_client_by_id(args.data.client_id)
                     if not client then return end
-                    if client.name == 'ruff' then
-                        -- Disable hover in favor of Pyright
-                        client.server_capabilities.hoverProvider = false
-                    end
 
                     -- Only set up auto-formatting for Lua files
                     if vim.bo.filetype == "lua" then
@@ -148,12 +147,23 @@ return {
                             end,
                         })
                     end
-                    -- Commenting this so that ruff doesn't interfere with conform for formatting
+
+                    -- Python-specific configuration
+
+                    -- Disable hover by ruff in favor of Pyright
+                    if client.name == 'ruff' then
+                        client.server_capabilities.hoverProvider = false
+                    end
+
+                    -- Commenting this so that conform.nvim along ruff handles formatting
                     --if vim.bo.filetype == "python" then
                     --    vim.api.nvim_create_autocmd('BufWritePre', {
                     --        buffer = args.buf,
                     --        callback = function()
-                    --            vim.lsp.buf.format({ bufnr = args.buf, id = client.id })
+                    --            -- Disable document formatting provider by ruff
+                    --            client.server_capabilities.documentFormattingProvider = false
+                    --            --Enable python formatting during save
+                    --            --vim.lsp.buf.format({ bufnr = args.buf, id = client.id })
                     --        end,
                     --    })
                     --end

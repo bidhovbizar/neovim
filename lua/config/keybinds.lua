@@ -5,8 +5,12 @@ vim.g.mapleader = " "
 vim.keymap.set("n", "<leader>cd", vim.cmd.Ex)
 
 -- To make <space> not respond to anything else
--- vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
---
+vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
+
+-- Show diagnostics in a floating window
+-- It runs: :lua vim.diagnostic.open_float()
+vim.keymap.set("n", "<leader>/", vim.diagnostic.open_float)
+
 -- Setup `mapleader` and `maplocalleader` before
 -- loading lazy.nvim so that mappings are correct.
 --vim.g.mapleader = " "

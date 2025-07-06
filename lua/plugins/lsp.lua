@@ -60,10 +60,10 @@ return {
                     settings = {
                         python = {
                             analysis = {
-                                --typeCheckingMode = "basic",
+                                typeCheckingMode = "basic",
                                 --autoSearchPaths = true,
                                 --useLibraryCodeForTypes = true,
-                                ignore = { '*' }, -- So that ruff will take over
+                                --ignore = { '*' }, -- So that ruff will take over
                             }
                         },
                         pyright = {
@@ -85,8 +85,9 @@ return {
                                     }
                                 }
                             },
+                            -- Have a ~/.ruff.toml file in your home directory to ensure that quote-style is set to single
                             format = {
-                                ["quote-style"] = "single"
+                                ["quote-style"] = "preserve"
                             }
                         },
                         settings = {

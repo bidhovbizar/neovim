@@ -1,251 +1,105 @@
 return {
-    'neovim/nvim-lspconfig',
-    --version = "v0.1.7-",
-    dependencies = {
-        { 'williamboman/mason.nvim' },
-        { 'williamboman/mason-lspconfig.nvim' },
-        { 'nvimtools/none-ls.nvim' }, -- Added for Black formatter support
-        -- Autocompletion
-        'hrsh7th/nvim-cmp',
-        'hrsh7th/cmp-buffer',
-        'hrsh7th/cmp-path',
-        'saadparwaiz1/cmp_luasnip',
-        'hrsh7th/cmp-nvim-lsp',
-        'hrsh7th/cmp-nvim-lua',
-        -- Snippets
-        'L3MON4D3/LuaSnip',
-        'rafamadriz/friendly-snippets',
-    },
-    config = function()
-        local autoformat_filetypes = {
-            "lua",    -- This will only autoformat lua.
-            "python", -- This will only autoformat python.
-        }
+    {
+        -- LSP Configuration & Plugins
+        -- nvim-lspconfig: Official configs for Neovim LSP client
+        -- This is the main plugin that connects Neovim to language servers
+        'neovim/nvim-lspconfig',
 
-        -- Setup none-ls (null-ls) for Black formatter
-        local null_ls = require("null-ls")
-        null_ls.setup({
-            sources = {
-                null_ls.builtins.formatting.black,
-            },
-        })
+        dependencies = {
+            -- blink.cmp: Modern completion engine for Neovim
+            -- Connection: Provides autocompletion capabilities to LSP
+            'saghen/blink.cmp',
 
-        -- Create a keymap for vim.lsp.buf.implementation
-        vim.api.nvim_create_autocmd('LspAttach', {
-            callback = function(args)
-                local client = vim.lsp.get_client_by_id(args.data.client_id)
-                if not client then return end
+            -- Mason: Package manager for LSP servers, DAP servers, linters, formatters
+            -- Connection: Automatically installs and manages lua-language-server binary
+            'williamboman/mason.nvim',
 
-                -- Set up keymaps (from your second autocmd)
-                local opts = { buffer = args.buf }
-                vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
-                vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
-                vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
-                vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
-                vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-                vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-                vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
-                vim.keymap.set('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
-                vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-                vim.keymap.set({ 'n', 'x' }, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-                vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+            -- Mason-LSPConfig: Bridge between mason.nvim and lspconfig
+            -- Connection: Ensures mason-installed servers work with lspconfig
+            'williamboman/mason-lspconfig.nvim',
 
-                -- Set up auto-formatting (from your first autocmd)
-                if vim.tbl_contains(autoformat_filetypes, vim.bo[args.buf].filetype) then
-                    vim.api.nvim_create_autocmd("BufWritePre", {
-                        buffer = args.buf,
-                        callback = function()
-                            vim.lsp.buf.format({
-                                formatting_options = { tabSize = 4, insertSpaces = true },
-                                bufnr = args.buf,
-                                filter = function(c)
-                                    -- For Python, only use null-ls (Black)
-                                    if vim.bo[args.buf].filetype == "python" then
-                                        return c.name == "null-ls"
-                                    end
-                                    -- For Lua and other files, use lua_ls or the current client
-                                    if vim.bo[args.buf].filetype == "lua" then
-                                        return c.name == "lua_ls"
-                                    end
-                                    -- For other files, use the attached client
-                                    return c.id == client.id
-                                end
-                            })
-                        end
-                    })
-                end
-            end
-        })
-
-        -- Add borders to floating windows
-        vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
-            vim.lsp.handlers.hover,
-            { border = 'rounded' }
-        )
-        vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
-            vim.lsp.handlers.signature_help,
-            { border = 'rounded' }
-        )
-
-        -- Configure error/warnings interface
-        vim.diagnostic.config({
-            virtual_text = true,
-            severity_sort = true,
-            float = {
-                style = 'minimal',
-                border = 'rounded',
-                header = '',
-                prefix = '',
-            },
-            signs = {
-                text = {
-                    [vim.diagnostic.severity.ERROR] = '✘',
-                    [vim.diagnostic.severity.WARN] = '▲',
-                    [vim.diagnostic.severity.HINT] = '⚑',
-                    [vim.diagnostic.severity.INFO] = '»',
+            {
+                -- LazyDev: Better Lua development in Neovim
+                -- Connection: Provides better Lua intellisense for Neovim config files
+                "folke/lazydev.nvim",
+                opts = {
+                    library = {
+                        -- Add luv (libuv) library definitions for vim.uv functions
+                        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+                    },
                 },
             },
-        })
+        },
 
-        -- Add cmp_nvim_lsp capabilities settings to lspconfig
-        -- This should be executed before you configure any language server
-        -- local lspconfig_defaults = require('lspconfig').util.default_config
-        -- lspconfig_defaults.capabilities = vim.tbl_deep_extend(
-        --     'force',
-        --     lspconfig_defaults.capabilities,
-        --     require('cmp_nvim_lsp').default_capabilities()
-        -- )
-
-        -- This is where you enable features that only work
-        -- if there is a language server active in the file
-
-        require('mason').setup({})
-        require('mason-lspconfig').setup({
-            ensure_installed = {
-                "lua_ls",
-                "eslint",
-                "pyright",
-            },
-            handlers = {
-                -- Single handler for all servers
-                function(server_name)
-                    local lspconfig = require('lspconfig')
-                    local capabilities = vim.tbl_deep_extend(
-                        'force',
-                        vim.lsp.protocol.make_client_capabilities(),
-                        require('cmp_nvim_lsp').default_capabilities()
-                    )
-
-                    local config = { capabilities = capabilities }
-
-                    -- Special config for lua_ls
-                    if server_name == "lua_ls" then
-                        config.settings = {
-                            Lua = {
-                                runtime = { version = 'LuaJIT' },
-                                diagnostics = { globals = { 'vim' } },
-                                workspace = { library = { vim.env.VIMRUNTIME } },
+        -- Server configurations: Define settings for each language server
+        opts = {
+            servers = {
+                -- lua_ls: Lua Language Server configuration
+                -- This is what actually analyzes your Lua code
+                lua_ls = {
+                    settings = {
+                        Lua = {
+                            -- Diagnostics: Configure error/warning detection
+                            diagnostics = {
+                                -- Tell lua_ls that 'vim' is a valid global variable
+                                -- Without this, you'd get "undefined global 'vim'" warnings
+                                globals = { "vim" },
                             },
-                        }
-                    end
+                            -- Workspace: Configure how the server understands your project
+                            workspace = {
+                                -- Add all Neovim runtime files to the workspace
+                                -- This gives you completion for vim.api, vim.fn, etc.
+                                library = vim.api.nvim_get_runtime_file("", true),
+                                -- Don't ask about third-party libraries
+                                checkThirdParty = false,
+                            },
+                            -- Telemetry: Disable data collection
+                            telemetry = {
+                                enable = false,
+                            },
+                        },
+                    },
+                }
+            }
+        },
 
-                    lspconfig[server_name].setup(config)
+        -- Main configuration function: Sets up the LSP servers
+        config = function(_, opts)
+            -- Get the lspconfig module
+            local lspconfig = require('lspconfig')
+
+            -- Loop through each server defined in opts.servers
+            for server, config in pairs(opts.servers) do
+                -- CRITICAL CONNECTION: Merge blink.cmp capabilities with server config
+                -- This tells the LSP server what completion features are supported
+                -- Without this, autocompletion won't work properly
+                config.capabilities = require('blink.cmp').get_lsp_capabilities(config.capabilities)
+
+                -- Actually start the language server with our configuration
+                lspconfig[server].setup(config)
+            end
+
+            -- LspAttach autocommand: Runs when any LSP server attaches to a buffer
+            -- This is where we set up buffer-specific features
+            vim.api.nvim_create_autocmd('LspAttach', {
+                callback = function(args)
+                    -- Get the LSP client that just attached
+                    local client = vim.lsp.get_client_by_id(args.data.client_id)
+                    if not client then return end
+
+                    -- Only set up auto-formatting for Lua files
+                    if vim.bo.filetype == "lua" then
+                        -- Auto-format on save: Automatically format Lua files when saving
+                        vim.api.nvim_create_autocmd('BufWritePre', {
+                            buffer = args.buf, -- Only for this specific buffer
+                            callback = function()
+                                -- Use the LSP server to format the code
+                                vim.lsp.buf.format({ bufnr = args.buf, id = client.id })
+                            end,
+                        })
+                    end
                 end,
-            },
-        })
-
-        local cmp = require('cmp')
-
-        require('luasnip.loaders.from_vscode').lazy_load()
-
-        vim.opt.completeopt = { 'menu', 'menuone', 'noselect' }
-
-        cmp.setup({
-            preselect = 'item',
-            completion = {
-                completeopt = 'menu,menuone,noinsert'
-            },
-            window = {
-                documentation = cmp.config.window.bordered(),
-            },
-            sources = {
-                { name = 'path' },
-                { name = 'nvim_lsp' },
-                { name = 'buffer',  keyword_length = 3 },
-                { name = 'luasnip', keyword_length = 2 },
-            },
-            snippet = {
-                expand = function(args)
-                    require('luasnip').lsp_expand(args.body)
-                end,
-            },
-            formatting = {
-                fields = { 'abbr', 'menu', 'kind' },
-                format = function(entry, item)
-                    local n = entry.source.name
-                    if n == 'nvim_lsp' then
-                        item.menu = '[LSP]'
-                    else
-                        item.menu = string.format('[%s]', n)
-                    end
-                    return item
-                end,
-            },
-            mapping = cmp.mapping.preset.insert({
-                -- confirm completion item
-                ['<CR>'] = cmp.mapping.confirm({ select = false }),
-
-                -- scroll documentation window
-                ['<C-f>'] = cmp.mapping.scroll_docs(5),
-                ['<C-u>'] = cmp.mapping.scroll_docs(-5),
-
-                -- toggle completion menu
-                ['<C-e>'] = cmp.mapping(function(fallback)
-                    if cmp.visible() then
-                        cmp.abort()
-                    else
-                        cmp.complete()
-                    end
-                end),
-
-                -- tab complete
-                ['<Tab>'] = cmp.mapping(function(fallback)
-                    local col = vim.fn.col('.') - 1
-
-                    if cmp.visible() then
-                        cmp.select_next_item({ behavior = 'select' })
-                    elseif col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
-                        fallback()
-                    else
-                        cmp.complete()
-                    end
-                end, { 'i', 's' }),
-
-                -- go to previous item
-                ['<S-Tab>'] = cmp.mapping.select_prev_item({ behavior = 'select' }),
-
-                -- navigate to next snippet placeholder
-                ['<C-d>'] = cmp.mapping(function(fallback)
-                    local luasnip = require('luasnip')
-
-                    if luasnip.jumpable(1) then
-                        luasnip.jump(1)
-                    else
-                        fallback()
-                    end
-                end, { 'i', 's' }),
-
-                -- navigate to the previous snippet placeholder
-                ['<C-b>'] = cmp.mapping(function(fallback)
-                    local luasnip = require('luasnip')
-
-                    if luasnip.jumpable(-1) then
-                        luasnip.jump(-1)
-                    else
-                        fallback()
-                    end
-                end, { 'i', 's' }),
-            }),
-        })
-    end
+            })
+        end,
+    }
 }

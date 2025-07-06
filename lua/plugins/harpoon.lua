@@ -42,7 +42,7 @@ local function toggle_telescope(harpoon_files)
             end)
 
             -- Custom mapping: Ctrl-g to grep in all harpoon files
-            map("i", "<leader>g", function()
+            map("i", "<leader>ga", function()
                 require("telescope.actions").close(prompt_bufnr)
                 builtin.live_grep({
                     search_dirs = file_paths,
@@ -52,7 +52,7 @@ local function toggle_telescope(harpoon_files)
             end)
 
             -- Custom mapping: Ctrl-s to grep in selected file only
-            map("i", "<leader>s", function()
+            map("i", "<leader>gs", function()
                 local selection = require("telescope.actions.state").get_selected_entry()
                 require("telescope.actions").close(prompt_bufnr)
                 builtin.live_grep({

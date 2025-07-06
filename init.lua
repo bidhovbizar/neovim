@@ -4,8 +4,8 @@ if vim.loader then
 end
 
 -- Disable Neovim's default Tab mapping for snippets
-vim.keymap.del('i', '<Tab>')
-vim.keymap.del('s', '<Tab>')
+pcall(vim.keymap.del, 'i', '<Tab>')
+pcall(vim.keymap.del, 's', '<Tab>')
 
 -- Set the runtime path to include the custom plugins directory
 require("config.options")

@@ -1,5 +1,5 @@
 -- Set Neovim options
---
+
 -- Benefits of paste mode
 -- 1. Prevents auto-indentation and formatting when pasting code.
 -- Issues of using paste mode
@@ -9,12 +9,23 @@
 -- :set paste -- To revert it
 -- :set nopaste -- To disable paste mode
 
+-- For ADS server set Python path explicitly (much faster than auto-detection)
+--vim.g.python3_host_prog = '/ws/bbizar-bgl/pyenv/shims/python'  -- Adjust path as needed
+
+-- Disable Python providers to speed up startup
+vim.g.loaded_python3_provider = 0
+vim.g.loaded_python_provider = 0
+vim.g.loaded_node_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0
+
 -- General
 vim.g.mapleader = ' '
 vim.opt.number = true -- Show line numbers
 vim.opt.mouse = ''
 
 -- Indentation
+vim.opt.relativenumber = true
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
@@ -36,10 +47,11 @@ vim.opt.scrolloff = 1      -- Set scroll buffer 1 lines top and bottom
 vim.opt.splitright = true -- Vertical splits to the right
 vim.opt.splitbelow = true -- Horizontal splits below
 
+
+
 --vim.g.maplocalleader = ' '
 --vim.g.have_nerd_font = false
 --vim.opt.number = true
-vim.opt.relativenumber = true
 --vim.opt.mouse = ''
 --vim.opt.showmode = false
 ----vim.schedule(function() vim.opt.clipboard = 'unnamedplus' end)

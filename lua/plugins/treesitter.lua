@@ -5,6 +5,7 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     dependencies = {
         "nvim-treesitter/nvim-treesitter-textobjects",
+        "nvim-treesitter/nvim-treesitter-context",  -- Added for sticky context like function heading
     },
     config = function()
         require("nvim-treesitter.configs").setup({
@@ -115,6 +116,54 @@ return {
                     swap_previous = {
                         ["<leader>p"] = "@parameter.inner",
                     },
+                },
+            },
+        })
+
+        -- Configure treesitter-context for sticky function headers
+        require('treesitter-context').setup({
+            enable = true,
+            max_lines = 3,          -- How many lines the window should span
+            min_window_height = 0,  -- Minimum editor window height to enable context
+            line_numbers = true,    -- Show line numbers in context
+            multiline_threshold = 20, -- Maximum number of lines to show for a single context
+            trim_scope = 'outer',   -- Which context lines to discard if `max_lines` is exceeded
+            mode = 'cursor',        -- Line used to calculate context. 'cursor' or 'topline'
+            separator = nil,        -- Separator between context and content (nil uses default)
+            zindex = 20,           -- Z-index of the context window
+            on_attach = nil,       -- Callback when attaching to a buffer
+
+            -- You can customize patterns per language
+            patterns = {
+                -- For Python, show function definitions, class definitions, etc.
+                python = {
+                    'function_definition',
+                    'class_definition',
+                    'for_statement',
+                    'if_statement',
+                    'while_statement',
+                    'with_statement',
+                    'try_statement',
+                },
+                -- For Go, show function declarations, method declarations, etc.
+                go = {
+                    'function_declaration',
+                    'method_declaration',
+                    'if_statement',
+                    'for_statement',
+                    'switch_statement',
+                    'select_statement',
+                    'type_declaration',
+                    'struct_type',
+                    'interface_type',
+                },
+                -- For other languages, you can add similar patterns
+                lua = {
+                    'function_declaration',
+                    'function_definition',
+                    'if_statement',
+                    'for_statement',
+                    'while_statement',
                 },
             },
         })

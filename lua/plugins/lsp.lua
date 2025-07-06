@@ -1,7 +1,5 @@
 return {
     {
-        -- LSP Configuration & Plugins
-        -- nvim-lspconfig: Official configs for Neovim LSP client
         -- This is the main plugin that connects Neovim to language servers
         'neovim/nvim-lspconfig',
 
@@ -9,11 +7,9 @@ return {
             -- blink.cmp: Modern completion engine for Neovim
             -- Connection: Provides autocompletion capabilities to LSP
             'saghen/blink.cmp',
-
             -- Mason: Package manager for LSP servers, DAP servers, linters, formatters
             -- Connection: Automatically installs and manages lua-language-server binary
             'williamboman/mason.nvim',
-
             -- Mason-LSPConfig: Bridge between mason.nvim and lspconfig
             -- Connection: Ensures mason-installed servers work with lspconfig
             'williamboman/mason-lspconfig.nvim',
@@ -59,6 +55,17 @@ return {
                             },
                         },
                     },
+                },
+                pyright = {
+                    settings = {
+                        python = {
+                            analysis = {
+                                typeCheckingMode = "basic",
+                                autoSearchPaths = true,
+                                useLibraryCodeForTypes = true,
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -79,7 +86,7 @@ return {
                 lspconfig[server].setup(config)
             end
 
-            -- LspAttach autocommand: Runs when any LSP server attaches to a buffer
+            -- LspAttach autocommand: Runs when any LSP server attaches to a buffer or saves
             -- This is where we set up buffer-specific features
             vim.api.nvim_create_autocmd('LspAttach', {
                 callback = function(args)
@@ -94,6 +101,14 @@ return {
                             buffer = args.buf, -- Only for this specific buffer
                             callback = function()
                                 -- Use the LSP server to format the code
+                                vim.lsp.buf.format({ bufnr = args.buf, id = client.id })
+                            end,
+                        })
+                    end
+                    if vim.bo.filetype == "python" then
+                        vim.api.nvim_create_autocmd('BufWritePre', {
+                            buffer = args.buf,
+                            callback = function()
                                 vim.lsp.buf.format({ bufnr = args.buf, id = client.id })
                             end,
                         })

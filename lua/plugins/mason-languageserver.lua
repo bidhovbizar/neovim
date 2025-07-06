@@ -12,7 +12,7 @@ return {
         dependencies = { "williamboman/mason.nvim" },
         config = function()
             require("mason-lspconfig").setup({
-                ensure_installed = { "lua_ls" }, -- This installs lua-language-server automatically
+                ensure_installed = { "lua_ls", "pyright" }, -- This installs lua-language-server automatically
                 automatic_installation = true,
             })
         end,

@@ -1,6 +1,6 @@
 return {
     'nvim-treesitter/nvim-treesitter',
-    version = "v0.9.0", -- Cannot use the latest as its incompatible with nvim 10.0.0
+    --version = "v0.9.0", -- Cannot use the latest as its incompatible with nvim 10.0.0
     build = ":TSUpdate",
     config = function()
 	local configs = require("nvim-treesitter.configs")
@@ -25,7 +25,7 @@ return {
 	    indent = { 
 		enable = false, -- Set this to false as this overrides vim's indendation which is better
 	    },
-	    autotage = {
+	    autotag = {
 		enable = true
 	    },
 	    auto_install = false,

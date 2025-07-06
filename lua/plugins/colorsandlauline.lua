@@ -19,7 +19,7 @@ return {
                 lualine_a = { 'mode' },                -- NORMAL, INSERT, etc.
                 lualine_b = { 'branch' },              -- Git branch
                 lualine_c = {
-                    { 'filename', path = 1 },          -- full absolute path
+                    { 'filename', path = 1 },          -- 0: only file name; 1: path relative
                 },
                 lualine_x = { 'diff', 'diagnostics' }, -- remove filetype, encoding, etc.
                 --lualine_y = {},               -- remove progress %

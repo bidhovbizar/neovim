@@ -1,9 +1,9 @@
 return {
     'neovim/nvim-lspconfig',
-    version = "v0.1.7",
+    --version = "v0.1.7",
     dependencies = {
-        { 'williamboman/mason.nvim',           version = 'v1.10.0' },
-        { 'williamboman/mason-lspconfig.nvim', version = 'v1.32.0' },
+        { 'williamboman/mason.nvim' },
+        { 'williamboman/mason-lspconfig.nvim' },
         -- Autocompletion
         'hrsh7th/nvim-cmp',
         'hrsh7th/cmp-buffer',

@@ -1,7 +1,7 @@
 return {
     {
         "CopilotC-Nvim/CopilotChat.nvim",
-        tag = "v3.9.1",
+        --tag = "v3.9.1",
         --tag = "v3.7.0",
         event = "VeryLazy",
         dependencies = {
@@ -16,31 +16,26 @@ return {
             },
             -- Add agents configuration here
             agents = {
-                {
-                    name = "code_review",
+                code_review = {
                     description = "Review code for improvements",
                 },
-                {
-                    name = "explain",
+                explain = {
                     description = "Explain code functionality",
                 },
-                {
-                    name = "fix",
+                fix = {
                     description = "Fix code issues",
                 },
-                {
-                    name = "optimize",
+                optimize = {
                     description = "Optimize code performance",
                 },
-                {
-                    name = "test",
+                test = {
                     description = "Generate unit tests",
                 },
-            },
+            }
         },
         keys = {
             { "<leader>cc", "<cmd>CopilotChat<CR>",         mode = "n", desc = "Chat with Copilot" },
-            { "<leader>cS", "<cmd>CopilotChatStatus<cr>",   mode = "n", desc = "Copilot Chat Status" },
+            --{ "<leader>cS", "<cmd>CopilotChatStatus<cr>",   mode = "n", desc = "Copilot Chat Status" },
             { "<leader>ce", "<cmd>CopilotChatExplain<CR>",  mode = "v", desc = "Explain Code" },
             { "<leader>cr", "<cmd>CopilotChatReview<CR>",   mode = "v", desc = "Review Code" },
             { "<leader>cf", "<cmd>CopilotChatFix<CR>",      mode = "v", desc = "Fix Code Issues" },

@@ -41,7 +41,7 @@ local function toggle_telescope(harpoon_files)
                 vim.cmd("edit " .. selection.value)
             end)
 
-            -- Custom mapping: Ctrl-g to grep in all harpoon files
+            -- Custom mapping: <leader>ga to grep in all harpoon files
             map("i", "<leader>ga", function()
                 require("telescope.actions").close(prompt_bufnr)
                 builtin.live_grep({
@@ -51,7 +51,7 @@ local function toggle_telescope(harpoon_files)
                 })
             end)
 
-            -- Custom mapping: Ctrl-s to grep in selected file only
+            -- Custom mapping: <leader>gs to grep in selected file only
             map("i", "<leader>gs", function()
                 local selection = require("telescope.actions.state").get_selected_entry()
                 require("telescope.actions").close(prompt_bufnr)
@@ -77,7 +77,7 @@ return {
     config = function()
         local harpoon = require('harpoon')
         -- Setup harpoon with proper save settings without this removing a file won't be persistent across session
-        harpoon.setup({
+        harpoon:setup({
             settings = {
                 save_on_toggle = true,
                 save_on_change = true,
@@ -86,16 +86,16 @@ return {
         })
         vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end)
         -- To delete an added file in harpoon please <C-e> open explorer and press d on the file you want to remove
-        vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
-        vim.keymap.set("n", "<C-p>", function() harpoon:list():prev() end)
-        vim.keymap.set("n", "<C-n>", function() harpoon:list():next() end)
+        vim.keymap.set("n", "<C-h>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+        --vim.keymap.set("n", "<C-p>", function() harpoon:list():prev() end)
+        --vim.keymap.set("n", "<C-n>", function() harpoon:list():next() end)
         vim.keymap.set("n", "<leader>fh", function() toggle_telescope(harpoon:list()) end,
             { desc = "Search in harpoon files" })
         -- Functionality Check:
         -- <leader>fh → Shows Harpoon file list with previews
         -- Enter → Opens selected file
-        -- <C-g> → Live grep in ALL Harpoon files
-        -- <C-s> → Live grep in SELECTED file only
-        -- <C-e> + d → Remove files persistently
+        -- <leader>ga → Live grep in ALL Harpoon files
+        -- <leader>gs → Live grep in SELECTED file only
+        -- <C-h> + d → Remove files persistently
     end
 }

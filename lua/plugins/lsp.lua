@@ -56,11 +56,15 @@ return {
                         },
                     },
                 },
+                -- Pyright is giving the diagnostic data and to see what is the error do
+                -- 1. Keep the curson near the line number with error and then
+                -- 2. :lua print(vim.inspect(vim.diagnostic.get(0)))
                 pyright = {
                     settings = {
                         python = {
                             analysis = {
                                 typeCheckingMode = "basic",
+                                extraGlobals = { "runtests_logger" },
                                 --autoSearchPaths = true,
                                 --useLibraryCodeForTypes = true,
                                 --ignore = { '*' }, -- So that ruff will take over

@@ -8,6 +8,8 @@ return {
         vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
         -- To clear any file in the buffer do :ls to find files or <leader>fb then to remove do :bd <buffer_number> e.g. :bd 33
         -- To clear all buffers do :bwipeout
+        vim.keymap.set('n', '<leader>fo', builtin.oldfiles, { desc = 'Telescope oldfiles' })
+        vim.keymap.set('n', '<leader>ft', builtin.git_files, { desc = 'Telescope oldfiles' })
         vim.keymap.set('n', '<leader>fH', builtin.help_tags, { desc = 'Telescope help tags' })
     end
 }

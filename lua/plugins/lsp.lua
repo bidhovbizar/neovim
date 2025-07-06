@@ -55,18 +55,21 @@ return {
                             },
                         },
                     },
-                },
+                }, -- Uncomment this to enable Python support with pyright
+                -- Don't forget to add comma(,) after the last server if you uncomment
                 pyright = {
                     settings = {
                         python = {
                             analysis = {
-                                typeCheckingMode = "basic",
-                                autoSearchPaths = true,
-                                useLibraryCodeForTypes = true,
+                                -- Ignore all files so that analysis is handled by ruff
+                                ignore = { "*" },
+                                --typeCheckingMode = "basic",
+                                --autoSearchPaths = true,
+                                --useLibraryCodeForTypes = true,
                             }
                         }
                     }
-                }
+                },
             }
         },
 
@@ -86,14 +89,17 @@ return {
                 lspconfig[server].setup(config)
             end
 
-            -- LspAttach autocommand: Runs when any LSP server attaches to a buffer or saves
+            -- LspAttach autocommand: Runs when any LSP server attaches to a buffer or saves depending on filetype
             -- This is where we set up buffer-specific features
             vim.api.nvim_create_autocmd('LspAttach', {
                 callback = function(args)
                     -- Get the LSP client that just attached
                     local client = vim.lsp.get_client_by_id(args.data.client_id)
                     if not client then return end
-
+                    if client.name == 'ruff' then
+                        -- Disable hover in favor of Pyright
+                        client.server_capabilities.hoverProvider = false
+                    end
                     -- Only set up auto-formatting for Lua files
                     if vim.bo.filetype == "lua" then
                         -- Auto-format on save: Automatically format Lua files when saving
@@ -105,6 +111,8 @@ return {
                             end,
                         })
                     end
+                    -- This block is to enable auto-formatting for Python files.
+                    -- This has nothing to do with the type of server you use uncomment if you use pyright, black or ruff
                     if vim.bo.filetype == "python" then
                         vim.api.nvim_create_autocmd('BufWritePre', {
                             buffer = args.buf,

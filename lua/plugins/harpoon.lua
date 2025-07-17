@@ -77,7 +77,7 @@ return {
     },
     keys = {
         { "<M-a>", function() require('harpoon'):list():add() end, desc = "Harpoon add file" },	
-        { "<C-h>", function() 
+        { "<M-h>", function() 
             local harpoon = require('harpoon')
             harpoon.ui:toggle_quick_menu(harpoon:list()) 
         end, desc = "Harpoon toggle menu" },
@@ -105,7 +105,7 @@ return {
         --      If you want to just open the file:
         -- Enter → Opens selected file
         
-        -- <C-h> + d → Remove files persistently
+        -- <M-h> + d → Remove files persistently
 
         --vim.keymap.set("n", "<C-p>", function() harpoon:list():prev() end)
         --vim.keymap.set("n", "<C-n>", function() harpoon:list():next() end)

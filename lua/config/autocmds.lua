@@ -16,14 +16,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
         -- defaults:
         -- https://neovim.io/doc/user/news-0.11.html#_defaults
 
-        map("gl", vim.diagnostic.open_float, "Open Diagnostic Float")
+        map("g2l", vim.diagnostic.open_float, "Open Diagnostic Float")
         map("K", vim.lsp.buf.hover, "Hover Documentation")
-        map("gs", vim.lsp.buf.signature_help, "Signature Documentation")
-        map("gD", vim.lsp.buf.declaration, "Goto Declaration")
+        map("g2s", vim.lsp.buf.signature_help, "Signature Documentation")
+        map("g2D", vim.lsp.buf.declaration, "Goto Declaration")
         map("<leader>la", vim.lsp.buf.code_action, "Code Action")
         map("<leader>lr", vim.lsp.buf.rename, "Rename all references")
         map("<leader>lf", vim.lsp.buf.format, "Format")
-        map("<leader>v", "<cmd>vsplit | lua vim.lsp.buf.definition()<cr>", "Goto Definition in Vertical Split")
+        map("<leader>vs", "<cmd>vsplit | lua vim.lsp.buf.definition()<cr>", "Goto Definition in Vertical Split")
 
         local function client_supports_method(client, method, bufnr)
             if vim.fn.has 'nvim-0.11' == 1 then

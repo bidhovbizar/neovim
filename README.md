@@ -28,3 +28,9 @@ lua/config<br>
 keymaps.lua -> Shortcuts for all keys<br>
 options.lua -> VIM options needed<br>
 autocmds.lua -> Autocommand functions such as when we save<br>
+
+### LSP
+lsp.lua file is the main file which will trigger the LSP for each language. Its situated in lua/core/lsp.lua<br>
+Read the comments of the lsp.lua file to understand how it works and uncomment accordingly.<br>
+If you don't need the diagnostic, then comment the section in the lsp.lua file and continue.<br>
+The diagnostic keymapping also reside in the same file, so you can use them. I have configured the nvim for python and golang without debugger.<br>

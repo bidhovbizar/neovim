@@ -39,6 +39,7 @@ vim.api.nvim_create_autocmd("FileType", {
         -- Caveat: This will look for pyright package in your $PATH so install pyright in your server manually and only then uncomment the following start()
         vim.lsp.start({
             name = "pyright",
+            --name = "basedpyright",  -- investigate and decide which one to use
             cmd = config.cmd,
             root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
             settings = config.settings,
@@ -51,8 +52,11 @@ vim.api.nvim_create_autocmd("FileType", {
     pattern = "lua", 
     group = group,
     callback = function()
+        -- We fetch the values written in ~/.config/nvim/lua/lsp/lua_ls.lua into variable 'config'
         vim.lsp.enable("lua_ls")  -- This won't attach anything as nvim wont attach later
-        -- The following will look for the lsp server gopls so install go and then gopls in your server manually and only then uncomment the following start()
+        -- Only one of the below section should be uncommented at a time
+        --  Section 1
+        -- The following will look for the lsp server lua_ls so install lua-language-server in your server manually and only then uncomment the following start()
         --vim.lsp.start({
         --    name = "lua_ls",
         --    cmd = {"lua-language-server"},
@@ -68,29 +72,29 @@ vim.api.nvim_create_autocmd("FileType", {
 --    "lua_ls"
 --})
 
---vim.diagnostic.config({
---    virtual_lines = true,
---    --virtual_text = true,
---    underline = true,
---     update_in_insert = false,
---    severity_sort = true,
---    float = {
---        border = "rounded",
---        source = true,
---    },
---    signs = {
---        text = {
---            [vim.diagnostic.severity.ERROR] = "✗ ",
---            [vim.diagnostic.severity.WARN] = "⚠ ",
---            [vim.diagnostic.severity.INFO] = "ℹ ",
---            [vim.diagnostic.severity.HINT] = "➤ ",
---        },
---        numhl = {
---            [vim.diagnostic.severity.ERROR] = "ErrorMsg",
---            [vim.diagnostic.severity.WARN] = "WarningMsg",
---        },
---    },
---})
+vim.diagnostic.config({
+  --virtual_lines = true,  -- Uncomment this to enable virtual lines red colour for diagnostics
+  virtual_text = true,
+  underline = true,
+  update_in_insert = false,
+  severity_sort = true,
+  float = {
+    border = "rounded",
+    source = true,
+  },
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = "✗ ",
+      [vim.diagnostic.severity.WARN] = "⚠ ",
+      [vim.diagnostic.severity.INFO] = "ℹ ",
+      [vim.diagnostic.severity.HINT] = "➤ ",
+    },
+    numhl = {
+      [vim.diagnostic.severity.ERROR] = "ErrorMsg",
+      [vim.diagnostic.severity.WARN] = "WarningMsg",
+    },
+  },
+})
 
 -- Section to enable and disable diagnostics and toggle their display visibility
 -- Global diagnostic state tracking
@@ -122,9 +126,27 @@ function toggle_diagnostic_display()
     print("Diagnostic display hidden")
   else
     vim.diagnostic.config({
+      --virtual_lines = true,  -- Uncomment this to enable virtual lines red colour for diagnostics
       virtual_text = true,
-      signs = true,
       underline = true,
+      update_in_insert = false,
+      severity_sort = true,
+      float = {
+        border = "rounded",
+        source = true,
+      },
+      signs = {
+        text = {
+          [vim.diagnostic.severity.ERROR] = "✗ ",
+          [vim.diagnostic.severity.WARN] = "⚠ ",
+          [vim.diagnostic.severity.INFO] = "ℹ ",
+          [vim.diagnostic.severity.HINT] = "➤ ",
+        },
+        numhl = {
+          [vim.diagnostic.severity.ERROR] = "ErrorMsg",
+          [vim.diagnostic.severity.WARN] = "WarningMsg",
+        },
+      },
     })
     diagnostic_display_visible = true
     print("Diagnostic display shown")
@@ -144,6 +166,7 @@ end, { desc = 'Disable diagnostics' })
 -- Don't  toggle if diagnostics are already disabled
 vim.keymap.set('n', '<leader>ds', toggle_diagnostic_display, { desc = 'Toggle diagnostic display' })
 
+-- Show diagnostics in a floating window
 vim.keymap.set("n","<leader>/", vim.diagnostic.open_float, { desc = "LSP: Open Diagnostic Float" })
 vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP: Hover Documentation" })
 vim.keymap.set("n", "g2D", "<cmd>vsplit | lua vim.lsp.buf.declaration()<cr>", { desc = "LSP: Goto Declaration in vertical split" })
@@ -154,5 +177,3 @@ vim.keymap.set("n", "<leader>ra", vim.lsp.buf.rename, { desc = "LSP: Rename all 
 vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { desc = "LSP: Format" })
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
--- Show diagnostics in a floating window
--- It runs: :lua vim.diagnostic.open_float()

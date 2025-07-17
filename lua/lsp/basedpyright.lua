@@ -1,3 +1,4 @@
+-- pip install basedpyright
 return {
     cmd = { "basedpyright-langserver", "--stdio" },
     filetypes = { "python" },
@@ -30,10 +31,6 @@ return {
                 -- Extra paths for analysis
                 extraPaths = {},
                 
-                -- BasedPyright specific performance settings
-                disableLanguageServices = false,
-                disableOrganizeImports = false,
-                
                 -- Diagnostic severity overrides
                 diagnosticSeverityOverrides = {
                     reportGeneralTypeIssues = "none",
@@ -50,7 +47,10 @@ return {
                     reportArgumentType = "error",
                     reportAssertTypeFailure = "error",
                     reportAssignmentType = "error",
-                    reportAttributeAccessIssue = "error",
+                    --reportAttributeAccessIssue = "error", -- For qali there are so many access issues
+                    reportAttributeAccessIssue = "none",
+                    --reportUndefinedVariable = "error",
+                    reportUndefinedVariable = "none",
                     reportCallIssue = "error",
                     reportInconsistentConstructor = "error",
                     reportIndexIssue = "error",
@@ -95,7 +95,6 @@ return {
                     reportUnknownMemberType = "none",
                     reportUnknownParameterType = "none",
                     reportMissingImports = "error",
-                    reportMissingModuleSource = "warning",
                     reportInvalidImportForm = "error",
                     
                     -- BasedPyright specific diagnostics

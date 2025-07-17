@@ -1,3 +1,5 @@
+-- Install lua-language-server using the following command:
+-- `npm install -g lua-language-server` probably 
 return {
 	cmd = {
 		"lua-language-server",

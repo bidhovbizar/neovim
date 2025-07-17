@@ -1,3 +1,5 @@
+-- Install go from official website and install gopls using the command: go install golang.org/x/tools/gopls@latest 
+--
 -- This contains all the configurations for the gopls language server. This can be imported to any file using require("lsp.gopls").
 return {
 	cmd = { "gopls" },                                   -- Command to start the language server

@@ -1,3 +1,5 @@
+The Neovim Config using here is from the video:
+How To Configure LSP Natively (neovim v0.11+) - https://youtu.be/IZnhl121yo0
 # Neovim main branch with latest changes
 Copy paste the following in ~/.config/nvim/(all the files except git)<br>
 The configuration for neovim<br>

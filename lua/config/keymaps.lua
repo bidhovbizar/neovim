@@ -22,6 +22,9 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 -- It runs: :lua vim.diagnostic.open_float()
 vim.keymap.set("n", "<leader>/", vim.diagnostic.open_float)
 
+-- Toggle relative numbers
+vim.keymap.set('n', '<leader>tr', '<cmd>set relativenumber!<cr>', { desc = "Toggle relative numbers" })
+
 -- Setup `mapleader` and `maplocalleader` before
 -- loading lazy.nvim so that mappings are correct.
 --vim.g.mapleader = " "

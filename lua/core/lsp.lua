@@ -177,3 +177,26 @@ vim.keymap.set("n", "<leader>ra", vim.lsp.buf.rename, { desc = "LSP: Rename all 
 vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { desc = "LSP: Format" })
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
+------------------------------------------------------------------------ 
+-- Enable inlay hints for the current buffer
+-- This will pop up hints while filling the function with arguments. This only helps if the function definition has inlay hints e.g. add(x:int,y:int) -> int
+local bufnr = vim.api.nvim_get_current_buf()
+if vim.lsp.inlay_hint then
+  vim.lsp.inlay_hint.enable(true, {bufnr = bufnr})
+end
+
+-- Toggle inlay hints for current buffer
+vim.keymap.set("n", "<leader>ti", function()
+  local buf = vim.api.nvim_get_current_buf()
+  print("Toggle inlay hints called for buffer:", buf)
+  
+  local enabled = vim.lsp.inlay_hint.is_enabled({ bufnr = buf })
+  print("Currently enabled:", enabled)
+  print(vim.inspect(enabled))
+
+  local new_state = not enabled
+  print("Setting inlay hints to:", new_state)
+  
+  vim.lsp.inlay_hint.enable(new_state, { bufnr = buf })
+end, { desc = "Toggle Inlay Hints" })

@@ -1,7 +1,10 @@
 return {
-    { "L3MON4D3/LuaSnip", keys = {} },
-    {
+    { "L3MON4D3/LuaSnip",
+        event = "InsertEnter",
+    },
+        {
         "saghen/blink.cmp",
+        event = "InsertEnter",
         dependencies = {
             "rafamadriz/friendly-snippets",
         },

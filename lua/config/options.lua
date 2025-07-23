@@ -9,6 +9,11 @@
 -- :set paste -- To revert it
 -- :set nopaste -- To disable paste mode
 
+-- Python behavior
+-- Set Python path explicitly (much faster than auto-detection)
+vim.g.python3_host_prog = '/ws/bbizar-bgl/pyenv/shims/python'  -- Adjust path as needed
+
+
 -- General
 vim.g.mapleader = ' '
 vim.opt.number = true -- Show line numbers
@@ -37,9 +42,8 @@ vim.opt.scrolloff = 1      -- Set scroll buffer 1 lines top and bottom
 vim.opt.splitright = true -- Vertical splits to the right
 vim.opt.splitbelow = true -- Horizontal splits below
 
--- Python behavior
--- Set Python path explicitly (much faster than auto-detection)
-vim.g.python3_host_prog = '/ws/bbizar-bgl/pyenv/shims/python'  -- Adjust path as needed
+-- Ignore depreciation warnings which will be removed in future versions. Run :checkhealth to see any deprecation warnings.
+vim.deprecate = function() end
 
 -- Disable Python providers to speed up startup
 vim.g.loaded_python3_provider = 0
@@ -47,7 +51,6 @@ vim.g.loaded_python_provider = 0
 vim.g.loaded_node_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
-
 
 --vim.g.maplocalleader = ' '
 --vim.g.have_nerd_font = false

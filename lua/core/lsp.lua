@@ -53,15 +53,18 @@ vim.api.nvim_create_autocmd("FileType", {
     group = group,
     callback = function()
         -- We fetch the values written in ~/.config/nvim/lua/lsp/lua_ls.lua into variable 'config'
-        vim.lsp.enable("lua_ls")  -- This won't attach anything as nvim wont attach later
+        local config = require("lsp.lua_ls")
+        --vim.lsp.enable("lua_ls")  -- This won't attach anything as nvim wont attach later
         -- Only one of the below section should be uncommented at a time
         --  Section 1
         -- The following will look for the lsp server lua_ls so install lua-language-server in your server manually and only then uncomment the following start()
-        --vim.lsp.start({
-        --    name = "lua_ls",
-        --    cmd = {"lua-language-server"},
-        --    root_dir = vim.fs.dirname(vim.fs.find({".luarc.json", ".git"}, {upward = true})[1]),
-        --})
+        vim.lsp.start({
+            name = "lua_ls",
+            cmd = config.cmd,
+            root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+            settings = config.settings,
+            single_file_support = config.single_file_support,
+        })
     end,
 })
 

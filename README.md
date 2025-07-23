@@ -49,4 +49,4 @@ basedpyright: Faster but doesn't contain everything - pip install basedpyright<b
 
 lua
 ===
-Don't know forgot<br>
+You would find the lua-language-server tar file from github. You can copy it to the right place and add it to the path <br>

@@ -16,6 +16,7 @@ vim.g.python3_host_prog = '/ws/bbizar-bgl/pyenv/shims/python'  -- Adjust path as
 
 -- General
 vim.g.mapleader = ' '
+vim.g.maplocalleader = '\\'
 vim.opt.number = true -- Show line numbers
 vim.opt.mouse = ''
 
@@ -34,7 +35,7 @@ vim.opt.incsearch = true  -- Show matches as you type
 vim.opt.hlsearch = true   -- Highlight search matches
 
 -- Appearance
-vim.opt.signcolumn = 'yes' -- Always show the left side rul
+vim.opt.signcolumn = 'yes' -- Always show the left side ruler and prevents text overflow during diagnostic messages
 vim.opt.wrap = true        -- Wrap long lines
 vim.opt.scrolloff = 1      -- Set scroll buffer 1 lines top and bottom
 
@@ -52,24 +53,8 @@ vim.g.loaded_node_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 
---vim.g.maplocalleader = ' '
---vim.g.have_nerd_font = false
---vim.opt.number = true
---vim.opt.mouse = ''
---vim.opt.showmode = false
-----vim.schedule(function() vim.opt.clipboard = 'unnamedplus' end)
---vim.opt.breakindent = true
---vim.opt.undofile = true
---vim.opt.ignorecase = true
---vim.opt.smartcase = true
---vim.opt.signcolumn = 'yes'
---vim.opt.updatetime = 250
---vim.opt.timeoutlen = 300
---vim.opt.splitright = true
---vim.opt.splitbelow = true
---vim.opt.list = false
---vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
---vim.opt.inccommand = 'split'
---vim.opt.cursorline = true
---vim.opt.scrolloff = 10
---vim.opt.winborder = "solid" -- https://neovim.io/doc/user/options.html#'winborder'
+vim.g.have_nerd_font = false
+vim.opt.breakindent = true
+vim.opt.updatetime = 250 -- Faster updates for CursorHold events, like diagnostics and highlighting
+vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.opt.inccommand = 'split'

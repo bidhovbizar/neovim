@@ -8,8 +8,8 @@ pcall(vim.keymap.del, 'i', '<Tab>')
 pcall(vim.keymap.del, 's', '<Tab>')
 
 -- Set the runtime path to include the custom plugins directory
-require("config.options")
+require("basicConfig.options")
+require("basicConfig.keymaps")
+require("basicConfig.autocmds4highlight")
 require("core.lazy")
 require("core.lsp")
-require("config.keymaps")
-require("config.autocmds")

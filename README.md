@@ -50,3 +50,8 @@ basedpyright: Faster but doesn't contain everything - pip install basedpyright<b
 lua
 ===
 You would find the lua-language-server tar file from github. You can copy it to the right place and add it to the path <br>
+
+Bash
+====
+bash-language-server: Install from npm - npm install -g bash-language-server<br>
+For shellcheck, you can install it from apt - sudo apt install shellcheck<br> if you have sudo access or in ubuntu. But for RHEL you can install it from the website and copy it to the right place.<br> or you can use the shellcheck from npm - npm install -g shellcheck<br> 

@@ -4,6 +4,7 @@ local group = vim.api.nvim_create_augroup("LSPFileType", { clear = true })
 
 -- Go
 -- Install Go using sudo apt install go OR direct from dev.go and gopls using go install golang.org/x/tools/gopls@latest
+-- Install gopls using go install golang.org/x/tools/gopls@latest
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "go",
     group = group,
@@ -25,6 +26,7 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- Python
+-- Install pythong using sudo apt install python
 -- Install pyright using pip install pyright
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "python",
@@ -48,18 +50,46 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- Lua
+-- This would usually comes with neovim
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "lua", 
     group = group,
     callback = function()
         -- We fetch the values written in ~/.config/nvim/lua/lsp/lua_ls.lua into variable 'config'
         local config = require("lsp.lua_ls")
-        --vim.lsp.enable("lua_ls")  -- This won't attach anything as nvim wont attach later
         -- Only one of the below section should be uncommented at a time
         --  Section 1
+        --vim.lsp.enable("lua_ls")  -- This won't attach anything as nvim wont attach later
+        -- Section 2
         -- The following will look for the lsp server lua_ls so install lua-language-server in your server manually and only then uncomment the following start()
         vim.lsp.start({
             name = "lua_ls",
+            cmd = config.cmd,
+            root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+            settings = config.settings,
+            single_file_support = config.single_file_support,
+        })
+    end,
+})
+
+-- Bash
+-- This would be installed along with the OS and bash or zsh shell is available
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = {"sh", "bash", "zsh"},
+    group = group,
+    callback = function()
+        -- We fetch the values written in ~/.config/nvim/lua/lsp/bash_ls.lua into variable 'config'
+        local config = require("lsp.bash_ls")
+        -- Only one of the below section should be uncommented at a time
+        --  Section 1
+        --vim.lsp.enable("bash_ls")  -- This won't attach anything as nvim wont attach later
+        -- Section 2
+        -- The following will look for the lsp server bash-language-server so install it manually and only then uncomment the following start()
+        -- Uncomment the following only after installing bash-language-server and shellcheck
+        -- Install bash-language-server using npm install -g bash-language-server
+        -- Install shellcheck using sudo apt install shellcheck
+        vim.lsp.start({
+            name = "bash_ls",
             cmd = config.cmd,
             root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
             settings = config.settings,
@@ -72,7 +102,8 @@ vim.api.nvim_create_autocmd("FileType", {
 --vim.lsp.enable({
 --    "gopls",
 --    "pyright",
---    "lua_ls"
+--    "lua_ls",
+--    "bash_ls",
 --})
 
 vim.diagnostic.config({

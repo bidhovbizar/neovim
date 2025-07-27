@@ -12,13 +12,13 @@ return {
             width = 25, -- Slightly smaller for better screen usage
             relative_width = true, -- Use percentage of screen width
             auto_close = true, -- Auto close the outline window if goto_location is triggered and not for
-            auto_jump = false, -- Don't auto-jump to outline when opened
             jump_highlight_duration = 300, -- Duration of highlight when jumping
             center_on_jump = true, -- Center the cursor when jumping to symbol
             show_numbers = false, -- Don't show line numbers (cleaner look)
             show_relative_numbers = false,
             wrap = false,
-            focus_on_open = false, -- Don't focus outline window on open
+            auto_jump = true, -- Don't auto-jump to outline when opened
+            focus_on_open = true, -- Don't focus outline window on open
             winhl = "", -- Custom window highlighting
         },
 

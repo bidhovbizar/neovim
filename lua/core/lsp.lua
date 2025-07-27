@@ -16,17 +16,23 @@ vim.api.nvim_create_autocmd("FileType", {
         --vim.lsp.enable("gopls")   -- This won't attach anything as nvim wont attach later
         -- Section 2
         -- Caveat: This will look for gopls package in your $PATH so install go and gopls in your server manually and only then uncomment the following start()
-        vim.lsp.start({
-            name = "gopls",
-            cmd = config.cmd,
-            root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
-            settings = config.settings,
+        vim.api.nvim_create_autocmd("InsertEnter", {  -- This will start the lsp server only when you enter insert mode
+            buffer = 0,  -- Only for the current buffer
+            once = true, -- Only once for the current buffer
+            callback = function ()
+            vim.lsp.start({
+                name = "gopls",
+                cmd = config.cmd,
+                root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+                settings = config.settings,
+            })
+            end,
         })
     end,
 })
 
 -- Python
--- Install pythong using sudo apt install python
+-- Install python using sudo apt install python
 -- Install pyright using pip install pyright
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "python",
@@ -39,12 +45,18 @@ vim.api.nvim_create_autocmd("FileType", {
         --vim.lsp.enable("pyright")   -- This won't attach anything as nvim wont attach later
         -- Section 2
         -- Caveat: This will look for pyright package in your $PATH so install pyright in your server manually and only then uncomment the following start()
-        vim.lsp.start({
-            name = "pyright",
-            --name = "basedpyright",  -- investigate and decide which one to use
-            cmd = config.cmd,
-            root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
-            settings = config.settings,
+        vim.api.nvim_create_autocmd("InsertEnter", {  -- This will start the lsp server only when you enter insert mode
+            buffer = 0,  -- Only for the current buffer
+            once = true, -- Only once for the current buffer
+            callback = function ()
+                vim.lsp.start({
+                    name = "pyright",
+                    --name = "basedpyright",  -- investigate and decide which one to use
+                    cmd = config.cmd,
+                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+                    settings = config.settings,
+                })
+            end,
         })
     end,
 })
@@ -62,12 +74,18 @@ vim.api.nvim_create_autocmd("FileType", {
         --vim.lsp.enable("lua_ls")  -- This won't attach anything as nvim wont attach later
         -- Section 2
         -- The following will look for the lsp server lua_ls so install lua-language-server in your server manually and only then uncomment the following start()
-        vim.lsp.start({
-            name = "lua_ls",
-            cmd = config.cmd,
-            root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
-            settings = config.settings,
-            single_file_support = config.single_file_support,
+        vim.api.nvim_create_autocmd("InsertEnter", {  -- This will start the lsp server only when you enter insert mode
+            buffer = 0,  -- Only for the current buffer
+            once = true, -- Only once for the current buffer
+            callback = function ()
+                vim.lsp.start({
+                    name = "lua_ls",
+                    cmd = config.cmd,
+                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+                    settings = config.settings,
+                    single_file_support = config.single_file_support,
+                })
+            end,
         })
     end,
 })
@@ -88,12 +106,18 @@ vim.api.nvim_create_autocmd("FileType", {
         -- Uncomment the following only after installing bash-language-server and shellcheck
         -- Install bash-language-server using npm install -g bash-language-server
         -- Install shellcheck using sudo apt install shellcheck
-        vim.lsp.start({
-            name = "bash_ls",
-            cmd = config.cmd,
-            root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
-            settings = config.settings,
-            single_file_support = config.single_file_support,
+        vim.api.nvim_create_autocmd("InsertEnter", {  -- This will start the lsp server only when you enter insert mode
+            buffer = 0,  -- Only for the current buffer
+            once = true, -- Only once for the current buffer
+            callback = function ()
+                vim.lsp.start({
+                    name = "bash_ls",
+                    cmd = config.cmd,
+                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+                    settings = config.settings,
+                    single_file_support = config.single_file_support,
+                })
+            end,
         })
     end,
 })

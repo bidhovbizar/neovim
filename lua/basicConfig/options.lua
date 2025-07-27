@@ -56,5 +56,6 @@ vim.g.loaded_perl_provider = 0
 vim.g.have_nerd_font = false
 vim.opt.breakindent = true
 vim.opt.updatetime = 250 -- Faster updates for CursorHold events, like diagnostics and highlighting
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.opt.list = true
+vim.opt.listchars = { tab = '» ', trail = '␣', nbsp = '⦙' } --nbsp is non-breaking space
 vim.opt.inccommand = 'split'

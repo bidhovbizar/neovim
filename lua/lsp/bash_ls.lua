@@ -25,8 +25,8 @@ return {
             globPattern = "**/*@(.sh|.inc|.bash|.command)",
             shellcheckPath = "shellcheck",
             enableSourceErrorDiagnostics = true,
-            explainshellEndpoint = "",
-            backgroundAnalysisMaxFiles = 500,
+            explainshellEndpoint = "", -- If you want to use explainshell, set the endpoint here. It converts commands into human readable explanations.
+            backgroundAnalysisMaxFiles = 50,
             includeAllWorkspaceSymbols = false,
         },
     },

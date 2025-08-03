@@ -3,6 +3,7 @@ return {
         -- For theme of nvim
         --"folke/tokyonight.nvim",
         "ellisonleao/gruvbox.nvim",
+        priority = 1000, -- Ensure this loads before lualine
         config = function()
             vim.cmd.colorscheme "gruvbox"
         end
@@ -10,6 +11,7 @@ return {
     {
         -- For the status line or lua line
         "nvim-lualine/lualine.nvim",
+        --priority = 700, -- Ensure this loads before lualine
         dependencies = {
             "nvim-tree/nvim-web-devicons",
         },

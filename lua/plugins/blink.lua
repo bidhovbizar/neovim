@@ -1,5 +1,5 @@
 return {
-    { 
+    {
         "L3MON4D3/LuaSnip",
         event = "InsertEnter",
     },
@@ -10,6 +10,7 @@ return {
     },
     {
         "saghen/blink.cmp",
+        --priority = 600, -- Ensure it loads after blink-cmp-avante
         event = "InsertEnter",
         dependencies = {
             "rafamadriz/friendly-snippets",
@@ -74,6 +75,7 @@ return {
                 keymap = {
                     ["<C-f>"] = {}, -- Don't clash with documentation scroll
                     ["<Enter>"] = { "accept", "fallback" },
+                    --['<Esc>'] = { 'hide', 'fallback' },  -- Uncommenting this will make 1st Esc quit autocompletion then 2nd Esc will quit to n mode
                     ["<C-y>"] = { "accept" },
                     ["<C-e>"] = { "cancel" },
                     ["<C-n>"] = { "select_next" },
@@ -131,6 +133,31 @@ return {
                     return not vim.tbl_contains({ "prompt" }, buftype) or buftype == ""
                 end,
             })
+            local ls = require("luasnip")
+
+            -- Map functionality to <leader><Tab> combination
+            vim.keymap.set({ "i", "s" }, "<leader><Tab>", function()
+                local blink = require("blink.cmp")
+                if blink.is_visible() then
+                    blink.select_next()
+                elseif ls.jumpable(1) then
+                    ls.jump(1)
+                else
+                    return "<leader><Tab>"
+                end
+            end, { expr = true, silent = true })
+
+            -- Map functionality to <leader><S-Tab> combination
+            vim.keymap.set({ "i", "s" }, "<leader><S-Tab>", function()
+                local blink = require("blink.cmp")
+                if blink.is_visible() then
+                    blink.select_prev()
+                elseif ls.jumpable(-1) then
+                    ls.jump(-1)
+                else
+                    return "<leader><S-Tab>"
+                end
+            end, { expr = true, silent = true })
 
             require("luasnip.loaders.from_vscode").lazy_load()
         end,

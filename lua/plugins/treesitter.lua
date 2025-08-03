@@ -1,5 +1,6 @@
 return {
     "nvim-treesitter/nvim-treesitter",
+    --priority = 800,
     version = false,
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },

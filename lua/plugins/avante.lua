@@ -17,6 +17,18 @@ return {
             ---@alias Mode "agentic" | "legacy"
             ---@type Mode
             --mode = "agentic", -- Chose legacy and try auto_suggestions_provider
+            
+            -- Permanently set Copilot model version
+            providers = {
+                ---@type AvanteProviderConfig
+                copilot = {
+                    model = "claude-3.7-sonnet", -- Set the specific model version permanently
+                    extra_request_body = {
+                        --temperature = 1, -- Set the temperature for Copilot suggestions
+                    },
+                    auto_select_model = false, -- Prevent Avante from selecting a different model
+                },
+            },
             behavior = {
                 auto_suggestions = false, -- Experimental stage
                 --auto_set_highlight_group = true,

@@ -24,13 +24,15 @@ return {
                 keymap = { preset = "default" },
 
                 sources = {
-                    default = { "avante", "lsp", "path", "snippets", "buffer" },
+                    default = { "lazydev", "avante", "lsp", "path", "snippets", "buffer" },
 
                     per_filetype = {
                         -- Fixed: Correct filetype name (capital A)
                         Avante = { "avante", "path", "buffer" },
                         -- Also add lowercase variant just in case
                         avante = { "avante", "path", "buffer" },
+                        -- Lazydev works correctly with lua
+                        lua = { "lazydev", "lsp", "path", "snippets", "buffer" },
                     },
 
                     providers = {
@@ -51,10 +53,15 @@ return {
                         avante = {
                             module = 'blink-cmp-avante',
                             name = 'Avante',
-                            score_offset = 1000, -- Added: High priority for @ and / triggers
+                            score_offset = 500, -- Added: High priority for @ and / triggers
                             opts = {
                                 -- Options for blink-cmp-avante
                             }
+                        },
+                        lazydev = {
+                            name = "LazyDev",
+                            module = "lazydev.integrations.blink",
+                            score_offset = 300, -- High priority for Lua development
                         },
 
                         cmdline = {

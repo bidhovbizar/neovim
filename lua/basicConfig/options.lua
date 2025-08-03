@@ -13,7 +13,6 @@
 -- Set Python path explicitly (much faster than auto-detection)
 vim.g.python3_host_prog = '/ws/bbizar-bgl/pyenv/shims/python'  -- Adjust path as needed
 
-
 -- General
 vim.g.mapleader = ' '
 vim.g.maplocalleader = '\\'
@@ -57,5 +56,5 @@ vim.g.have_nerd_font = false
 vim.opt.breakindent = true
 vim.opt.updatetime = 250 -- Faster updates for CursorHold events, like diagnostics and highlighting
 vim.opt.list = true
-vim.opt.listchars = { tab = '» ', trail = '␣', nbsp = '⦙' } --nbsp is non-breaking space
+vim.opt.listchars = { tab = '» ', trail = '␣', nbsp = '⦙', extends = '>', precedes = '<' } --nbsp is non-breaking space
 vim.opt.inccommand = 'split'

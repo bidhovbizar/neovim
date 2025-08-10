@@ -33,3 +33,52 @@ vim.keymap.set('n', '<leader>tw', function()
     vim.opt.wrap = not vim.opt.wrap:get()
     print("Word wrap: " .. (vim.opt.wrap:get() and "enabled" or "disabled"))
 end, { desc = 'Toggle word wrap' })
+
+-- Set up autocommands and keymaps
+local augroup = vim.api.nvim_create_augroup("FormattersGroup", { clear = true })
+
+-- Format files with default tree-sitter formatter.
+-- Format Go code using gofmt
+local function format_go()
+    local view = vim.fn.winsaveview()
+    vim.cmd('%!gofmt')
+    vim.fn.winrestview(view)
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+    group = augroup,
+    pattern = "go",
+    callback = function()
+        vim.keymap.set('n', '<M-f>', format_go, { buffer = true })
+    end,
+})
+
+-- Format Python code with autopep8. Install using pip install autopep8
+local function format_python()
+    local view = vim.fn.winsaveview()
+    vim.cmd('%!autopep8 --max-line-length=120 --ignore=E129,E265 -')
+    vim.fn.winrestview(view)
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+    group = augroup,
+    pattern = "python",
+    callback = function()
+        vim.keymap.set('n', '<M-f>', format_python, { buffer = true })
+    end,
+})
+
+-- Format Shell scripts with shfmt install using sudo apt install shfmt
+local function format_shell()
+    local view = vim.fn.winsaveview()
+    vim.cmd('%!shfmt')
+    vim.fn.winrestview(view)
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+    group = augroup,
+    pattern = "sh",
+    callback = function()
+        vim.keymap.set('n', '<M-f>', format_shell, { buffer = true })
+    end,
+})

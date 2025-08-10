@@ -135,27 +135,27 @@ return {
             })
             local ls = require("luasnip")
 
-            -- Map functionality to <leader><Tab> combination
-            vim.keymap.set({ "i", "s" }, "<leader><Tab>", function()
+            -- Map functionality to <M-j> combination
+            vim.keymap.set({ "i", "s" }, "<M-j>", function()
                 local blink = require("blink.cmp")
                 if blink.is_visible() then
                     blink.select_next()
                 elseif ls.jumpable(1) then
                     ls.jump(1)
                 else
-                    return "<leader><Tab>"
+                    return "<M-j>"
                 end
             end, { expr = true, silent = true })
 
-            -- Map functionality to <leader><S-Tab> combination
-            vim.keymap.set({ "i", "s" }, "<leader><S-Tab>", function()
+            -- Map functionality to <M-k> combination
+            vim.keymap.set({ "i", "s" }, "<M-k>", function()
                 local blink = require("blink.cmp")
                 if blink.is_visible() then
                     blink.select_prev()
                 elseif ls.jumpable(-1) then
                     ls.jump(-1)
                 else
-                    return "<leader><S-Tab>"
+                    return "<M-k>"
                 end
             end, { expr = true, silent = true })
 

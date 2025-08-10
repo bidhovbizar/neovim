@@ -11,7 +11,7 @@
 
 -- Python behavior
 -- Set Python path explicitly (much faster than auto-detection)
-vim.g.python3_host_prog = '/ws/bbizar-bgl/pyenv/shims/python'  -- Adjust path as needed
+vim.g.python3_host_prog = '/ws/bbizar-bgl/pyenv/shims/python' -- Adjust path as needed
 
 -- General
 vim.g.mapleader = ' '

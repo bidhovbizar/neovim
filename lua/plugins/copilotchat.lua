@@ -8,7 +8,12 @@ return {
         },
         build = "make tiktoken",                            -- Only on MacOS or Linux
         opts = {
-            model = 'claude-3.7-sonnet',
+            -- Set model to use for Copilot Chat first find which model you wish to use.
+            -- You can find it by starting copilotchat and then presseing `$`. 
+            --
+            model = 'claude-sonnet-4', -- This is thinking model which is slow
+            --model = 'claude-3.7-sonnet', -- This is thinking model which is slow
+            --model = 'gpt-4o-mini',      -- This is for fast responses
             -- auto_insert_mode = true, -- This directly move us to insert mode after the chat window opens but also keeps it there after the response
             window = {
                 layout = 'vertical', -- can be 'horizontal' or 'vertical'

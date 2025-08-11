@@ -22,8 +22,6 @@ return {
                 snippets = { preset = "luasnip" },
                 signature = { enabled = true },
 
-                keymap = { preset = "default" },
-
                 sources = {
                     default = { "lazydev", "avante", "lsp", "path", "snippets", "buffer" },
 
@@ -56,7 +54,7 @@ return {
                             name = 'Avante',
                             score_offset = 500, -- Added: High priority for @ and / triggers
                             opts = {
-                                -- Options for blink-cmp-avante
+                                trigger_characters = { "@", "/" },
                             }
                         },
                         lazydev = {
@@ -73,6 +71,7 @@ return {
 
                 -- Fixed: Removed duplicate keymap section and consolidated
                 keymap = {
+                    preset = "default", -- Keep the default preset
                     ["<C-f>"] = {}, -- Don't clash with documentation scroll
                     ["<Enter>"] = { "accept", "fallback" },
                     --['<Esc>'] = { 'hide', 'fallback' },  -- Uncommenting this will make 1st Esc quit autocompletion then 2nd Esc will quit to n mode
@@ -116,6 +115,13 @@ return {
                         },
                         auto_show = true,
                         auto_show_delay_ms = 500,
+                    },
+
+                    trigger = {
+                        completion = {
+                            keyword_length = 1, -- Allow single character triggers like @
+                            keyword_regex = "[%w@/]", -- Include @ and / in keyword matching
+                        },
                     },
                 },
 

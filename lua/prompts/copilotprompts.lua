@@ -26,6 +26,9 @@ cisco_review_prompt.prompt = "You are a Cisco code reviewer with expertise in ne
 "Never fabricate or hallucinate file contents you haven't actually seen.\n" ..
 "</instructions>\n" ..
 -- Add rest of your prompt here...
+"Assume that the variables runtests_logger, topogen and cli_data are injected during runtime so they are defined.\n" ..
+"Assume that you are running autopep8 and pylint on the python file and tell me if I missed any fixes that I have to do.\n" ..
+"Also tell me about any syntax error or runtime error that you think may happen.\n" ..
 "Format each issue you find precisely as:\n" ..
 "line=<line_number>: <issue_description>\n" ..
 "Multiple issues on one line should be separated by semicolons.\n" ..

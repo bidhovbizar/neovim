@@ -22,7 +22,10 @@ return {
             providers = {
                 ---@type AvanteProviderConfig
                 copilot = {
-                    model = "claude-3.7-sonnet", -- Set the specific model version permanently
+                    -- Use <leader>a? to find the list of all the models available. Set the specific model version permanently
+                    --model = "claude-3.7-sonnet", -- Used for thinking response very slow
+                    model = "claude-sonnet-4", -- Used for thinking response faster
+                    --model = "gpt-4o-2024-11-20",  -- Used for super faster response but it may get stuck in loop
                     extra_request_body = {
                         --temperature = 1, -- Set the temperature for Copilot suggestions
                     },
@@ -72,11 +75,11 @@ return {
                 },
                 edit = {
                     border = "rounded",
-                    start_insert = true, -- Start in insert mode when opening the edit window
+                    start_insert = false, -- Start in insert mode when opening the edit window
                 },
                 ask = {
                     floating = false,
-                    start_insert = true,
+                    start_insert = false,
                     border = "rounded",
                     focus_on_apply = "ours",
                 },

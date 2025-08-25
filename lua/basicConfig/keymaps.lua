@@ -10,6 +10,10 @@ vim.keymap.set('n', '<M-Down>', ':resize -2<CR>', { silent = true })
 vim.keymap.set('n', '<M-Left>', ':vertical resize -2<CR>', { silent = true })
 vim.keymap.set('n', '<M-Right>', ':vertical resize +2<CR>', { silent = true })
 
+-- Navigate through buffers (all opened files): We use :bnext or bprev to switch to newly opened files too which :next or :prev doesn't do
+vim.keymap.set('n', '<leader>bn', ':bnext<CR>', { desc = 'Next buffer' })
+vim.keymap.set('n', '<leader>bp', ':bprev<CR>', { desc = 'Previous buffer' })
+
 -- Toggle relative numbers
 vim.keymap.set('n', '<leader>tr', function()
     vim.opt.relativenumber = not vim.opt.relativenumber:get()

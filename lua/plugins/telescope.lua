@@ -39,7 +39,7 @@ return {
                                         'rg', '--color=never', '--no-heading', '--with-filename',
                                         '--line-number', '--column', '--case-sensitive'
                                     },
-                                    attach_mappings = function(prompt_bufnr, map)
+                                    attach_mappings = function(_)
                                         -- Stay in normal mode and show message after telescope opens
                                         vim.schedule(function()
                                             vim.cmd('stopinsert') -- Exit insert mode
@@ -56,7 +56,7 @@ return {
                                         'rg', '--color=never', '--no-heading', '--with-filename',
                                         '--line-number', '--column', '--smart-case'
                                     },
-                                    attach_mappings = function(prompt_bufnr, map)
+                                    attach_mappings = function(_)
                                         -- Stay in normal mode and show message after telescope opens
                                         vim.schedule(function()
                                             vim.cmd('stopinsert') -- Exit insert mode

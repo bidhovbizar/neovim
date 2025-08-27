@@ -76,13 +76,13 @@ return {
         "nvim-telescope/telescope.nvim" -- Make sure telescope is a dependency
     },
     keys = {
-        { "<M-a>", function() require('harpoon'):list():add() end, desc = "Harpoon add file" },	
-        { "<M-h>", function() 
+        { "<M-a>", function() require('harpoon'):list():add() end, desc = "Harpoon add file" },
+        { "<M-h>", function()
             local harpoon = require('harpoon')
-            harpoon.ui:toggle_quick_menu(harpoon:list()) 
+            harpoon.ui:toggle_quick_menu(harpoon:list())
         end, desc = "Harpoon toggle menu" },
-        { "<leader>fh", function() 
-            toggle_telescope(require('harpoon'):list()) 
+        { "<leader>fh", function()
+            toggle_telescope(require('harpoon'):list())
         end, desc = "Search in harpoon files" },
     },
     config = function()
@@ -94,17 +94,17 @@ return {
                 save_on_change = true,
                 sync_on_ui_close = true,
             }
-        }) 
+        })
         -- Functionality Check:
         -- To delete an added file in harpoon please <C-e> open explorer and press d on the file you want to remove
-        
+
         -- <leader>fh → Shows Harpoon file list with previews
         --      then:
         -- <leader>ga → Live grep in ALL Harpoon files
         -- <leader>gs → Live grep in SELECTED file only
         --      If you want to just open the file:
         -- Enter → Opens selected file
-        
+
         -- <M-h> + d → Remove files persistently
 
         --vim.keymap.set("n", "<C-p>", function() harpoon:list():prev() end)

@@ -20,7 +20,6 @@ return {
 
             -- Permanently set Copilot model version
             providers = {
-                ---@type AvanteProviderConfig
                 copilot = {
                     -- Use <leader>a? to find the list of all the models available. Set the specific model version permanently
                     --model = "claude-3.7-sonnet", -- Used for thinking response very slow
@@ -85,7 +84,6 @@ return {
                 },
             },
             highlights = {
-                ---@type AvanteConflictHighlights
                 diff = {
                     current = "DiffText", -- Highlight for our changes
                     incoming = "DiffAdd", -- Highlight for Avante's suggestions

@@ -34,6 +34,7 @@ return {
                 },
             },
             workspace = {
+            -- Make the server aware of Neovim runtime files
                 library = vim.api.nvim_get_runtime_file('', true),  -- This is the key part!
                 checkThirdParty = false,
             },
@@ -46,6 +47,9 @@ return {
             },
             telemetry = {
                 enable = false,
+            },
+            hint = {
+                enable = true,
             },
         },
     },

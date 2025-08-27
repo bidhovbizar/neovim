@@ -17,14 +17,14 @@ return {
             replace_netrw = false}, -- False: Opens the folder in netrw. True: Opens the folder in snacks explorer
         -- Unable to disable the indent animate and its disturbing. Looks like a bug in snacks.nvim
         -- Hence settng the indent animate to false
-        indent = { 
+        indent = {
             --enabled = true,  -- Help with the line in the indentation for each code block
             enabled = false, -- In true mode '|' will be there during copying
             only_scope = false,  -- True: Only show indent guides of the scope
             only_current = false}, -- True: Only show indent guides of the current line
         -- Set to false to ensure there are no distractions
         animate = { enabled = false, -- Disable animations for performance e.g. indent lining won't animate
-            style = "out", 
+            style = "out",
             easing = "linear", -- Easing for the input box},
             duration = {
                 step = 1,
@@ -41,7 +41,7 @@ return {
         words = { enabled = false }, -- This if for LSP to show what ever faster. We are trying to do lazy here, so not needed
     },
     keys = {
-        { "<leader>b", function() Snacks.picker.buffers() end, desc = "Buffers" },
+        { "<leader>b", function() Snacks.picker.buffers() end, desc = "Buffers" }, -- Even with picker disabled this works
         { "<leader>e", function() Snacks.explorer() end, desc = "File Explorer" },
     },
 }

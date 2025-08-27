@@ -1,8 +1,8 @@
 -- Install bash-language-server using the following command:
 -- npm install -g bash-language-server
 -- If you have enabled the shellcheck linter, ensure it is installed:
--- sudo apt install shellcheck  
-    
+-- sudo apt install shellcheck
+
 return {
     cmd = {
         "bash-language-server",

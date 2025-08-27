@@ -2,35 +2,35 @@
 return {
     cmd = { "basedpyright-langserver", "--stdio" },
     filetypes = { "python" },
-    root_markers = { 
-        "pyproject.toml", 
-        "setup.py", 
-        "setup.cfg", 
-        "requirements.txt", 
-        "Pipfile", 
+    root_markers = {
+        "pyproject.toml",
+        "setup.py",
+        "setup.cfg",
+        "requirements.txt",
+        "Pipfile",
         "pyrightconfig.json",
-        ".git" 
+        ".git"
     },
     settings = {
         basedpyright = {
             analysis = {
                 -- Type checking mode
                 typeCheckingMode = "basic", -- "off", "basic", "strict"
-                
+
                 -- Auto-import completions
                 autoImportCompletions = true,
                 autoSearchPaths = true,
-                
+
                 -- Diagnostics
                 useLibraryCodeForTypes = true,
                 diagnosticMode = "workspace", -- "openFilesOnly", "workspace"
-                
+
                 -- Stub path for type information
                 stubPath = "typings",
-                
+
                 -- Extra paths for analysis
                 extraPaths = {},
-                
+
                 -- Diagnostic severity overrides
                 diagnosticSeverityOverrides = {
                     reportGeneralTypeIssues = "none",
@@ -96,7 +96,7 @@ return {
                     reportUnknownParameterType = "none",
                     reportMissingImports = "error",
                     reportInvalidImportForm = "error",
-                    
+
                     -- BasedPyright specific diagnostics
                     reportAny = "none",
                     reportIgnoreCommentWithoutRule = "none",
@@ -107,7 +107,7 @@ return {
                     reportUnnecessaryTypeIgnoreComment = "information",
                     reportUnusedExcept = "information",
                 },
-                
+
                 -- Inlay hints (enhanced in basedpyright)
                 inlayHints = {
                     variableTypes = true,
@@ -118,10 +118,10 @@ return {
                     pytestParameters = true,
                     genericTypes = true,
                 },
-                
+
                 -- Indexing
                 indexing = true,
-                
+
                 -- Package indexing depths
                 packageIndexDepths = {
                     {
@@ -130,18 +130,18 @@ return {
                         includeAllSymbols = true,
                     }
                 },
-                
+
                 -- BasedPyright specific performance optimizations
                 logLevel = "Information",
                 enableTypeIgnoreComments = true,
-                
+
                 -- Advanced type checking options
                 strictListInference = true,
                 strictDictionaryInference = true,
                 strictSetInference = true,
                 strictParameterNoneValue = true,
                 enableExperimentalFeatures = false,
-                
+
                 -- Import resolution
                 importFormat = "absolute",
                 includeFileSpecs = {
@@ -161,7 +161,7 @@ return {
                     "**/env",
                 },
             },
-            
+
             -- Linting integration
             linting = {
                 enabled = false,
@@ -170,22 +170,22 @@ return {
                 mypyEnabled = false,
                 banditEnabled = false,
             },
-            
+
             -- Formatting
             formatting = {
                 provider = "none", -- Let other tools handle formatting
             },
-            
+
             -- Python interpreter path (auto-detected if empty)
             pythonPath = "",
-            
+
             -- Virtual environment path
             venvPath = "",
-            
+
             -- BasedPyright specific settings
             disableLanguageServices = false,
             disableOrganizeImports = false,
-            
+
             -- Completion settings
             completions = {
                 includeAutoimportCompletions = true,

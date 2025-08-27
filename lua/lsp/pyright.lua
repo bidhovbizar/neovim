@@ -2,35 +2,35 @@
 return {
     cmd = { "pyright-langserver", "--stdio" },
     filetypes = { "python" },
-    root_markers = { 
-        "pyproject.toml", 
-        "setup.py", 
-        "setup.cfg", 
-        "requirements.txt", 
-        "Pipfile", 
+    root_markers = {
+        "pyproject.toml",
+        "setup.py",
+        "setup.cfg",
+        "requirements.txt",
+        "Pipfile",
         "pyrightconfig.json",
-        ".git" 
+        ".git"
     },
     settings = {
         python = {
             analysis = {
                 -- Type checking mode
                 typeCheckingMode = "basic", -- "off", "basic", "strict"
-                
+
                 -- Auto-import completions
                 autoImportCompletions = true,
                 autoSearchPaths = true,
-                
+
                 -- Diagnostics
                 useLibraryCodeForTypes = true,
                 diagnosticMode = "workspace", -- "openFilesOnly", "workspace"
-                
+
                 -- Stub path for type information
                 stubPath = "typings",
-                
+
                 -- Extra paths for analysis
                 extraPaths = {},
-                
+
                 -- Diagnostic severity overrides
                 diagnosticSeverityOverrides = {
                     reportGeneralTypeIssues = "none",
@@ -96,7 +96,7 @@ return {
                     reportMissingModuleSource = "warning",
                     reportInvalidImportForm = "error",
                 },
-                
+
                 -- Inlay hints
                 inlayHints = {
                     variableTypes = true,
@@ -106,10 +106,10 @@ return {
                     parameterTypes = true,
                     pytestParameters = true,
                 },
-                
+
                 -- Indexing
                 indexing = true,
-                
+
                 -- Package indexing depths
                 packageIndexDepths = {
                     {
@@ -119,7 +119,7 @@ return {
                     }
                 },
             },
-            
+
             -- Linting with pylint, flake8, etc. (if you want to use them)
             linting = {
                 enabled = false,
@@ -132,15 +132,15 @@ return {
                 mypyArgs = {},
                 banditArgs = {},
             },
-            
+
             -- Formatting (if you want to use pyright's formatting)
             formatting = {
                 provider = "none", -- "autopep8", "black", "yapf", "none"
             },
-            
+
             -- Python interpreter path (leave empty for auto-detection)
             pythonPath = "",
-            
+
             -- Virtual environment path
             venvPath = "",
         },

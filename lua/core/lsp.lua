@@ -64,7 +64,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Lua
 -- This would usually comes with neovim
 vim.api.nvim_create_autocmd("FileType", {
-    pattern = "lua", 
+    pattern = "lua",
     group = group,
     callback = function()
         -- We fetch the values written in ~/.config/nvim/lua/lsp/lua_ls.lua into variable 'config'
@@ -160,7 +160,7 @@ local diagnostics_enabled = false
 local diagnostic_display_visible = true
 
 -- Toggle diagnostics on/off
-function toggle_diagnostics_enable()
+local function toggle_diagnostics_enable()
   if diagnostics_enabled then
     vim.diagnostic.enable(false)
     diagnostics_enabled = false
@@ -173,7 +173,7 @@ function toggle_diagnostics_enable()
 end
 
 -- Toggle diagnostic display visibility
-function toggle_diagnostic_display()
+local function toggle_diagnostic_display()
   if diagnostic_display_visible then
     vim.diagnostic.config({
       virtual_text = false,
@@ -217,7 +217,7 @@ vim.diagnostic.enable(false)
 -- Diagnostic control keymaps
 -- By default its disabled
 vim.keymap.set('n', '<leader>de', toggle_diagnostics_enable, { desc = 'Enable diagnostics' })
-vim.keymap.set('n', '<leader>dd', function() 
+vim.keymap.set('n', '<leader>dd', function()
   vim.diagnostic.enable(false)
   print("Disable diagnostics ")
 end, { desc = 'Disable diagnostics' })
@@ -227,9 +227,11 @@ vim.keymap.set('n', '<leader>ds', toggle_diagnostic_display, { desc = 'Toggle di
 -- Show diagnostics in a floating window
 vim.keymap.set("n","<leader>/", vim.diagnostic.open_float, { desc = "LSP: Open Diagnostic Float" })
 vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP: Hover Documentation" })
+                    -- To jump into the Documentation window press <C-w>w or press Shift+k again.
 vim.keymap.set("n", "g2D", "<cmd>vsplit | lua vim.lsp.buf.declaration()<cr>", { desc = "LSP: Goto Declaration in vertical split" })
 vim.keymap.set("n", "g2d", "<cmd>vsplit | lua vim.lsp.buf.definition()<cr>", { desc = "LSP: Goto Definition in Vertical Split" })
 vim.keymap.set("n", "g2s", vim.lsp.buf.signature_help, { desc = "LSP: Signature Documentation" })
+vim.keymap.set("n", "g2i", "<cmd>vsplit | lua vim.lsp.buf.implementation()<cr>", { desc = "LSP: Go to Implementation" })
 vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, { desc = "LSP: Code Action" })
 vim.keymap.set("n", "<leader>ra", vim.lsp.buf.rename, { desc = "LSP: Rename all references" })
 vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { desc = "LSP: Format" })
@@ -248,13 +250,13 @@ end
 vim.keymap.set("n", "<leader>ti", function()
   local buf = vim.api.nvim_get_current_buf()
   print("Toggle inlay hints called for buffer:", buf)
-  
+
   local enabled = vim.lsp.inlay_hint.is_enabled({ bufnr = buf })
   print("Currently enabled:", enabled)
   print(vim.inspect(enabled))
 
   local new_state = not enabled
   print("Setting inlay hints to:", new_state)
-  
+
   vim.lsp.inlay_hint.enable(new_state, { bufnr = buf })
 end, { desc = "Toggle Inlay Hints" })

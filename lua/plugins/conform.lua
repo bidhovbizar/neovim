@@ -13,7 +13,7 @@ return {
 
                 --go = { "goimports", "golines", "gofmt" },
             },
-            format_on_save = false,
+            -- Fomat_on_save is disabled by default, you can enable it if you want
             --format_on_save = {
             --    lsp_fallback = true,
             --    async = true,
@@ -21,6 +21,7 @@ return {
         })
     end,
     keys = {
+        -- This is disabled as I am using nvim treesitter formatter
         --{ "<M-f>", function() require("conform").format({ async = true, lsp_fallback = true }) end, mode = "n", desc = "Format buffer" },
     }
 }

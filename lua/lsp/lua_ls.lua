@@ -19,11 +19,23 @@ return {
     },
     settings = {
         Lua = {
+            runtime = {
+                version = 'LuaJIT',
+                path = vim.split(package.path, ';'),
+            },
             diagnostics = {
-                disable = { "missing-parameters", 
-                    "missing-fields", 
+                globals = {
+                    'vim',
+                },
+                disable = {
+                    "missing-parameters",
+                    "missing-fields",
                     "duplicate-set-field",
                 },
+            },
+            workspace = {
+                library = vim.api.nvim_get_runtime_file('', true),  -- This is the key part!
+                checkThirdParty = false,
             },
             format = {
                 enable = true,
@@ -32,9 +44,11 @@ return {
                     indent_size = "4",
                 }
             },
+            telemetry = {
+                enable = false,
+            },
         },
     },
-
     single_file_support = true,
     log_level = vim.lsp.protocol.MessageType.Warning,
 }

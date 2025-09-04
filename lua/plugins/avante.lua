@@ -40,11 +40,11 @@ return {
                 auto_suggestions = false, -- Experimental stage
                 --auto_set_highlight_group = true,
                 --auto_set_keymaps = true,
-                --auto_apply_diff_after_generation = false,
+                auto_apply_diff_after_generation = false,
                 support_paste_from_clipboard = false,
                 --minimize_diff = true, -- Whether to remove unchanged lines when applying a code block
                 enable_token_counting = false, -- Whether to enable token counting
-                --auto_approve_tool_permissions = false, -- Default: show permission prompts for all tools
+                auto_approve_tool_permissions = false, -- Default: show permission prompts for all tools
             },
             --        prompt_logger = { -- logs prompts to disk (timestamped, for replay/debugging)
             --            enabled = true, -- toggle logging entirely

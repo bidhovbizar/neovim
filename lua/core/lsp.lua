@@ -31,6 +31,34 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
+-- YAML
+-- Install yaml-language-server using npm install -g yaml-language-server
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "yaml", "yml" },
+    group = group,
+    callback = function()
+        -- We fetch the values written in ~/.config/nvim/lua/lsp/yamlls.lua into variable 'config'
+        local config = require("lsp.yamlls")
+        -- Only one of the below section should be uncommented at a time
+        --  Section 1
+        --vim.lsp.enable("yamlls")   -- This won't attach anything as nvim wont attach later
+        -- Section 2
+        -- Caveat: This will look for yaml-language-server package in your $PATH so install nodejs and yaml-language-server manually and only then uncomment the following start()
+        vim.api.nvim_create_autocmd("InsertEnter", {  -- This will start the lsp server only when you enter insert mode
+            buffer = 0,  -- Only for the current buffer
+            once = true, -- Only once for the current buffer
+            callback = function ()
+            vim.lsp.start({
+                name = "yamlls",
+                cmd = config.cmd,
+                root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+                settings = config.settings,
+            })
+            end,
+        })
+    end,
+})
+
 -- Python
 -- Install python using sudo apt install python
 -- Install pyright using pip install pyright

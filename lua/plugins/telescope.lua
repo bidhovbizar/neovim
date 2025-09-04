@@ -8,6 +8,9 @@ return {
         local builtin = require('telescope.builtin')
         telescope.setup({
             defaults = {
+                preview = {
+                    treesitter = false, -- Disable treesitter in previews
+                },
                 -- Smart case: lowercase = case-insensitive, mixed case = case-sensitive
                 vimgrep_arguments = {
                     'rg',

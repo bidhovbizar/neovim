@@ -9,7 +9,7 @@ return {
         telescope.setup({
             defaults = {
                 preview = {
-                    treesitter = false, -- Disable treesitter in previews
+                    treesitter = false, -- Disable treesitter in previews so opening files from telescope starts with syntax highlighting
                 },
                 -- Smart case: lowercase = case-insensitive, mixed case = case-sensitive
                 vimgrep_arguments = {

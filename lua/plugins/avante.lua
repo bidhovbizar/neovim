@@ -1,7 +1,9 @@
 return {
     {
         "yetone/avante.nvim",
+        tag = "v0.0.25",
         event = "VeryLazy",
+        lazy = true,
         version = false,
         cmd = { "AvanteAsk", "AvanteChat", "AvanteEdit", "AvanteRefresh", "AvanteSwitchProvider", "AvanteConflictChooseOurs", "AvanteConflictChooseTheirs", "AvanteConflictChooseBoth", "AvanteConflictChooseAllTheirs", "AvanteConflictChooseCursor", "AvanteConflictListQf", "AvanteConflictPrevConflict", "AvanteConflictNextConflict" },
         keys = {
@@ -113,10 +115,10 @@ return {
                     prompt = "Please check pylint issues and autopep8 issues and refactor this code following best practices, improving readability and maintainability while preserving functionality. Ensure to add the right comments in the docstrings"
                 },
             },
-        },
-        input = {
-            provider = "dressing",  -- Without this section, you won't be able to focus on the confirmation page and come out of it
-            provider_opts = {}, -- For dressing this field should be empty
+            input = {
+                provider = "dressing",  -- Without this section, you won't be able to focus on the confirmation page and come out of it
+                provider_opts = {}, -- For dressing this field should be empty
+            },
         },
         build = "make",
         dependencies = {

@@ -9,6 +9,13 @@
 -- :set paste -- To revert it
 -- :set nopaste -- To disable paste mode
 
+-- Disable Python providers early to speed up startup
+vim.g.loaded_python3_provider = 0
+vim.g.loaded_python_provider = 0
+vim.g.loaded_node_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0
+
 -- Python behavior
 -- Set Python path explicitly (much faster than auto-detection)
 vim.g.python3_host_prog = '/ws/bbizar-bgl/pyenv/shims/python' -- Adjust path as needed
@@ -44,13 +51,6 @@ vim.opt.splitbelow = true -- Horizontal splits below
 
 -- Ignore depreciation warnings which will be removed in future versions. Run :checkhealth to see any deprecation warnings.
 vim.deprecate = function() end
-
--- Disable Python providers to speed up startup
-vim.g.loaded_python3_provider = 0
-vim.g.loaded_python_provider = 0
-vim.g.loaded_node_provider = 0
-vim.g.loaded_ruby_provider = 0
-vim.g.loaded_perl_provider = 0
 
 vim.g.have_nerd_font = false
 vim.opt.breakindent = true

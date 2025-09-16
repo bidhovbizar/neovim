@@ -4,6 +4,7 @@ return {
         --"folke/tokyonight.nvim",
         "ellisonleao/gruvbox.nvim",
         priority = 1000, -- Ensure this loads before lualine
+        lazy = false,    -- Make sure we load this during startup if it is your main colorscheme
         config = function()
             vim.cmd.colorscheme "gruvbox"
         end

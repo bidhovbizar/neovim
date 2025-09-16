@@ -2,7 +2,14 @@ return {
     'nvim-telescope/telescope.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
     cmd = "Telescope",
-    keys = { "<leader>f" }, -- Load when any key starting with <leader>f is pressed
+    keys = {
+        { "<leader>ff", desc = "Telescope find files" },
+        { "<leader>fg", desc = "Telescope live grep" },
+        { "<leader>fb", desc = "Telescope buffers" },
+        { "<leader>fo", desc = "Telescope oldfiles" },
+        { "<leader>ft", desc = "Telescope git files" },
+        { "<leader>fH", desc = "Telescope help tags" },
+    },
     config = function()
         local telescope = require('telescope')
         local builtin = require('telescope.builtin')

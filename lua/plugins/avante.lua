@@ -50,7 +50,7 @@ return {
                 support_paste_from_clipboard = false,
                 --minimize_diff = true, -- Whether to remove unchanged lines when applying a code block
                 enable_token_counting = false, -- Whether to enable token counting
-                auto_approve_tool_permissions = false, -- Default: show permission prompts for all tools
+                auto_approve_tool_permissions = true, -- Default: show permission prompts for all tools
                 -- auto_approve_tool_permissions = {"bash", "replace_in_file"},
                 enable_fastapply = false,  -- Enable Fast Apply feature
             },
@@ -93,8 +93,10 @@ return {
             },
             highlights = {
                 diff = {
-                    current = "DiffText", -- Highlight for our changes
-                    incoming = "DiffAdd", -- Highlight for Avante's suggestions
+                    current = "Visual", -- Highlight for our changes
+                    incoming = "Question", -- Highlight for Avante's suggestions
+                    --current = "DiffText", -- Default: Highlight for our changes, seen on top
+                    --incoming = "DiffAdd", -- Default: Highlight for Avante's suggestions, seen on bottom
                 },
             },
             --- @class AvanteConflictUserConfig

@@ -99,14 +99,14 @@ return {
                     set_jumps = true, -- whether to set jumps in the jumplist
                     goto_previous_start = {
                         ["[f"] = { query = "@function.outer", desc = "Previous function" },
-                        ["[c"] = { query = "@class.outer", desc = "Previous class" },
+                        ["[C"] = { query = "@class.outer", desc = "Previous class" }, -- [c is used for hunk
                         ["[v"] = { query = "@parameter.inner", desc = "Previous parameter" },
                         ["[t"] = { query = "@statement.outer", desc = "Previous statement" },
                         ["[b"] = { query = "@block.outer", desc = "Previous block" },
                     },
                     goto_next_start = {
                         ["]f"] = { query = "@function.outer", desc = "Next function" },
-                        ["]c"] = { query = "@class.outer", desc = "Next class" },
+                        ["]C"] = { query = "@class.outer", desc = "Next class" }, --]c is used for hunk
                         ["]v"] = { query = "@parameter.inner", desc = "Next parameter" },
                         ["]t"] = { query = "@statement.outer", desc = "Next statement" },
                         ["]b"] = { query = "@block.outer", desc = "Next block" },

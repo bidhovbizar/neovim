@@ -1,8 +1,9 @@
 return {
-    {
-        "L3MON4D3/LuaSnip",
-        event = "InsertEnter",
-    },
+    --{
+    --    "L3MON4D3/LuaSnip",
+    --    lazy = true, -- Make LuaSnip lazy
+    --    event = "InsertEnter",
+    --},
     {
         -- Add blink-cmp-avante as a separate plugin that loads first
         "Kaiser-Yang/blink-cmp-avante",
@@ -11,19 +12,61 @@ return {
     {
         "saghen/blink.cmp",
         --priority = 600, -- Ensure it loads after blink-cmp-avante
-        event = "InsertEnter",
+        event = { "InsertEnter" }, -- Load on insert or command mode
+        --event = { "InsertEnter", "CmdlineEnter" }, -- Load on insert or command mode
+        lazy = true, -- Make blink.cmp lazy too
         dependencies = {
-            "rafamadriz/friendly-snippets",
+            {
+                "rafamadriz/friendly-snippets",
+                lazy = true,
+            },
             "Kaiser-Yang/blink-cmp-avante", -- Dependency ensures proper load order
+            {
+                "L3MON4D3/LuaSnip",
+                lazy = true,
+                event = "InsertEnter", -- Only load when entering insert mode
+                config = function()
+                    -- Move LuaSnip loading here to avoid loading on startup
+                    --require("luasnip.loaders.from_vscode").lazy_load()
+                    -- Only load VSCode snippets once, and do it lazily
+                    -- Defer snippet loading until actually needed
+                    local function load_snippets()
+                        if not vim.g.luasnip_snippets_loaded then
+                            vim.g.luasnip_snippets_loaded = true
+                            require("luasnip.loaders.from_vscode").lazy_load()
+                        end
+                    end
+
+                    -- Load snippets only when first snippet is requested
+                    local orig_get_snippets = require("luasnip").get_snippets
+                    require("luasnip").get_snippets = function(...)
+                        load_snippets()
+                        require("luasnip").get_snippets = orig_get_snippets
+                        return orig_get_snippets(...)
+                    end
+                end,
+            },
         },
-        version = "*",
+        version = "1.*",
+        opts_extend = { "sources.default" }, -- Add this line
         config = function()
             require("blink.cmp").setup({
-                snippets = { preset = "luasnip" },
+                snippets = { 
+                    preset = "luasnip" 
+                    -- Disable snippet expansion on startup
+                    --expand = function(snippet)
+                    --    -- Ensure LuaSnip is loaded before expanding
+                    --    if not vim.g.luasnip_snippets_loaded then
+                    --        require("luasnip.loaders.from_vscode").lazy_load()
+                    --        vim.g.luasnip_snippets_loaded = true
+                    --    end
+                    --    require("luasnip").lsp_expand(snippet)
+                    --end,
+                },
                 signature = { enabled = true },
 
                 sources = {
-                    default = { "lazydev", "avante", "lsp", "path", "snippets", "buffer" },
+                    default = { "lsp", "lazydev", "path", "snippets", "buffer", "avante" },
 
                     per_filetype = {
                         -- Fixed: Correct filetype name (capital A)
@@ -32,6 +75,8 @@ return {
                         avante = { "avante", "path", "buffer" },
                         -- Lazydev works correctly with lua
                         lua = { "lazydev", "lsp", "path", "snippets", "buffer" },
+                        -- Add Python-specific optimization
+                        python = { "lsp", "path", "snippets", "buffer" },
                     },
 
                     providers = {
@@ -52,15 +97,21 @@ return {
                         avante = {
                             module = 'blink-cmp-avante',
                             name = 'Avante',
-                            score_offset = 500, -- Added: High priority for @ and / triggers
                             opts = {
                                 trigger_characters = { "@", "/" },
+                                score_offset = 500, -- Added: High priority for @ and / triggers
                             }
                         },
                         lazydev = {
                             name = "LazyDev",
                             module = "lazydev.integrations.blink",
                             score_offset = 300, -- High priority for Lua development
+                        },
+
+                        -- Optimize buffer source
+                        buffer = {
+                            max_items = 10, -- Limit buffer completions
+                            min_keyword_length = 2,
                         },
 
                         cmdline = {
@@ -93,6 +144,10 @@ return {
                 },
 
                 completion = {
+                    list = {
+                        max_items = 20, -- Limit items for performance
+                    },
+
                     menu = {
                         border = nil,
                         scrolloff = 1,
@@ -116,14 +171,14 @@ return {
                         auto_show = true,
                         auto_show_delay_ms = 500,
                     },
-
-                    trigger = {
-                        completion = {
-                            keyword_length = 1, -- Allow single character triggers like @
-                            keyword_regex = "[%w@/]", -- Include @ and / in keyword matching
-                        },
-                    },
                 },
+
+                --trigger = {
+                --    completion = {
+                --        keyword_length = 1, -- Allow single character triggers like @
+                --        --keyword_regex = "[%w@/]", -- Include @ and / in keyword matching
+                --    },
+                --},
 
                 -- Added: Enable completion in special buffer types (important for Avante)
                 enabled = function()
@@ -138,34 +193,43 @@ return {
                     -- Enable in normal files, disable in prompt/nofile buffers
                     return not vim.tbl_contains({ "prompt" }, buftype) or buftype == ""
                 end,
+
+                -- Add fuzzy matcher configuration
+                fuzzy = { 
+                    implementation = "prefer_rust_with_warning",
+                },
             })
-            local ls = require("luasnip")
 
-            -- Map functionality to <M-j> combination
-            vim.keymap.set({ "i", "s" }, "<M-j>", function()
-                local blink = require("blink.cmp")
-                if blink.is_visible() then
-                    blink.select_next()
-                elseif ls.jumpable(1) then
-                    ls.jump(1)
-                else
-                    return "<M-j>"
-                end
-            end, { expr = true, silent = true })
+            -- Defer LuaSnip keymap setup
+            vim.schedule(function()
+                local ls = require("luasnip")
 
-            -- Map functionality to <M-k> combination
-            vim.keymap.set({ "i", "s" }, "<M-k>", function()
-                local blink = require("blink.cmp")
-                if blink.is_visible() then
-                    blink.select_prev()
-                elseif ls.jumpable(-1) then
-                    ls.jump(-1)
-                else
-                    return "<M-k>"
-                end
-            end, { expr = true, silent = true })
+                -- Map functionality to <M-j> combination
+                vim.keymap.set({ "i", "s" }, "<M-j>", function()
+                    local blink = require("blink.cmp")
+                    if blink.is_visible() then
+                        blink.select_next()
+                    elseif ls.jumpable(1) then
+                        ls.jump(1)
+                    else
+                        return "<M-j>"
+                    end
+                end, { expr = true, silent = true })
 
-            require("luasnip.loaders.from_vscode").lazy_load()
+                -- Map functionality to <M-k> combination
+                vim.keymap.set({ "i", "s" }, "<M-k>", function()
+                    local blink = require("blink.cmp")
+                    if blink.is_visible() then
+                        blink.select_prev()
+                    elseif ls.jumpable(-1) then
+                        ls.jump(-1)
+                    else
+                        return "<M-k>"
+                    end
+                end, { expr = true, silent = true })
+            end)
+
+            --require("luasnip.loaders.from_vscode").lazy_load()
         end,
     },
 }

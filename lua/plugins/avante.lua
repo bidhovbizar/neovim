@@ -1,7 +1,7 @@
 return {
     {
         "yetone/avante.nvim",
-        tag = "v0.0.25",
+        --tag = "v0.0.25",
         event = "VeryLazy",
         lazy = true,
         version = false,
@@ -42,7 +42,7 @@ return {
                 --- @type "fzf" | 'telescope' | "builtin" | "none"
                 provider = "telescope", -- Use Telescope for selecting suggestions
             },
-            behavior = {
+            behaviour = {
                 auto_suggestions = false, -- Experimental stage
                 auto_set_highlight_group = true, -- Assists in better colour scheme for avante
                 auto_set_keymaps = true, -- Automatically set keymaps for avante
@@ -50,7 +50,7 @@ return {
                 support_paste_from_clipboard = false,
                 --minimize_diff = true, -- Whether to remove unchanged lines when applying a code block
                 enable_token_counting = false, -- Whether to enable token counting
-                auto_approve_tool_permissions = true, -- Default: show permission prompts for all tools
+                auto_approve_tool_permissions = false, -- Default: show permission prompts for all tools
                 -- auto_approve_tool_permissions = {"bash", "replace_in_file"},
                 enable_fastapply = false,  -- Enable Fast Apply feature
             },

@@ -1,12 +1,13 @@
 return {
     {
         "CopilotC-Nvim/CopilotChat.nvim",
-        event = "VeryLazy",
+        --event = "VeryLazy", -- Uncommenting this will make copilotchat always load immediately after nvim starts
+        event = "InsertEnter", -- This will load copilotchat when you enter insert mode for the first time
         dependencies = {
             { "zbirenbaum/copilot.lua" },                   -- or zbirenbaum/copilot.lua or github/copilot.vim
             { "nvim-lua/plenary.nvim" }, -- for curl, log and async functions
         },
-        build = "make tiktoken",                            -- Only on MacOS or Linux
+        --build = "make tiktoken",                            -- Only on MacOS or Linux
         opts = {
             -- Set model to use for Copilot Chat first find which model you wish to use.
             -- You can find it by starting copilotchat and then presseing `$`. 
@@ -46,18 +47,14 @@ return {
             },
         },
         keys = {
-            { "<leader>cc", "<cmd>CopilotChat<CR>",         desc = "Chat with Copilot" },
-            { "<leader>ce", "<cmd>CopilotChatExplain<CR>",  mode = "v",                desc = "Explain Code" },
-            { "<leader>cr", "<cmd>CopilotChatReview<CR>",   mode = "v",                desc = "Review Code" },
-            { "<leader>cf", "<cmd>CopilotChatFix<CR>",      mode = "v",                desc = "Fix Code Issues" },
-            { "<leader>co", "<cmd>CopilotChatOptimize<CR>", mode = "v",                desc = "Optimize Code" },
-            { "<leader>cD", "<cmd>CopilotChatDocs<CR>",     mode = "v",                desc = "Generate Docs" },
-            { "<leader>ct", "<cmd>CopilotChatTests<CR>",    mode = "v",                desc = "Generate Tests" },
-            { "<leader>cm", "<cmd>CopilotChatCommit<CR>",   mode = { "n", "v"},        desc = "Generate Commit Message" },
+            { "<leader>cc", "<cmd>CopilotChat<CR>",         mode = { "n", "v"},   desc = "Chat with Copilot" },
+            { "<leader>cm", "<cmd>CopilotChatCommit<CR>",   mode = { "n", "v"},   desc = "Generate Commit Message" },
+            { "<leader>ce", "<cmd>CopilotChatExplain<CR>",  mode = "v",           desc = "Explain Code" },
+            { "<leader>cr", "<cmd>CopilotChatReview<CR>",   mode = "v",           desc = "Review Code" },
+            { "<leader>cf", "<cmd>CopilotChatFix<CR>",      mode = "v",           desc = "Fix Code Issues" },
+            { "<leader>co", "<cmd>CopilotChatOptimize<CR>", mode = "v",           desc = "Optimize Code" },
+            { "<leader>cD", "<cmd>CopilotChatDocs<CR>",     mode = "v",           desc = "Generate Docs" },
+            { "<leader>ct", "<cmd>CopilotChatTests<CR>",    mode = "v",           desc = "Generate Tests" },
         },
-        -- Entering any of the following command will initiate Copilot in neovim
-        --cmd = {
-        --    "CopilotChat",
-        --}
     },
 }

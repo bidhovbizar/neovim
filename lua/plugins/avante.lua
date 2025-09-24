@@ -2,10 +2,9 @@ return {
     {
         "yetone/avante.nvim",
         --tag = "v0.0.25",
-        event = "VeryLazy",
+        --event = "VeryLazy", -- Don't uncomment, as it will load the plugin even if not needed
         lazy = true,
         version = false,
-        cmd = { "AvanteAsk", "AvanteChat", "AvanteEdit", "AvanteRefresh", "AvanteSwitchProvider", "AvanteConflictChooseOurs", "AvanteConflictChooseTheirs", "AvanteConflictChooseBoth", "AvanteConflictChooseAllTheirs", "AvanteConflictChooseCursor", "AvanteConflictListQf", "AvanteConflictPrevConflict", "AvanteConflictNextConflict" },
         keys = {
             { "<leader>aa", "<cmd>AvanteAsk<cr>", desc = "avante: ask" },
             { "<leader>ar", "<cmd>AvanteRefresh<cr>", desc = "avante: refresh" },

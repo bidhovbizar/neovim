@@ -30,6 +30,7 @@ require("lazy").setup({ import = "plugins" }, {
         enabled = true,  -- Enable configuration file change detection automatically otherwise, if its false then :Lazy reload <plugin> is required
         notify = false,   -- Disable notifications for change detection
     },
+    concurrency = vim.uv.available_parallelism(),  -- Limit the number of concurrent tasks
     ui = {
         -- border = "rounded" -- Optional: set UI border style
     },
@@ -42,7 +43,6 @@ require("lazy").setup({ import = "plugins" }, {
             reset = true,  -- Reset runtime path for cleaner loading
             disabled_plugins = {
                 "gzip",           -- Disable gzip plugin
-                "matchit",        -- Disable heavy matching plugin
                 "tarPlugin",      -- Disable tar archive plugin
                 "tohtml",         -- Disable HTML conversion
                 "zipPlugin",      -- Disable zip archive plugin

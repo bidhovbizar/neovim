@@ -29,12 +29,12 @@ return {
             },
             sections = {
                 lualine_a = { 'mode' },                -- NORMAL, INSERT, etc.
-                lualine_b = { },              -- Setting the branch to none to avoid loading  
-                lualine_c = { },              -- Setting the filepath to none to avoid loading
-                --lualine_b = { 'branch' },              -- Git branch; But will be slow for network-mounted directories like ADS
-                --lualine_c = {
-                --    { 'filename', path = 1 },          -- 0: only file name; 1: path relative
-                --},
+                --lualine_b = { },              -- Setting the branch to none to avoid loading  
+                --lualine_c = { },              -- Setting the filepath to none to avoid loading
+                lualine_b = { 'branch' },              -- Git branch; But will be slow for network-mounted directories like ADS
+                lualine_c = {
+                    { 'filename', path = 1 },          -- 0: only file name; 1: path relative
+                },
                 lualine_x = {}, -- remove 'diff', 'diagnostics', 'filetype', 'encoding', etc.
                 lualine_y = {'progress'},               -- remove progress %
                 lualine_z = { 'location' },            -- line/column

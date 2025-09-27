@@ -19,13 +19,13 @@ return {
 				vendor = true,
 			},
 			hints = {
-				assignVariableTypes = false,
-				compositeLiteralFields = false,
-				compositeLiteralTypes = false,
-				constantValues = false,
-				functionTypeParameters = false,
-				parameterNames = false,
-				rangeVariableTypes = false,
+				assignVariableTypes = true,        -- Show types when assigning variables
+				compositeLiteralFields = true,     -- Show field names in struct literals
+				compositeLiteralTypes = true,      -- Show types in composite literals
+				constantValues = true,             -- Show values of constants
+				functionTypeParameters = true,     -- Show type parameters in function calls
+				parameterNames = true,             -- Show parameter names in function calls
+				rangeVariableTypes = true,         -- Show types of range variables
 			},
 			analyses = {
 				nilness = true,

@@ -50,6 +50,10 @@ return {
             },
             hint = {
                 enable = true,
+                --paramType = false,
+                --paramName = "Disable",
+                --semicolon = "Disable",
+                arrayIndex = "Disable", -- This is why we see [1], [2] etc
             },
         },
     },

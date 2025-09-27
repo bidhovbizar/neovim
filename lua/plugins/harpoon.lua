@@ -42,8 +42,8 @@ local function toggle_telescope(harpoon_files)
                 vim.cmd("edit " .. selection.value)
             end)
 
-            -- Custom mapping: <leader>ga to grep in all harpoon files
-            map("i", "<leader>ga", function()
+            -- Custom mapping: <leader>fa to grep in all harpoon files once you are in harpoon
+            map({"n", "i"}, "<leader>fa", function()
                 require("telescope.actions").close(prompt_bufnr)
                 builtin.live_grep({
                     search_dirs = file_paths,
@@ -52,8 +52,8 @@ local function toggle_telescope(harpoon_files)
                 })
             end)
 
-            -- Custom mapping: <leader>gs to grep in selected file only
-            map("i", "<leader>gs", function()
+            -- Custom mapping: <leader>fs to grep in selected file only
+            map({"n", "i"}, "<leader>fs", function()
                 local selection = require("telescope.actions.state").get_selected_entry()
                 require("telescope.actions").close(prompt_bufnr)
                 builtin.live_grep({
@@ -100,8 +100,8 @@ return {
 
         -- <leader>fh → Shows Harpoon file list with previews
         --      then:
-        -- <leader>ga → Live grep in ALL Harpoon files
-        -- <leader>gs → Live grep in SELECTED file only
+        -- <leader>fa → Live grep in ALL Harpoon files
+        -- <leader>fs → Live grep in SELECTED file only
         --      If you want to just open the file:
         -- Enter → Opens selected file
 

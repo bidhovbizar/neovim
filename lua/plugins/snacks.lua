@@ -40,8 +40,11 @@ return {
         statuscolumn = { enabled = false },
         words = { enabled = false }, -- This if for LSP to show what ever faster. We are trying to do lazy here, so not needed
     },
-    keys = {
-        { "<leader>b", function() Snacks.picker.buffers() end, desc = "Buffers" }, -- Even with picker disabled this works
-        { "<leader>e", function() Snacks.explorer() end, desc = "File Explorer" },
+   keys = {
+        -- Commenting the snacks buffer due to 2 reasons as follows
+        -- 1. Telescope gives the same function
+        -- 2. <leader>b is used during diffview open files
+        --{ "<leader>b", function() Snacks.picker.buffers() end, desc = "Buffers" }, -- Even with picker disabled this works
+        { "<M-e>", function() Snacks.explorer() end, desc = "File Explorer" },
     },
 }

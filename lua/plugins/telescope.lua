@@ -8,9 +8,7 @@ return {
         { "<leader>fb", desc = "Telescope buffers" },
         { "<leader>fo", desc = "Telescope oldfiles" },
         { "<leader>ft", desc = "Telescope git files" },
-        { "<leader>fH", desc = "Telescope help tags" },
         { "<leader>fr", desc = "Telescope resume last search" },
-        { "<leader>fh", desc = "Telescope search history" },
     },
     config = function()
         local telescope = require('telescope')
@@ -176,8 +174,8 @@ return {
                 },
                 mappings = {
                     i = {
-                        -- Toggle case sensitivity with <leader>ftc in insert mode
-                        ["<leader>ftc"] = function(prompt_bufnr)
+                        -- Toggle case sensitivity with <leader>tc in insert mode
+                        ["<leader>tc"] = function(prompt_bufnr)
                             -- Simple approach - just print for debugging first
                             print("Telescope: Toggle pressed in insert mode")
                             -- Try to restart the search with opposite case setting
@@ -225,8 +223,8 @@ return {
                         end,
                     },
                     n = {
-                        -- Toggle case sensitivity with <leader>ftc in normal mode
-                        ["<leader>ftc"] = function(prompt_bufnr)
+                        -- Toggle case sensitivity with <leader>tc in normal mode
+                        ["<leader>tc"] = function(prompt_bufnr)
                             print("Telescope: Toggle pressed in normal mode")
                             local current_picker = require('telescope.actions.state').get_current_picker(prompt_bufnr)
                             local prompt = current_picker:_get_prompt()
@@ -265,31 +263,16 @@ return {
         -- To clear all buffers do :bwipeout
         vim.keymap.set('n', '<leader>fo', builtin.oldfiles, { desc = 'Telescope oldfiles' })
         vim.keymap.set('n', '<leader>ft', builtin.git_files, { desc = 'Telescope git files' })
-        vim.keymap.set('n', '<leader>fH', builtin.help_tags, { desc = 'Telescope help tags' })
 
         -- Resume functionality - reopens the last telescope picker with same state
         vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = 'Telescope resume last search' })
 
-        -- Search history functionality
-        vim.keymap.set('n', '<leader>fh', function()
-            vim.ui.select({'live_grep', 'find_files'}, {
-                prompt = 'Select search type:',
-                format_item = function(item)
-                    return item:gsub('_', ' '):gsub('^%l', string.upper) .. ' History'
-                end,
-            }, function(choice)
-                if choice then
-                    show_search_history(choice)
-                end
-            end)
-        end, { desc = 'Show search history' })
-
         -- Quick access to last searches
-        vim.keymap.set('n', '<leader>fgg', function() repeat_last_search('live_grep') end, { desc = 'Repeat last live grep' })
-        vim.keymap.set('n', '<leader>fff', function() repeat_last_search('find_files') end, { desc = 'Repeat last find files' })
+        vim.keymap.set('n', '<leader>ffr', function() repeat_last_search('find_files') end, { desc = 'Repeat last find files' })
+        vim.keymap.set('n', '<leader>fgr', function() repeat_last_search('live_grep') end, { desc = 'Repeat last live grep' })
 
         -- Show specific search history
-        vim.keymap.set('n', '<leader>fhg', function() show_search_history('live_grep') end, { desc = 'Live grep history' })
-        vim.keymap.set('n', '<leader>fhf', function() show_search_history('find_files') end, { desc = 'Find files history' })
+        vim.keymap.set('n', '<leader>ffh', function() show_search_history('find_files') end, { desc = 'Find files history' })
+        vim.keymap.set('n', '<leader>fgh', function() show_search_history('live_grep') end, { desc = 'Live grep history' })
     end
 }

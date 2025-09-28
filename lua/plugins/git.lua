@@ -43,6 +43,37 @@ return {
                     },
                 },
             })
+            vim.api.nvim_set_hl(0, 'DiffAdd', { bg = '#34462F' })
+            vim.api.nvim_set_hl(0, 'DiffDelete', { bg = '#462F2F' })
+            vim.api.nvim_set_hl(0, 'DiffChange', { bg = '#2F4146' })
+            vim.api.nvim_set_hl(0, 'DiffText', { bg = '#463C2F' })
+
+            -- Define colors or use theme colors
+            local colors = {
+                '#e06c75', -- red
+                '#d19a66', -- orange  
+                '#98c379', -- green
+                '#61afef', -- blue
+                '#c678dd', -- purple
+                '#56b6c2', -- cyan
+                '#abb2bf', -- white
+                '#5c6370', -- gray
+                '#3e4451', -- dark gray
+            }
+            vim.api.nvim_set_hl(0, 'DiffAdded', { fg = colors[3], bold = true })
+            vim.api.nvim_set_hl(0, 'DiffRemoved', { fg = colors[2], bold = true })
+            vim.api.nvim_set_hl(0, 'DiffChanged', { fg = colors[4], bold = true })
+
+            vim.api.nvim_set_hl(0, 'DiffviewWinSeparator', { fg = colors[9] })
+            vim.api.nvim_set_hl(0, 'DiffviewDiffDelete', { fg = colors[9] })
+            vim.api.nvim_set_hl(0, 'DiffviewFilePanelSelected', { fg = colors[6] })
+
+            vim.api.nvim_set_hl(0, 'DiffviewStatusAdded', { fg = colors[3], bold = true })
+            vim.api.nvim_set_hl(0, 'DiffviewStatusUntracked', { fg = colors[8], bold = true })
+            vim.api.nvim_set_hl(0, 'DiffviewStatusModified', { fg = colors[4], bold = true })
+            vim.api.nvim_set_hl(0, 'DiffviewStatusRenamed', { fg = colors[3], bold = true })
+            vim.api.nvim_set_hl(0, 'DiffviewStatusDeleted', { fg = colors[2], bold = true })
+            vim.api.nvim_set_hl(0, 'DiffviewStatusIgnored', { fg = colors[9], bold = true })
         end,
     },
     -- This git-conflict doesn't contain way to handle conflicts from diffview.nvim. If this doesn't work then, 
@@ -51,7 +82,9 @@ return {
     { -- Dedicated conflict resolution plugin
         'akinsho/git-conflict.nvim',
         version = "*",
-        event = "BufReadPost",
+        keys = {
+            { 'gC', '<cmd>GitConflictRefresh<cr>', desc = 'Refresh Git Conflicts in git-conflict' },
+        },
         config = function()
             require('git-conflict').setup({
                 default_mappings = true,

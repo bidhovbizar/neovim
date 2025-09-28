@@ -42,49 +42,32 @@ return {
                         width = 35,  -- Reasonable default width
                     },
                 },
+                hooks = {
+                    diff_buf_read = function(bufnr)
+                        -- Disable git-conflict processing in diffview buffers
+                        vim.b[bufnr].git_conflict_disable = true
+                    end,
+                    view_opened = function()
+                        -- Set global flag when diffview is active
+                        vim.g.diffview_active = true
+                    end,
+                    view_closed = function()
+                        -- Unset global flag when diffview is closed
+                        vim.g.diffview_active = false
+                        -- Re-enable git-conflict processing
+                        vim.schedule(function()
+                            -- Use the command instead of the function since the API might vary
+                            vim.cmd('GitConflictRefresh')
+                        end)
+                    end,
+                },
             })
-            vim.api.nvim_set_hl(0, 'DiffAdd', { bg = '#34462F' })
-            vim.api.nvim_set_hl(0, 'DiffDelete', { bg = '#462F2F' })
-            vim.api.nvim_set_hl(0, 'DiffChange', { bg = '#2F4146' })
-            vim.api.nvim_set_hl(0, 'DiffText', { bg = '#463C2F' })
-
-            -- Define colors or use theme colors
-            local colors = {
-                '#e06c75', -- red
-                '#d19a66', -- orange  
-                '#98c379', -- green
-                '#61afef', -- blue
-                '#c678dd', -- purple
-                '#56b6c2', -- cyan
-                '#abb2bf', -- white
-                '#5c6370', -- gray
-                '#3e4451', -- dark gray
-            }
-            vim.api.nvim_set_hl(0, 'DiffAdded', { fg = colors[3], bold = true })
-            vim.api.nvim_set_hl(0, 'DiffRemoved', { fg = colors[2], bold = true })
-            vim.api.nvim_set_hl(0, 'DiffChanged', { fg = colors[4], bold = true })
-
-            vim.api.nvim_set_hl(0, 'DiffviewWinSeparator', { fg = colors[9] })
-            vim.api.nvim_set_hl(0, 'DiffviewDiffDelete', { fg = colors[9] })
-            vim.api.nvim_set_hl(0, 'DiffviewFilePanelSelected', { fg = colors[6] })
-
-            vim.api.nvim_set_hl(0, 'DiffviewStatusAdded', { fg = colors[3], bold = true })
-            vim.api.nvim_set_hl(0, 'DiffviewStatusUntracked', { fg = colors[8], bold = true })
-            vim.api.nvim_set_hl(0, 'DiffviewStatusModified', { fg = colors[4], bold = true })
-            vim.api.nvim_set_hl(0, 'DiffviewStatusRenamed', { fg = colors[3], bold = true })
-            vim.api.nvim_set_hl(0, 'DiffviewStatusDeleted', { fg = colors[2], bold = true })
-            vim.api.nvim_set_hl(0, 'DiffviewStatusIgnored', { fg = colors[9], bold = true })
         end,
     },
-    -- This git-conflict doesn't contain way to handle conflicts from diffview.nvim. If this doesn't work then, 
-    -- remove this entire section and uncomment the next section which contains the fix to handle git-conflict.nvim and diffview.nvim
-    -- interaction using diffview_active variable
     { -- Dedicated conflict resolution plugin
         'akinsho/git-conflict.nvim',
         version = "*",
-        keys = {
-            { 'gC', '<cmd>GitConflictRefresh<cr>', desc = 'Refresh Git Conflicts in git-conflict' },
-        },
+        event = "BufReadPost",
         config = function()
             require('git-conflict').setup({
                 default_mappings = true,
@@ -102,12 +85,81 @@ return {
             vim.keymap.set('n', 'cr', '<cmd>GitConflictRefresh<cr>', { desc = "Refresh Git Conflicts" })
             vim.keymap.set('n', 'gh', '<cmd>GitConflictHelp<cr>', { desc = "Shows Git Conflict Help" })
 
-            -- Create hint display for git conflicts
+            -- Override the process function to check for diffview
+            local git_conflict = require('git-conflict')
+            local original_process = git_conflict.process
+
+            git_conflict.process = function(bufnr)
+                bufnr = bufnr or vim.api.nvim_get_current_buf()
+                
+                -- Skip processing if in diffview or buffer is marked to disable
+                if vim.g.diffview_active or vim.b[bufnr].git_conflict_disable then
+                    return
+                end
+                
+                -- Check if buffer belongs to diffview by examining buffer name or filetype
+                local buf_name = vim.api.nvim_buf_get_name(bufnr)
+                local buf_filetype = vim.bo[bufnr].filetype
+                
+                -- Skip diffview buffers (including file panel previews)
+                if buf_name:match("diffview://") or 
+                   buf_filetype == "DiffviewFiles" or
+                   buf_filetype == "DiffviewFileHistory" then
+                    return
+                end
+                
+                -- Check if we're in a diffview window (additional safety check)
+                local win = vim.fn.bufwinid(bufnr)
+                if win ~= -1 then
+                    local win_config = vim.api.nvim_win_get_config(win)
+                    if win_config and win_config.relative and win_config.relative ~= "" then
+                        -- This might be a floating diffview window, skip it
+                        return
+                    end
+                end
+                
+                -- Wrap the original process in a pcall to catch any errors
+                local ok, result = pcall(original_process, bufnr)
+                if not ok then
+                    -- If there's an error, it might be due to diffview interference
+                    -- Check if we're actually in a diffview context and skip silently
+                    local current_tab = vim.api.nvim_get_current_tabpage()
+                    local tab_wins = vim.api.nvim_tabpage_list_wins(current_tab)
+                    
+                    for _, w in ipairs(tab_wins) do
+                        local buf = vim.api.nvim_win_get_buf(w)
+                        local name = vim.api.nvim_buf_get_name(buf)
+                        local ft = vim.bo[buf].filetype
+                        if name:match("diffview://") or ft:match("Diffview") then
+                            -- We're in a diffview context, silently return
+                            return
+                        end
+                    end
+                    
+                    -- If we're not in diffview, re-raise the error
+                    error(result)
+                end
+                
+                return result
+            end
+
+            -- Create hint display for git conflicts (only when not in diffview)
             local hint_ns = vim.api.nvim_create_namespace("git_conflict_hints")
             local hint_group = vim.api.nvim_create_augroup("GitConflictHints", { clear = true })
 
             local function show_conflict_hints()
+                -- Don't show hints in diffview
+                if vim.g.diffview_active then
+                    return
+                end
+
                 local bufnr = vim.api.nvim_get_current_buf()
+                
+                -- Skip if buffer is marked to disable git-conflict
+                if vim.b[bufnr].git_conflict_disable then
+                    return
+                end
+
                 local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
 
                 -- Get all lines in the buffer
@@ -148,10 +200,14 @@ return {
                 end
             end
 
-            -- Set up autocommands to show hints
+            -- Set up autocommands to show hints (but skip in diffview)
             vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufEnter" }, {
                 group = hint_group,
-                callback = show_conflict_hints,
+                callback = function()
+                    if not vim.g.diffview_active then
+                        show_conflict_hints()
+                    end
+                end,
             })
 
             -- Optional: Create a command to show help
@@ -205,157 +261,4 @@ return {
             end, { desc = "Show git conflict resolution help" })
         end
     },
--- This section contains the fix to handle git-conflict.nvim and diffview.nvim interaction using diffview_active variable
---    { -- Dedicated conflict resolution plugin
---        'akinsho/git-conflict.nvim',
---        version = "*",
---        event = "BufReadPost",
---        config = function()
---            require('git-conflict').setup({
---                default_mappings = true,
---                default_commands = true,
---                disable_diagnostics = false,
---                list_opener = 'copen',
---                highlights = {
---                    current = "Visual",
---                    incoming = "Question",
---                }
---            })
---
---            -- Track diffview state to conditionally disable git-conflict features
---            local diffview_active = false
---
---            -- Handle diffview enter event
---            vim.api.nvim_create_autocmd("User", {
---                pattern = "DiffviewViewEnter",
---                callback = function()
---                    diffview_active = true
---                    -- Optionally clear git-conflict highlights while in diffview
---                    vim.cmd('GitConflictRefresh')
---                end,
---            })
---
---            -- Handle diffview leave event
---            vim.api.nvim_create_autocmd("User", {
---                pattern = "DiffviewViewLeave",
---                callback = function()
---                    diffview_active = false
---                    -- Refresh git-conflict when returning from diffview
---                    vim.cmd('GitConflictRefresh')
---                end,
---            })
---
---            -- Create hint display for git conflicts
---            local hint_ns = vim.api.nvim_create_namespace("git_conflict_hints")
---            local hint_group = vim.api.nvim_create_augroup("GitConflictHints", { clear = true })
---
---            local function show_conflict_hints()
---                -- Don't show hints when diffview is active
---                if diffview_active then
---                    return
---                end
---
---                local bufnr = vim.api.nvim_get_current_buf()
---                local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
---
---                -- Get all lines in the buffer
---                local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
---
---                -- Clear existing hints
---                vim.api.nvim_buf_clear_namespace(bufnr, hint_ns, 0, -1)
---
---                -- Find conflict boundaries and check if cursor is within any conflict hunk
---                local conflict_start = nil
---                local conflict_end = nil
---                local header_line = nil
---
---                for i, line in ipairs(lines) do
---                    if line:match("^<<<<<<<") then
---                        conflict_start = i
---                        header_line = i - 1  -- Convert to 0-based indexing
---                    elseif line:match("^>>>>>>>") and conflict_start then
---                        conflict_end = i
---
---                        -- Check if cursor is within this conflict hunk
---                        if cursor_line >= conflict_start and cursor_line <= conflict_end then
---                            -- Show hint as virtual text on the conflict header line
---                            local hint_text = "[co: OURS, ct: THEIRS, [x: PREV, ]x: NEXT, cr: REFRESH]"
---                            vim.api.nvim_buf_set_extmark(bufnr, hint_ns, header_line, 0, {
---                                virt_text = {{ hint_text, "DiagnosticVirtualLinesError" }},
---                                virt_text_pos = "right_align",
---                                priority = 1000,
---                            })
---                            break
---                        end
---
---                        -- Reset for next potential conflict
---                        conflict_start = nil
---                        conflict_end = nil
---                        header_line = nil
---                    end
---                end
---            end
---
---            -- Set up autocommands to show hints
---            vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "BufEnter" }, {
---                group = hint_group,
---                callback = show_conflict_hints,
---            })
---
---            -- Create a command to show help
---            vim.api.nvim_create_user_command("GitConflictHelp", function()
---                local help_text = {
---                    "Git Conflict Resolution:",
---                    "",
---                    "CONFLICT RESOLUTION:",
---                    "co - Choose Ours (HEAD/current branch)",
---                    "ct - Choose Theirs (incoming/merge branch)",
---                    "cb - Choose Both (keep both changes)",
---                    "c0 - Choose None (delete conflict)",
---                    "cr - Refresh Git Conflicts",
---                    "cq - List All Conflicts in Quickfix",
---                    "gh - Show Git Conflict Help",
---                    "",
---                    "NAVIGATION:",
---                    "]x - Go to Next Conflict",
---                    "[x - Go to Previous Conflict",
---                    "",
---                    "COMMANDS:",
---                    ":GitConflictListQf - List all conflicts in quickfix",
---                    ":GitConflictRefresh - Refresh conflict detection",
---                }
---
---                local buf = vim.api.nvim_create_buf(false, true)
---                vim.api.nvim_buf_set_lines(buf, 0, -1, false, help_text)
---                vim.bo[buf].modifiable = false
---                vim.bo[buf].filetype = 'help'
---
---                local width = 50
---                local height = #help_text + 2
---                local opts = {
---                    relative = 'editor',
---                    width = width,
---                    height = height,
---                    col = (vim.o.columns - width) / 2,
---                    row = (vim.o.lines - height) / 2,
---                    style = 'minimal',
---                    border = 'rounded',
---                    title = ' Git Conflict Help ',
---                    title_pos = 'center'
---                }
---
---                local win = vim.api.nvim_open_win(buf, true, opts)
---                vim.wo[win].winhl = 'Normal:Normal,FloatBorder:FloatBorder'
---
---                -- Close on any key press
---                vim.keymap.set('n', '<ESC>', '<cmd>close<cr>', { buffer = buf })
---                vim.keymap.set('n', 'q', '<cmd>close<cr>', { buffer = buf })
---            end, { desc = "Show git conflict resolution help" })
---
---            -- Add keymap descriptions to existing mappings
---            vim.keymap.set('n', 'cq', '<cmd>GitConflictListQf<cr>', { desc = "List All Conflicts in Quickfix" })
---            vim.keymap.set('n', 'cr', '<cmd>GitConflictRefresh<cr>', { desc = "Refresh Git Conflicts" })
---            vim.keymap.set('n', 'gh', '<cmd>GitConflictHelp<cr>', { desc = "Shows Git Conflict Help" })
---        end
---    },
 }

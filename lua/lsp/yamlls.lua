@@ -29,7 +29,7 @@ return {
                     "docker-compose.*.yml",
                     "docker-compose.*.yaml"
                 },
-                
+
                 -- Kubernetes manifests (using more current schema)
                 ["https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.30.0-standalone-strict/all.json"] = {
                     "*.k8s.yaml",
@@ -43,11 +43,11 @@ return {
                     "service*.yaml",
                     "service*.yml"
                 },
-                
+
                 -- GitHub Actions workflows
                 ["https://json.schemastore.org/github-workflow.json"] = ".github/workflows/*.{yml,yaml}",
                 ["https://json.schemastore.org/github-action.json"] = ".github/action.{yml,yaml}",
-                
+
                 -- Ansible
                 ["https://json.schemastore.org/ansible-stable-2.9.json"] = {
                     "roles/tasks/*.yml",
@@ -61,7 +61,7 @@ return {
                     "playbook*.yml",
                     "playbook*.yaml"
                 },
-                
+
                 -- Other schemas
                 ["https://json.schemastore.org/chart.json"] = "Chart.{yml,yaml}",
                 ["https://json.schemastore.org/helmfile.json"] = "helmfile.{yml,yaml}",
@@ -84,14 +84,14 @@ return {
             },
             customTags = {
                 "!Base64",
-                "!Cidr", 
+                "!Cidr",
                 "!FindInMap sequence",
                 "!GetAtt",
                 "!GetAZs",
                 "!ImportValue",
                 "!Join sequence",
                 "!Ref",
-                "!Select sequence", 
+                "!Select sequence",
                 "!Split sequence",
                 "!Sub"
             },

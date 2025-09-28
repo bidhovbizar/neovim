@@ -1,6 +1,12 @@
 return {
     'nvim-telescope/telescope.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim' },
+    dependencies = {
+        'nvim-lua/plenary.nvim',
+        {
+            'nvim-telescope/telescope-fzf-native.nvim',
+            build = 'make'
+        }
+    },
     cmd = "Telescope",
     keys = {
         { "<leader>ff", desc = "Telescope find files" },
@@ -157,6 +163,69 @@ return {
             end
         end
 
+        -- Initialize case sensitivity state
+        vim.g.telescope_case_sensitive = false
+
+        -- Function to create case toggle mapping
+        local function create_case_toggle_mapping()
+            return function(prompt_bufnr)
+                local actions = require('telescope.actions')
+                local action_state = require('telescope.actions.state')
+                local current_picker = action_state.get_current_picker(prompt_bufnr)
+                local prompt = current_picker:_get_prompt()
+                local picker_name = current_picker.prompt_title
+
+                -- Close current picker
+                actions.close(prompt_bufnr)
+
+                -- Toggle case sensitivity state
+                vim.g.telescope_case_sensitive = not vim.g.telescope_case_sensitive
+
+                -- Show notification
+                if vim.g.telescope_case_sensitive then
+                    vim.notify("Telescope: Case sensitive search enabled", vim.log.levels.INFO, { timeout = 1500 })
+                else
+                    vim.notify("Telescope: Smart case search enabled", vim.log.levels.INFO, { timeout = 1500 })
+                end
+
+                -- Determine which picker to reopen based on the current one
+                if picker_name:lower():match("grep") then
+                    -- Reopen with live_grep using enhanced function for history tracking
+                    enhanced_live_grep({
+                        default_text = prompt,
+                        vimgrep_arguments = vim.g.telescope_case_sensitive and {
+                            'rg', '--color=never', '--no-heading', '--with-filename',
+                            '--line-number', '--column', '--case-sensitive'
+                        } or {
+                            'rg', '--color=never', '--no-heading', '--with-filename',
+                            '--line-number', '--column', '--smart-case'
+                        }
+                    })
+                elseif picker_name:lower():match("find") or picker_name:lower():match("files") then
+                    -- Reopen with find_files using enhanced function for history tracking
+                    -- Update fzf extension configuration dynamically
+                    telescope.setup({
+                        extensions = {
+                            fzf = {
+                                fuzzy = true,
+                                override_generic_sorter = true,
+                                override_file_sorter = true,
+                                case_mode = vim.g.telescope_case_sensitive and "respect_case" or "smart_case"
+                            }
+                        }
+                    })
+                    telescope.load_extension('fzf')
+
+                    enhanced_find_files({
+                        default_text = prompt
+                    })
+                else
+                    -- For other pickers, default to their builtin version
+                    vim.notify("Case toggle not supported for this picker", vim.log.levels.WARN, { timeout = 1500 })
+                end
+            end
+        end
+
         telescope.setup({
             defaults = {
                 preview = {
@@ -172,89 +241,55 @@ return {
                     '--column',
                     '--smart-case', -- Smart case behavior
                 },
+                -- Leaving everything empty is the best as it will take the default settings from telescope-fzf-native
+
+                -- Use fzf-native as the default sorter for better performance and case sensitivity
+                --file_sorter = require('telescope.sorters').get_fzf_sorter,
+                --generic_sorter = require('telescope.sorters').get_fzf_sorter,
+
+                -- Alternative sorters (replace fzf lines with one of these):
+                -- file_sorter = require('telescope.sorters').get_generic_fuzzy_sorter,
+                -- generic_sorter = require('telescope.sorters').get_generic_fuzzy_sorter,
+
+                -- Or use substr matcher (faster but less fuzzy):
+                -- file_sorter = require('telescope.sorters').get_substr_matcher,
+                -- generic_sorter = require('telescope.sorters').get_substr_matcher,
+
+                -- Or use regex matcher:
+                -- file_sorter = require('telescope.sorters').get_regex_matcher,
+                -- generic_sorter = require('telescope.sorters').get_regex_matcher,
+
+                -- Or use get_fzy_sorter() - FZY algorithm implementation
+                -- file_sorter = require('telescope.sorters').get_fzy_sorter,
+                -- generic_sorter = require('telescope.sorters').get_fzy_sorter,
+
+                -- Use fzf-native as the default sorter for better performance and case sensitivity
+                --file_sorter = require('telescope').extensions.fzf.native_fzf_sorter(),
+                --generic_sorter = require('telescope').extensions.fzf.native_fzf_sorter() ,
+
                 mappings = {
                     i = {
                         -- Toggle case sensitivity with <leader>tc in insert mode
-                        ["<leader>tc"] = function(prompt_bufnr)
-                            -- Simple approach - just print for debugging first
-                            print("Telescope: Toggle pressed in insert mode")
-                            -- Try to restart the search with opposite case setting
-                            local current_picker = require('telescope.actions.state').get_current_picker(prompt_bufnr)
-                            local prompt = current_picker:_get_prompt()
-                            -- Close current picker and restart with opposite case sensitivity
-                            require('telescope.actions').close(prompt_bufnr)
-                            -- Create a simple toggle state
-                            if not vim.g.telescope_case_sensitive then
-                                vim.g.telescope_case_sensitive = true
-                                -- Restart search with case sensitive
-                                require('telescope.builtin').live_grep({
-                                    default_text = prompt,
-                                    vimgrep_arguments = {
-                                        'rg', '--color=never', '--no-heading', '--with-filename',
-                                        '--line-number', '--column', '--case-sensitive'
-                                    },
-                                    attach_mappings = function(_)
-                                        -- Stay in normal mode and show message after telescope opens
-                                        vim.schedule(function()
-                                            vim.cmd('stopinsert') -- Exit insert mode
-                                            vim.notify("Telescope: Case sensitive search enabled", vim.log.levels.INFO, { timeout = 3000 })
-                                        end)
-                                        return true
-                                    end
-                                })
-                            else
-                                vim.g.telescope_case_sensitive = false
-                                require('telescope.builtin').live_grep({
-                                    default_text = prompt,
-                                    vimgrep_arguments = {
-                                        'rg', '--color=never', '--no-heading', '--with-filename',
-                                        '--line-number', '--column', '--smart-case'
-                                    },
-                                    attach_mappings = function(_)
-                                        -- Stay in normal mode and show message after telescope opens
-                                        vim.schedule(function()
-                                            vim.cmd('stopinsert') -- Exit insert mode
-                                            vim.notify("Telescope: Smart case search enabled", vim.log.levels.INFO, { timeout = 3000 })
-                                        end)
-                                        return true
-                                    end
-                                })
-                            end
-                        end,
+                        ["<leader>tc"] = create_case_toggle_mapping(),
                     },
                     n = {
                         -- Toggle case sensitivity with <leader>tc in normal mode
-                        ["<leader>tc"] = function(prompt_bufnr)
-                            print("Telescope: Toggle pressed in normal mode")
-                            local current_picker = require('telescope.actions.state').get_current_picker(prompt_bufnr)
-                            local prompt = current_picker:_get_prompt()
-                            require('telescope.actions').close(prompt_bufnr)
-                            if not vim.g.telescope_case_sensitive then
-                                vim.g.telescope_case_sensitive = true
-                                vim.notify("Telescope: Case sensitive search enabled", vim.log.levels.INFO, { timeout = 2000 })
-                                require('telescope.builtin').live_grep({
-                                    default_text = prompt,
-                                    vimgrep_arguments = {
-                                        'rg', '--color=never', '--no-heading', '--with-filename',
-                                        '--line-number', '--column', '--case-sensitive'
-                                    }
-                                })
-                            else
-                                vim.g.telescope_case_sensitive = false
-                                vim.notify("Telescope: Smart case search enabled", vim.log.levels.INFO, { timeout = 2000 })
-                                require('telescope.builtin').live_grep({
-                                    default_text = prompt,
-                                    vimgrep_arguments = {
-                                        'rg', '--color=never', '--no-heading', '--with-filename',
-                                        '--line-number', '--column', '--smart-case'
-                                    }
-                                })
-                            end
-                        end,
+                        ["<leader>tc"] = create_case_toggle_mapping(),
                     },
                 },
             },
+            extensions = {
+                fzf = {
+                    fuzzy = true,                    -- false will only do exact matching
+                    override_generic_sorter = true,  -- override the generic sorter
+                    override_file_sorter = true,     -- override the file sorter
+                    case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+                }
+            }
         })
+
+        -- Load fzf extension
+        telescope.load_extension('fzf')
         -- Main telescope functions with enhanced history tracking
         vim.keymap.set('n', '<leader>ff', function() enhanced_find_files() end, { desc = 'Telescope find files' })
         vim.keymap.set('n', '<leader>fg', function() enhanced_live_grep() end, { desc = 'Telescope live grep' })

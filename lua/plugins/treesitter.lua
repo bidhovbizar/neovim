@@ -73,7 +73,7 @@ return {
                         -- This section for change around/in parameter
                         ["av"] = { query = "@parameter.outer", desc = "around a parameter or variable" },
                         ["iv"] = { query = "@parameter.inner", desc = "inside a parameter or variable" },
-                        -- This section for change around/in paragraph 
+                        -- This section for change around/in paragraph
                         -- Don't need this block as its already defined in vim and treesitter is not needed
                         --["ap"] = { query = "@paragraph.outer", desc = "around a paragraph" },
                         --["ip"] = { query = "@paragraph.inner", desc = "inside a paragraph" },

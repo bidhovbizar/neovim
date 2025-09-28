@@ -10,7 +10,7 @@ return {
         --build = "make tiktoken",                            -- Only on MacOS or Linux
         opts = {
             -- Set model to use for Copilot Chat first find which model you wish to use.
-            -- You can find it by starting copilotchat and then presseing `$`. 
+            -- You can find it by starting copilotchat and then presseing `$`.
             --
             model = 'claude-sonnet-4', -- This is thinking model which is slow
             --model = 'claude-3.7-sonnet', -- This is thinking model which is slow

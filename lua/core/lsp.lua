@@ -274,7 +274,7 @@ vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { desc = "LSP: Format" })
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
------------------------------------------------------------------------- 
+------------------------------------------------------------------------
 -- Enable inlay hints for the current buffer
 -- This will pop up hints while filling the function with arguments. This only helps if the function definition has inlay hints e.g. add(x:int,y:int) -> int
 local bufnr = vim.api.nvim_get_current_buf()

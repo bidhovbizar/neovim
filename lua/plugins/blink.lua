@@ -51,8 +51,8 @@ return {
         opts_extend = { "sources.default" }, -- Add this line
         config = function()
             require("blink.cmp").setup({
-                snippets = { 
-                    preset = "luasnip" 
+                snippets = {
+                    preset = "luasnip"
                     -- Disable snippet expansion on startup
                     --expand = function(snippet)
                     --    -- Ensure LuaSnip is loaded before expanding
@@ -195,7 +195,7 @@ return {
                 end,
 
                 -- Add fuzzy matcher configuration
-                fuzzy = { 
+                fuzzy = {
                     implementation = "prefer_rust_with_warning",
                 },
             })

@@ -70,13 +70,15 @@ return {
 
                     per_filetype = {
                         -- Fixed: Correct filetype name (capital A)
-                        Avante = { "avante", "path", "buffer" },
+                        Avante = { "avante", "path", "buffer", "lsp" },
                         -- Also add lowercase variant just in case
-                        avante = { "avante", "path", "buffer" },
+                        avante = { "avante", "path", "buffer", "lsp" },
                         -- Lazydev works correctly with lua
                         lua = { "lazydev", "lsp", "path", "snippets", "buffer" },
                         -- Add Python-specific optimization
                         python = { "lsp", "path", "snippets", "buffer" },
+                        -- CodeCompanion specific settings
+                        codecompanion = { "codecompanion", "lsp", "path", "buffer" },
                     },
 
                     providers = {
@@ -110,7 +112,7 @@ return {
 
                         -- Optimize buffer source
                         buffer = {
-                            max_items = 10, -- Limit buffer completions
+                            max_items = 20, -- Limit buffer completions
                             min_keyword_length = 2,
                         },
 
@@ -185,8 +187,8 @@ return {
                     local buftype = vim.api.nvim_get_option_value("buftype", { buf = 0 })
                     local filetype = vim.api.nvim_get_option_value("filetype", { buf = 0 })
 
-                    -- Enable in Avante buffers specifically
-                    if filetype == "Avante" or filetype == "avante" then
+                    -- Enable in Avante and CodeCompanion buffers specifically
+                    if filetype == "Avante" or filetype == "avante" or filetype == "codecompanion" then
                         return true
                     end
 
@@ -204,27 +206,27 @@ return {
             vim.schedule(function()
                 local ls = require("luasnip")
 
-                -- Map functionality to <M-j> combination
-                vim.keymap.set({ "i", "s" }, "<M-j>", function()
+                -- Map functionality to <M-k> combination
+                vim.keymap.set({ "i", "s" }, "<M-k>", function()
                     local blink = require("blink.cmp")
                     if blink.is_visible() then
                         blink.select_next()
                     elseif ls.jumpable(1) then
                         ls.jump(1)
                     else
-                        return "<M-j>"
+                        return "<M-k>"
                     end
                 end, { expr = true, silent = true })
 
-                -- Map functionality to <M-k> combination
-                vim.keymap.set({ "i", "s" }, "<M-k>", function()
+                -- Map functionality to <M-j> combination
+                vim.keymap.set({ "i", "s" }, "<M-j>", function()
                     local blink = require("blink.cmp")
                     if blink.is_visible() then
                         blink.select_prev()
                     elseif ls.jumpable(-1) then
                         ls.jump(-1)
                     else
-                        return "<M-k>"
+                        return "<M-j>"
                     end
                 end, { expr = true, silent = true })
             end)

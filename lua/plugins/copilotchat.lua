@@ -2,7 +2,8 @@ return {
     {
         "CopilotC-Nvim/CopilotChat.nvim",
         --event = "VeryLazy", -- Uncommenting this will make copilotchat always load immediately after nvim starts
-        event = "InsertEnter", -- This will load copilotchat when you enter insert mode for the first time
+        --event = "InsertEnter", -- This will load copilotchat when you enter insert mode for the first time
+        cmd = { "CopilotChat", "CopilotChatCommit", "CopilotChatExplain", "CopilotChatReview", "CopilotChatFix", "CopilotChatOptimize", "CopilotChatDocs", "CopilotChatTests" },
         dependencies = {
             { "zbirenbaum/copilot.lua" },                   -- or zbirenbaum/copilot.lua or github/copilot.vim
             { "nvim-lua/plenary.nvim" }, -- for curl, log and async functions
@@ -47,14 +48,14 @@ return {
             },
         },
         keys = {
-            { "<leader>cc", "<cmd>CopilotChat<CR>",         mode = { "n", "v"},   desc = "Chat with Copilot" },
-            { "<leader>cm", "<cmd>CopilotChatCommit<CR>",   mode = { "n", "v"},   desc = "Generate Commit Message" },
-            { "<leader>ce", "<cmd>CopilotChatExplain<CR>",  mode = "v",           desc = "Explain Code" },
-            { "<leader>cr", "<cmd>CopilotChatReview<CR>",   mode = "v",           desc = "Review Code" },
-            { "<leader>cf", "<cmd>CopilotChatFix<CR>",      mode = "v",           desc = "Fix Code Issues" },
-            { "<leader>co", "<cmd>CopilotChatOptimize<CR>", mode = "v",           desc = "Optimize Code" },
-            { "<leader>cD", "<cmd>CopilotChatDocs<CR>",     mode = "v",           desc = "Generate Docs" },
-            { "<leader>ct", "<cmd>CopilotChatTests<CR>",    mode = "v",           desc = "Generate Tests" },
+            { "<leader>CC", "<cmd>CopilotChat<CR>",         mode = { "n", "v"},   desc = "Chat with Copilot" },
+            --{ "<leader>cm", "<cmd>CopilotChatCommit<CR>",   mode = { "n", "v"},   desc = "Generate Commit Message" },
+            --{ "<leader>ce", "<cmd>CopilotChatExplain<CR>",  mode = "v",           desc = "Explain Code" },
+            --{ "<leader>cr", "<cmd>CopilotChatReview<CR>",   mode = "v",           desc = "Review Code" },
+            --{ "<leader>cf", "<cmd>CopilotChatFix<CR>",      mode = "v",           desc = "Fix Code Issues" },
+            --{ "<leader>co", "<cmd>CopilotChatOptimize<CR>", mode = "v",           desc = "Optimize Code" },
+            --{ "<leader>cD", "<cmd>CopilotChatDocs<CR>",     mode = "v",           desc = "Generate Docs" },
+            --{ "<leader>ct", "<cmd>CopilotChatTests<CR>",    mode = "v",           desc = "Generate Tests" },
         },
     },
 }

@@ -2,21 +2,26 @@ return {
     "olimorris/codecompanion.nvim",
     dependencies = {
         { "nvim-lua/plenary.nvim", branch = "master" },
+        -- Markdown is used for chat and action palette formatting
         {
             "MeanderingProgrammer/render-markdown.nvim",
-            ft = { "markdown", "codecompanion" },
-            --lazy = false,
-        },
-        {
-            "OXY2DEV/markview.nvim",
             lazy = false,
-            opts = {
-                preview = {
-                    filetypes = { "markdown", "codecompanion" },
-                    ignore_buftypes = {},
-                },
-            },
+            --opts = {
+            --    filetypes = { "markdown", "codecompanion" }, -- Decides to render markdown files first and then codecompanion files
+            --},
+            --ft = { "markdown", "codecompanion" },
         },
+        -- Mark view is heavier and gives more decorations but is not as stable as render-markdown
+        --{
+        --    "OXY2DEV/markview.nvim",
+        --    lazy = false,
+        --    opts = {
+        --        preview = {
+        --            filetypes = { "markdown", "codecompanion" },
+        --            ignore_buftypes = {},
+        --        },
+        --    },
+        --},
         {
             "echasnovski/mini.diff",
             config = function()
@@ -105,12 +110,19 @@ return {
             chat = {
                 intro_message = "Welcome to CodeCompanion ✨! Press ? for help",
                 separator = "-", -- The separator between the different messages in the chat buffer
-                show_context = true, -- Show context (from slash commands and variables) in the chat buffer?
+                show_context = true, -- Show context (from slash commands and variables) in the chat buffer
                 show_header_separator = true, -- Show header separators in the chat buffer? Set this to false if you're using an external markdown formatting plugin
-                show_settings = true, -- Show LLM settings at the top of the chat buffer?
-                show_token_count = false, -- Show the token count for each response?
-                show_tools_processing = true, -- Show the loading message when tools are being executed?
+                show_settings = true, -- Show LLM settings at the top of the chat buffer
+                show_token_count = false, -- Show the token count for each response
+                show_tools_processing = true, -- Show the loading message when tools are being executed
                 start_in_insert_mode = false, -- Open the chat buffer in insert mode?
+                auto_scroll = true, -- Automatically scroll to the bottom of the chat buffer on new messages
+                fold_context = true, -- Fold context messages by default if set to true
+                fold_reasoning = false, -- Fold reasoning messages by default if set to true
+                icons = {
+                    chat_context = "📎 ",
+                    chat_fold = " ",
+                },
             },
             action_palette = {
                 width = 95,

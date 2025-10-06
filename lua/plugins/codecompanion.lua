@@ -3,13 +3,19 @@ return {
     dependencies = {
         { "nvim-lua/plenary.nvim", branch = "master" },
         -- Markdown is used for chat and action palette formatting
+        -- Remember avante and codecompanion both use markdown config changes should be made in both
         {
-            "MeanderingProgrammer/render-markdown.nvim",
-            lazy = false,
-            --opts = {
-            --    filetypes = { "markdown", "codecompanion" }, -- Decides to render markdown files first and then codecompanion files
-            --},
-            --ft = { "markdown", "codecompanion" },
+            'MeanderingProgrammer/render-markdown.nvim',
+            ft = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput", 
+                "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
+            opts = {
+                file_types = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput", 
+                    "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
+                render_modes = true,
+            },
+            config = function(_, opts)
+                require("render-markdown").setup(opts)
+            end,
         },
         -- Mark view is heavier and gives more decorations but is not as stable as render-markdown
         --{
@@ -112,16 +118,40 @@ return {
                 separator = "-", -- The separator between the different messages in the chat buffer
                 show_context = true, -- Show context (from slash commands and variables) in the chat buffer
                 show_header_separator = true, -- Show header separators in the chat buffer? Set this to false if you're using an external markdown formatting plugin
-                show_settings = true, -- Show LLM settings at the top of the chat buffer
+                show_settings = false, -- Show LLM settings at the top of the chat buffer including model, temperature, etc.
                 show_token_count = false, -- Show the token count for each response
                 show_tools_processing = true, -- Show the loading message when tools are being executed
                 start_in_insert_mode = false, -- Open the chat buffer in insert mode?
                 auto_scroll = true, -- Automatically scroll to the bottom of the chat buffer on new messages
-                fold_context = true, -- Fold context messages by default if set to true
+                fold_context = false, -- Fold context messages by default if set to true
                 fold_reasoning = false, -- Fold reasoning messages by default if set to true
                 icons = {
                     chat_context = "📎 ",
                     chat_fold = " ",
+                },
+
+                -- window properties
+                window = {
+                    layout = "vertical", -- float|vertical|horizontal|buffer
+                    position = nil, -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
+                    border = "rounded",
+                    height = 0.8,
+                    width = 0.45,
+                    relative = "editor",
+                    full_height = true, -- when set to false, vsplit will be used to open the chat buffer vs. botright/topleft vsplit
+                    sticky = true, -- when set to true and `layout` is not `"buffer"`, the chat buffer will remain opened when switching tabs
+                    opts = {
+                        breakindent = true,
+                        cursorcolumn = false,
+                        cursorline = true,
+                        foldcolumn = "0",
+                        linebreak = true,
+                        list = true,
+                        numberwidth = 1,
+                        signcolumn = "yes",
+                        spell = true,
+                        wrap = true,
+                    },
                 },
             },
             action_palette = {
@@ -190,28 +220,6 @@ return {
                     },
                 },
             },
-            -- window = {
-            --     layout = "buffer", -- float|vertical|horizontal|buffer
-            --     position = nil, -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
-            --     border = "rounded",
-            --     height = 0.8,
-            --     width = 0.45,
-            --     relative = "editor",
-            --     full_height = false, -- when set to false, vsplit will be used to open the chat buffer vs. botright/topleft vsplit
-            --     sticky = true, -- when set to true and `layout` is not `"buffer"`, the chat buffer will remain opened when switching tabs
-            --     opts = {
-            --         breakindent = true,
-            --         cursorcolumn = true,
-            --         cursorline = true,
-            --         foldcolumn = "0",
-            --         linebreak = true,
-            --         list = true,
-            --         numberwidth = 1,
-            --         signcolumn = "yes",
-            --         spell = true,
-            --         wrap = true,
-            --     },
-            -- },
         },
     },
     keys = {

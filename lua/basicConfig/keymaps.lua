@@ -1,6 +1,9 @@
 -- Set the Explorer to using cd
 vim.keymap.set("n", "<leader>cd", vim.cmd.Ex)
 
+-- Set keymap to open :Lazy configuration
+vim.keymap.set("n", "<leader>lz", ":Lazy<CR>", { desc = "Open Lazy plugin manager" })
+
 -- To make <space> not respond to anything else
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 

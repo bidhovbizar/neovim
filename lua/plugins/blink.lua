@@ -1,9 +1,4 @@
 return {
-    --{
-    --    "L3MON4D3/LuaSnip",
-    --    lazy = true, -- Make LuaSnip lazy
-    --    event = "InsertEnter",
-    --},
     {
         -- Add blink-cmp-avante as a separate plugin that loads first
         "Kaiser-Yang/blink-cmp-avante",
@@ -13,18 +8,19 @@ return {
         "saghen/blink.cmp",
         --priority = 600, -- Ensure it loads after blink-cmp-avante
         event = { "InsertEnter" }, -- Load on insert or command mode
-        --event = { "InsertEnter", "CmdlineEnter" }, -- Load on insert or command mode
-        lazy = true, -- Make blink.cmp lazy too
+        --event = { "InsertEnter", "CmdlineEnter" }, -- I am unable to find if blink loads before CmdlineEnter hence commented
+        --lazy = true, -- Make blink.cmp lazy
         dependencies = {
             {
                 "rafamadriz/friendly-snippets",
-                lazy = true,
+                --lazy = true,
             },
             "Kaiser-Yang/blink-cmp-avante", -- Dependency ensures proper load order
             {
                 "L3MON4D3/LuaSnip",
-                lazy = true,
+                --lazy = true,
                 event = "InsertEnter", -- Only load when entering insert mode
+                build = "make install_jsregexp", -- Optional: for better snippet support
                 config = function()
                     -- Move LuaSnip loading here to avoid loading on startup
                     --require("luasnip.loaders.from_vscode").lazy_load()
@@ -38,6 +34,7 @@ return {
                     end
 
                     -- Load snippets only when first snippet is requested
+
                     local orig_get_snippets = require("luasnip").get_snippets
                     require("luasnip").get_snippets = function(...)
                         load_snippets()
@@ -66,19 +63,23 @@ return {
                 signature = { enabled = true },
 
                 sources = {
-                    default = { "lsp", "lazydev", "path", "snippets", "buffer", "avante" },
+                    -- CHANGED: All sources available everywhere by default
+                    default = { "lsp", "path", "snippets", "buffer", "lazydev", "avante" },
 
+                    -- Per-filetype overrides (optional, will use default if not specified)
                     per_filetype = {
-                        -- Fixed: Correct filetype name (capital A)
-                        Avante = { "avante", "path", "buffer", "lsp" },
-                        -- Also add lowercase variant just in case
-                        avante = { "avante", "path", "buffer", "lsp" },
-                        -- Lazydev works correctly with lua
+                        -- Avante: prioritize avante source first
+                        Avante = { "avante", "lsp", "path", "snippets", "buffer" },
+                        avante = { "avante", "lsp", "path", "snippets", "buffer" },
+
+                        -- Lua: prioritize lazydev for Neovim API
                         lua = { "lazydev", "lsp", "path", "snippets", "buffer" },
-                        -- Add Python-specific optimization
+
+                        -- CodeCompanion: custom source if you have one
+                        codecompanion = { "lsp", "path", "snippets", "buffer" },
+
+                        -- Python: standard sources
                         python = { "lsp", "path", "snippets", "buffer" },
-                        -- CodeCompanion specific settings
-                        codecompanion = { "codecompanion", "lsp", "path", "buffer" },
                     },
 
                     providers = {
@@ -104,6 +105,7 @@ return {
                                 score_offset = 500, -- Added: High priority for @ and / triggers
                             }
                         },
+
                         lazydev = {
                             name = "LazyDev",
                             module = "lazydev.integrations.blink",
@@ -116,15 +118,24 @@ return {
                             min_keyword_length = 2,
                         },
 
+                        lsp = {
+                            max_items = 20, -- ADDED: Limit LSP items too
+                        },
+
+                        snippets = {
+                            max_items = 20, -- ADDED: Limit snippet items
+                        },
+
                         cmdline = {
                             min_keyword_length = 2,
                         },
                     },
                 },
 
-                -- Fixed: Removed duplicate keymap section and consolidated
                 keymap = {
-                    preset = "default", -- Keep the default preset
+                    preset = "default", -- Keep default preset
+
+                    ["<C-b>"] = {}, -- Don't clash with documentation scroll
                     ["<C-f>"] = {}, -- Don't clash with documentation scroll
                     ["<Enter>"] = { "accept", "fallback" },
                     --['<Esc>'] = { 'hide', 'fallback' },  -- Uncommenting this will make 1st Esc quit autocompletion then 2nd Esc will quit to n mode
@@ -147,10 +158,11 @@ return {
 
                 completion = {
                     list = {
-                        max_items = 20, -- Limit items for performance
+                        max_items = 20, -- CHANGED: Increased from 20 (this is the global limit)
                     },
 
                     menu = {
+                        max_height = 20, -- This sets the upper limit of all the menu size for autocompletion
                         border = nil,
                         scrolloff = 1,
                         scrollbar = false,
@@ -159,7 +171,7 @@ return {
                                 { "kind_icon" },
                                 { "label", "label_description", gap = 1 },
                                 { "kind" },
-                                { "source_name" },
+                                { "source_name" }, -- Shows which source provided the item
                             },
                         },
                     },
@@ -196,13 +208,12 @@ return {
                     return not vim.tbl_contains({ "prompt" }, buftype) or buftype == ""
                 end,
 
-                -- Add fuzzy matcher configuration
                 fuzzy = {
                     implementation = "prefer_rust_with_warning",
                 },
             })
 
-            -- Defer LuaSnip keymap setup
+            -- LuaSnip keymaps
             vim.schedule(function()
                 local ls = require("luasnip")
 

@@ -2,7 +2,9 @@ return {
     "nvim-treesitter/nvim-treesitter",
     version = false,
     build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
+    event = "VeryLazy",
+    --event = { "BufReadPost", "BufNewFile" },
+    --lazy = true, -- This means don't load automatically, only load when called
     dependencies = {
         "nvim-treesitter/nvim-treesitter-textobjects",
         "nvim-treesitter/nvim-treesitter-context",

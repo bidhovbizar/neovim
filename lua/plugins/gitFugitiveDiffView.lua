@@ -3,7 +3,12 @@ return {
         'tpope/vim-fugitive',
         cmd = { 'Git', 'Git blame', 'Git push', 'Git pull', 'Gdiff' },
         keys = {
-            { '<leader>gb', '<cmd>Git blame<cr>', desc = 'Git blame' },
+            { '<leader>gb', function()
+                vim.cmd('Git blame')
+                vim.defer_fn(function ()
+                    vim.cmd("wincmd p")
+                end, 100)  -- wait 100ms before switching back
+            end, desc = 'Git blame' },
             --{ '<leader>gd3', '<cmd>Gvdiffsplit!<cr>', desc = 'Git 3-way diff' }, -- DiffViews 3 way merge is better than this
         },
     },

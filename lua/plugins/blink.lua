@@ -13,7 +13,7 @@ return {
         dependencies = {
             {
                 "rafamadriz/friendly-snippets",
-                --lazy = true,
+                lazy = false, -- Make sure this loads before luasnip as it will fetch the friendly-snippets from runpath
             },
             "Kaiser-Yang/blink-cmp-avante", -- Dependency ensures proper load order
             {
@@ -250,8 +250,6 @@ return {
                     end
                 end, { expr = true, silent = true })
             end)
-
-            --require("luasnip.loaders.from_vscode").lazy_load()
         end,
     },
 }

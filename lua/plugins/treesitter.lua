@@ -4,6 +4,7 @@ return {
     build = ":TSUpdate",
     event = "VeryLazy",
     --event = { "BufReadPost", "BufNewFile" },
+    --event = "InsertEnter",
     --lazy = true, -- This means don't load automatically, only load when called
     dependencies = {
         "nvim-treesitter/nvim-treesitter-textobjects",

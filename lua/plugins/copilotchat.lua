@@ -48,7 +48,7 @@ return {
             },
         },
         keys = {
-            { "<leader>CC", "<cmd>CopilotChat<CR>",         mode = { "n", "v"},   desc = "Chat with Copilot" },
+            { "<leader>cc", "<cmd>CopilotChat<CR>",         mode = { "n", "v"},   desc = "Chat with Copilot" },
             --{ "<leader>cm", "<cmd>CopilotChatCommit<CR>",   mode = { "n", "v"},   desc = "Generate Commit Message" },
             --{ "<leader>ce", "<cmd>CopilotChatExplain<CR>",  mode = "v",           desc = "Explain Code" },
             --{ "<leader>cr", "<cmd>CopilotChatReview<CR>",   mode = "v",           desc = "Review Code" },

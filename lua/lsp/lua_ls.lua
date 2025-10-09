@@ -49,11 +49,12 @@ return {
                 enable = false,
             },
             hint = {
-                enable = true,
-                --paramType = false,
-                --paramName = "Disable",
-                --semicolon = "Disable",
-                arrayIndex = "Disable", -- This is why we see [1], [2] etc
+                enable = true, -- Enable inlay hints overall control over the hints
+                setType = false, -- Show type hints for variable assignments, so when you press = you will see what is expected
+                --semicolon = "Enable", -- Show semicolon hints; Didn't see it yet
+                --paramType = false, -- Show parameter type hints; Didn' see it yet
+                paramName = "Disable", -- Don't show parameter name hints to the left of variable within already written function calls
+                arrayIndex = "Disable", -- Doesn't show [1], [2] as array index hints
             },
         },
     },

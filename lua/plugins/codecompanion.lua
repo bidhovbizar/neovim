@@ -227,7 +227,7 @@ return {
         { "<leader>cp", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "CodeCompanion Actions" },
 
         -- Toggle chat buffer
-        { "<leader>cc", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "Toggle Chat" },
+        { "<leader>CC", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "Toggle Chat" },
 
         -- Add visual selection to chat
         { "<leader>ca", "<cmd>CodeCompanionChat Add<cr>", mode = "v", desc = "Add to Chat" },

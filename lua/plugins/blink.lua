@@ -158,7 +158,7 @@ return {
 
                 completion = {
                     list = {
-                        max_items = 20, -- CHANGED: Increased from 20 (this is the global limit)
+                        max_items = 11, -- CHANGED: Increased from 11 (this is the global limit)
                     },
 
                     menu = {

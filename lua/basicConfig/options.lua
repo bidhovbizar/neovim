@@ -27,7 +27,7 @@ vim.opt.number = true -- Show line numbers
 vim.opt.mouse = ''
 
 -- Indentation
-vim.opt.relativenumber = true
+vim.opt.relativenumber = false
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
@@ -58,3 +58,11 @@ vim.opt.updatetime = 250 -- Faster updates for CursorHold events, like diagnosti
 vim.opt.list = true
 vim.opt.listchars = { tab = '» ', trail = '␣', nbsp = '⦙', extends = '>', precedes = '<' } --nbsp is non-breaking space
 vim.opt.inccommand = 'split'
+
+vim.g.netrw_liststyle = 3 -- Use tree view by default
+vim.g.netrw_banner = 1 -- Show the banner at the top
+vim.g.netrw_winsize = 75 -- Set width of the newly opened window (in percentage)
+vim.g.netrw_altv = 1 -- Open files in vertical split to the right when you press v and not <CR>
+
+-- Open files in vertical split to the right under <CR>(not in netrw split)
+-- vim.g.netrw_browse_split = 2

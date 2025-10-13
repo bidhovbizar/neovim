@@ -23,7 +23,9 @@ return {
             { '<leader>gd', '<cmd>DiffviewOpen<cr>', desc = 'Open Diffview' },
             { '<leader>gc', '<cmd>DiffviewClose<cr>', desc = 'Close Diffview' },
             { '<leader>gt', '<cmd>DiffviewToggleFiles<cr>', desc = 'Toggle Diffview Files' },
-            { '<leader>gfh', '<cmd>DiffviewFileHistory<cr>', desc = 'Git File History' },
+            { '<leader>grh', '<cmd>DiffviewFileHistory<cr>', desc = 'Git Repository History' },
+            { '<leader>gfh', '<cmd>DiffviewFileHistory %<cr>', desc = 'Git Opened File History', mode = 'n' },
+            { '<leader>gfh', ":'<,'>DiffviewFileHistory<cr>", desc = 'Git Line History', mode = 'v' },
         },
         cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggleFiles', 'DiffviewFocusFiles', 'DiffviewFileHistory' },
         config = function()

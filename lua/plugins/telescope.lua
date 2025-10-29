@@ -10,11 +10,12 @@ return {
     cmd = "Telescope",
     keys = {
         { "<leader>ff", desc = "Telescope find files" },
-        { "<leader>fg", desc = "Telescope live grep" },
-        { "<leader>fb", desc = "Telescope buffers" },
-        { "<leader>fo", desc = "Telescope oldfiles" },
-        { "<leader>ft", desc = "Telescope git files" },
+        { "<leader>fg", desc = "Telescope live grep within a folder" },
+        { "<leader>fb", desc = "Telescope in buffers" },
+        { "<leader>fo", desc = "Telescope show oldfiles" },
+        { "<leader>ft", desc = "Telescope show git files" },
         { "<leader>fr", desc = "Telescope resume last search" },
+        { "<leader>fp", desc = "Telescope find all packages" },
     },
     config = function()
         local telescope = require('telescope')
@@ -51,6 +52,11 @@ return {
         local function enhanced_live_grep(opts)
             opts = opts or {}
             local original_attach_mappings = opts.attach_mappings
+
+            -- Set prompt title based on case sensitivity
+            if not opts.prompt_title then
+                opts.prompt_title = vim.g.telescope_case_sensitive and "Live Grep (Case Sensitive)" or "Live Grep (Smart Case)"
+            end
 
             opts.attach_mappings = function(prompt_bufnr, map)
                 local actions = require('telescope.actions')
@@ -188,6 +194,13 @@ return {
                     vim.notify("Telescope: Smart case search enabled", vim.log.levels.INFO, { timeout = 1500 })
                 end
 
+                -- Helper function to switch to normal mode after picker opens
+                local function switch_to_normal_mode()
+                    vim.defer_fn(function()
+                        vim.cmd('stopinsert')
+                    end, 75)
+                end
+
                 -- Determine which picker to reopen based on the current one
                 if picker_name:lower():match("grep") then
                     -- Reopen with live_grep using enhanced function for history tracking
@@ -197,10 +210,11 @@ return {
                             'rg', '--color=never', '--no-heading', '--with-filename',
                             '--line-number', '--column', '--case-sensitive'
                         } or {
-                            'rg', '--color=never', '--no-heading', '--with-filename',
-                            '--line-number', '--column', '--smart-case'
-                        }
+                                'rg', '--color=never', '--no-heading', '--with-filename',
+                                '--line-number', '--column', '--smart-case'
+                            }
                     })
+                    switch_to_normal_mode()
                 elseif picker_name:lower():match("find") or picker_name:lower():match("files") then
                     -- Reopen with find_files using enhanced function for history tracking
                     -- Update fzf extension configuration dynamically
@@ -219,6 +233,7 @@ return {
                     enhanced_find_files({
                         default_text = prompt
                     })
+                    switch_to_normal_mode()
                 else
                     -- For other pickers, default to their builtin version
                     vim.notify("Case toggle not supported for this picker", vim.log.levels.WARN, { timeout = 1500 })
@@ -241,8 +256,11 @@ return {
                     '--column',
                     '--smart-case', -- Smart case behavior
                 },
-                -- Leaving everything empty is the best as it will take the default settings from telescope-fzf-native
+                prompt_prefix = '🔍 ',
+                selection_caret = '➤ ',
+                layout_strategy = 'bottom_pane',
 
+                -- Leaving everything empty is the best as it will take the default settings from telescope-fzf-native
                 -- Use fzf-native as the default sorter for better performance and case sensitivity
                 --file_sorter = require('telescope.sorters').get_fzf_sorter,
                 --generic_sorter = require('telescope.sorters').get_fzf_sorter,
@@ -268,10 +286,6 @@ return {
                 --generic_sorter = require('telescope').extensions.fzf.native_fzf_sorter() ,
 
                 mappings = {
-                    i = {
-                        -- Toggle case sensitivity with <leader>tc in insert mode
-                        ["<leader>tc"] = create_case_toggle_mapping(),
-                    },
                     n = {
                         -- Toggle case sensitivity with <leader>tc in normal mode
                         ["<leader>tc"] = create_case_toggle_mapping(),
@@ -292,12 +306,12 @@ return {
         telescope.load_extension('fzf')
         -- Main telescope functions with enhanced history tracking
         vim.keymap.set('n', '<leader>ff', function() enhanced_find_files() end, { desc = 'Telescope find files' })
-        vim.keymap.set('n', '<leader>fg', function() enhanced_live_grep() end, { desc = 'Telescope live grep' })
-        vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
+        vim.keymap.set('n', '<leader>fg', function() enhanced_live_grep() end, { desc = 'Telescope live grep within a folder' })
+        vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope in buffers' })
         -- To clear any file in the buffer do :ls to find files or <leader>fb then to remove do :bd <buffer_number> e.g. :bd 33
         -- To clear all buffers do :bwipeout
-        vim.keymap.set('n', '<leader>fo', builtin.oldfiles, { desc = 'Telescope oldfiles' })
-        vim.keymap.set('n', '<leader>ft', builtin.git_files, { desc = 'Telescope git files' })
+        vim.keymap.set('n', '<leader>fo', builtin.oldfiles, { desc = 'Telescope show oldfiles' })
+        vim.keymap.set('n', '<leader>ft', builtin.git_files, { desc = 'Telescope show git files' })
 
         -- Resume functionality - reopens the last telescope picker with same state
         vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = 'Telescope resume last search' })
@@ -309,5 +323,16 @@ return {
         -- Show specific search history
         vim.keymap.set('n', '<leader>ffh', function() show_search_history('find_files') end, { desc = 'Find files history' })
         vim.keymap.set('n', '<leader>fgh', function() show_search_history('live_grep') end, { desc = 'Live grep history' })
+        vim.keymap.set('n', '<leader>fp', function()
+            local lazy_path = vim.fs.joinpath(vim.fn.stdpath("data"), "lazy")
+            if vim.fn.isdirectory(lazy_path) == 1 then
+                enhanced_find_files({
+                    cwd = lazy_path,
+                    prompt_title = "Plugin Files"
+                })
+            else
+                vim.notify("Lazy plugin directory not found: " .. lazy_path, vim.log.levels.ERROR)
+            end
+        end, { desc = 'Find files in plugin directory' })
     end
 }

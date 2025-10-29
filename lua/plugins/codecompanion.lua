@@ -49,7 +49,7 @@ return {
                 roles = { user = "Bidhov" },
                 adapter = {
                     name = "copilot",
-                    model = "claude-sonnet-4",
+                    model = "claude-sonnet-4.5",
                 },
                 opts = {
                     completion_provider = "blink", -- blink|cmp|coc|default
@@ -84,7 +84,7 @@ return {
             inline = {
                 adapter = {
                     name = "copilot",
-                    model = "claude-sonnet-4",
+                    model = "claude-sonnet-4.5",
                 },
                 keymaps = {
                     accept_change = {
@@ -101,7 +101,7 @@ return {
             agent = {
                 adapter = {
                     name = "copilot",
-                    model = "claude-sonnet-4",
+                    model = "claude-sonnet-4.5",
                 },
             },
         },

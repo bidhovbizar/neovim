@@ -41,6 +41,12 @@ vim.keymap.set('n', '<leader>tw', function()
     print("Word wrap: " .. (vim.opt.wrap:get() and "enabled" or "disabled"))
 end, { desc = 'Toggle word wrap' })
 
+-- Toggle scrollbind with status
+vim.keymap.set('n', '<leader>ts', function()
+    vim.wo.scrollbind = not vim.wo.scrollbind
+    print("Scrollbind: " .. (vim.wo.scrollbind and "enabled" or "disabled"))
+end, { desc = 'Toggle scrollbind for current window' })
+
 -- Set up autocommands and keymaps
 local augroup = vim.api.nvim_create_augroup("FormattersGroup", { clear = true })
 

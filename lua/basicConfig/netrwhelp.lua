@@ -39,7 +39,7 @@ local help_content = {
   "  O     - Obtain file (like wget)",
   "  <C-l> - Refresh directory listing",
   "  <C-h> - Edit file/directory hiding list",
-  "  <leader>q     - Show this help",
+  "  <leader>h     - Show this help",
   "",
   "Press 'q' or <Esc> to close this help window"
 }
@@ -114,7 +114,7 @@ local function setup_netrw_help()
     pattern = 'netrw',
     callback = function()
       -- Set up the help keybinding for netrw buffers
-      vim.api.nvim_buf_set_keymap(0, 'n', '<leader>q', '', {
+      vim.api.nvim_buf_set_keymap(0, 'n', '<leader>h', '', {
         callback = function()
           require('basicConfig.netrwhelp').show_help()
         end,

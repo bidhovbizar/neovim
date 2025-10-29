@@ -84,6 +84,12 @@ return {
         { "<leader>fh", function()
             toggle_telescope(require('harpoon'):list())
         end, desc = "Search in harpoon files" },
+        -- Quick access to first 4 files
+        { "<M-1>", function() require('harpoon'):list():select(1) end, desc = "Harpoon file 1" },
+        { "<M-2>", function() require('harpoon'):list():select(2) end, desc = "Harpoon file 2" },
+        { "<M-3>", function() require('harpoon'):list():select(3) end, desc = "Harpoon file 3" },
+        { "<M-4>", function() require('harpoon'):list():select(4) end, desc = "Harpoon file 4" },
+        { "<M-5>", function() require('harpoon'):list():select(5) end, desc = "Harpoon file 5" },
     },
     config = function()
         local harpoon = require('harpoon')

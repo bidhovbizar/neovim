@@ -11,6 +11,7 @@ return {
     keys = {
         { "<leader>ff", desc = "Telescope find files" },
         { "<leader>fg", desc = "Telescope live grep within a folder" },
+        { "<leader>fm", desc = "Telescope multi grep (use double space for AND)" },
         { "<leader>fb", desc = "Telescope in buffers" },
         { "<leader>fo", desc = "Telescope show oldfiles" },
         { "<leader>ft", desc = "Telescope show git files" },
@@ -25,6 +26,7 @@ return {
         local search_history = {
             live_grep = {},
             find_files = {},
+            multi_grep = {},
             max_history = 10
         }
 
@@ -46,6 +48,117 @@ return {
                     table.remove(history)
                 end
             end
+        end
+
+        -- Multi-grep function with live updates
+        local function enhanced_multi_grep(opts)
+            opts = opts or {}
+            local pickers = require('telescope.pickers')
+            local finders = require('telescope.finders')
+            local make_entry = require('telescope.make_entry')
+            local conf = require('telescope.config').values
+            local actions = require('telescope.actions')
+            local action_state = require('telescope.actions.state')
+
+            -- Set prompt title based on case sensitivity
+            local prompt_title = vim.g.telescope_case_sensitive
+            and "Multi Grep (Case Sensitive - double space = AND)"
+            or "Multi Grep (Smart Case - double space = AND)"
+
+            pickers.new(opts, {
+                prompt_title = prompt_title,
+                finder = finders.new_async_job({
+                    command_generator = function(prompt)
+                        if not prompt or prompt == "" then
+                            return nil
+                        end
+
+                        -- Split by double space
+                        local patterns = vim.split(prompt, "  ", { plain = true, trimempty = true })
+
+                        if #patterns == 0 then
+                            return nil
+                        end
+
+                        -- Base rg arguments
+                        local args = { "rg" }
+                        vim.list_extend(args, {
+                            "--color=never",
+                            "--no-heading",
+                            "--with-filename",
+                            "--line-number",
+                            "--column",
+                        })
+
+                        -- Add case sensitivity flag
+                        if vim.g.telescope_case_sensitive then
+                            table.insert(args, "--case-sensitive")
+                        else
+                            table.insert(args, "--smart-case")
+                        end
+
+                        -- For single pattern, simple search
+                        if #patterns == 1 then
+                            table.insert(args, patterns[1])
+                            return args
+                        end
+
+                        -- For multiple patterns, use shell piping for AND logic
+                        local cmd = table.concat(args, " ") .. " " .. vim.fn.shellescape(patterns[1])
+
+                        for i = 2, #patterns do
+                            local grep_args = vim.g.telescope_case_sensitive
+                            and "--case-sensitive"
+                            or "--smart-case"
+                            cmd = cmd .. " | rg --color=never " .. grep_args .. " " .. vim.fn.shellescape(patterns[i])
+                        end
+
+                        return { "sh", "-c", cmd }
+                    end,
+                    entry_maker = make_entry.gen_from_vimgrep(opts),
+                    cwd = opts.cwd,
+                }),
+                previewer = conf.grep_previewer(opts),
+                sorter = conf.generic_sorter(opts),
+                attach_mappings = function(prompt_bufnr, map)
+                    -- Save to history on selection
+                    local function enhanced_select_default()
+                        local current_picker = action_state.get_current_picker(prompt_bufnr)
+                        local query = current_picker:_get_prompt()
+                        add_to_history('multi_grep', query)
+                        actions.select_default(prompt_bufnr)
+                    end
+
+                    map('i', '<CR>', enhanced_select_default)
+                    map('n', '<CR>', enhanced_select_default)
+
+                    -- Add case toggle for multi-grep
+                    map('n', '<leader>tc', function()
+                        local current_picker = action_state.get_current_picker(prompt_bufnr)
+                        local prompt = current_picker:_get_prompt()
+
+                        actions.close(prompt_bufnr)
+
+                        -- Toggle case sensitivity
+                        vim.g.telescope_case_sensitive = not vim.g.telescope_case_sensitive
+
+                        if vim.g.telescope_case_sensitive then
+                            vim.notify("Multi Grep: Case sensitive search enabled", vim.log.levels.INFO, { timeout = 1500 })
+                        else
+                            vim.notify("Multi Grep: Smart case search enabled", vim.log.levels.INFO, { timeout = 1500 })
+                        end
+
+                        -- Reopen with same prompt
+                        enhanced_multi_grep({ default_text = prompt })
+
+                        vim.defer_fn(function()
+                            vim.cmd('stopinsert')
+                        end, 75)
+                    end)
+
+                    return true
+                end,
+            }):find()
         end
 
         -- Enhanced builtin functions with history tracking
@@ -146,6 +259,8 @@ return {
                                 enhanced_live_grep({ default_text = selection.value })
                             elseif search_type == 'find_files' then
                                 enhanced_find_files({ default_text = selection.value })
+                            elseif search_type == 'multi_grep' then
+                                enhanced_multi_grep({ default_text = selection.value })
                             end
                         end
                     end)
@@ -163,6 +278,8 @@ return {
                     enhanced_live_grep({ default_text = last_query })
                 elseif search_type == 'find_files' then
                     enhanced_find_files({ default_text = last_query })
+                elseif search_type == 'multi_grep' then
+                    enhanced_multi_grep({ default_text = last_query })
                 end
             else
                 vim.notify("No previous " .. search_type:gsub("_", " ") .. " search found", vim.log.levels.WARN)
@@ -304,9 +421,11 @@ return {
 
         -- Load fzf extension
         telescope.load_extension('fzf')
+
         -- Main telescope functions with enhanced history tracking
         vim.keymap.set('n', '<leader>ff', function() enhanced_find_files() end, { desc = 'Telescope find files' })
         vim.keymap.set('n', '<leader>fg', function() enhanced_live_grep() end, { desc = 'Telescope live grep within a folder' })
+        vim.keymap.set('n', '<leader>fm', function() enhanced_multi_grep() end, { desc = 'Telescope multi grep (double space = AND)' })
         vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope in buffers' })
         -- To clear any file in the buffer do :ls to find files or <leader>fb then to remove do :bd <buffer_number> e.g. :bd 33
         -- To clear all buffers do :bwipeout
@@ -319,10 +438,13 @@ return {
         -- Quick access to last searches
         vim.keymap.set('n', '<leader>ffr', function() repeat_last_search('find_files') end, { desc = 'Repeat last find files' })
         vim.keymap.set('n', '<leader>fgr', function() repeat_last_search('live_grep') end, { desc = 'Repeat last live grep' })
+        vim.keymap.set('n', '<leader>fmr', function() repeat_last_search('multi_grep') end, { desc = 'Repeat last multi grep' })
 
         -- Show specific search history
         vim.keymap.set('n', '<leader>ffh', function() show_search_history('find_files') end, { desc = 'Find files history' })
         vim.keymap.set('n', '<leader>fgh', function() show_search_history('live_grep') end, { desc = 'Live grep history' })
+        vim.keymap.set('n', '<leader>fmh', function() show_search_history('multi_grep') end, { desc = 'Multi grep history' })
+
         vim.keymap.set('n', '<leader>fp', function()
             local lazy_path = vim.fs.joinpath(vim.fn.stdpath("data"), "lazy")
             if vim.fn.isdirectory(lazy_path) == 1 then

@@ -6,9 +6,9 @@ return {
         lazy = true,
         version = false,
         keys = {
-            { "<leader>aa", "<cmd>AvanteAsk<cr>", desc = "avante: ask" },
+            { "<leader>aa", "<cmd>AvanteAsk<cr>",     desc = "avante: ask" },
             { "<leader>ar", "<cmd>AvanteRefresh<cr>", desc = "avante: refresh" },
-            { "<leader>ae", "<cmd>AvanteEdit<cr>", desc = "avante: edit", mode = "v" },
+            { "<leader>ae", "<cmd>AvanteEdit<cr>",    desc = "avante: edit",   mode = "v" },
         },
         opts = {
             --debug = true, -- Debug mode for troubleshooting plugin issues
@@ -42,16 +42,16 @@ return {
                 provider = "telescope", -- Use Telescope for selecting suggestions
             },
             behaviour = {
-                auto_suggestions = false, -- Experimental stage
+                auto_suggestions = false,        -- Experimental stage
                 auto_set_highlight_group = true, -- Assists in better colour scheme for avante
-                auto_set_keymaps = true, -- Automatically set keymaps for avante
+                auto_set_keymaps = true,         -- Automatically set keymaps for avante
                 auto_apply_diff_after_generation = false,
                 support_paste_from_clipboard = false,
                 --minimize_diff = true, -- Whether to remove unchanged lines when applying a code block
-                enable_token_counting = false, -- Whether to enable token counting
+                enable_token_counting = false,         -- Whether to enable token counting
                 auto_approve_tool_permissions = false, -- Default: show permission prompts for all tools
                 -- auto_approve_tool_permissions = {"bash", "replace_in_file"},
-                enable_fastapply = false,  -- Enable Fast Apply feature
+                enable_fastapply = false,              -- Enable Fast Apply feature
             },
             --        prompt_logger = { -- logs prompts to disk (timestamped, for replay/debugging)
             --            enabled = true, -- toggle logging entirely
@@ -92,7 +92,7 @@ return {
             },
             highlights = {
                 diff = {
-                    current = "Visual", -- Highlight for our changes
+                    current = "Visual",    -- Highlight for our changes
                     incoming = "Question", -- Highlight for Avante's suggestions
                     --current = "DiffText", -- Default: Highlight for our changes, seen on top
                     --incoming = "DiffAdd", -- Default: Highlight for Avante's suggestions, seen on bottom
@@ -112,32 +112,34 @@ return {
                 {
                     name = "CiscoCodeReview",
                     description = "Reviews the code as per cisco policy",
-                    details = "Automatically refactor code to improve readability, maintainability, and follow best practices while preserving functionality",
-                    prompt = "Please check pylint issues and autopep8 issues and refactor this code following best practices, improving readability and maintainability while preserving functionality. Ensure to add the right comments in the docstrings"
+                    details =
+                    "Automatically refactor code to improve readability, maintainability, and follow best practices while preserving functionality",
+                    prompt =
+                    "Please check pylint issues and autopep8 issues and refactor this code following best practices, improving readability and maintainability while preserving functionality. Ensure to add the right comments in the docstrings"
                 },
             },
             input = {
-                provider = "dressing",  -- Without this section, you won't be able to focus on the confirmation page and come out of it
-                provider_opts = {}, -- For dressing this field should be empty
+                provider = "dressing", -- Without this section, you won't be able to focus on the confirmation page and come out of it
+                provider_opts = {},    -- For dressing this field should be empty
             },
         },
         build = "make",
         dependencies = {
-            "nvim-lua/plenary.nvim", -- Utility functions
-            "MunifTanjim/nui.nvim", -- UI components
-            "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
-            "stevearc/dressing.nvim", -- Input prompts and selection menus
-            "folke/snacks.nvim", -- for input provider snacks
-            "nvim-tree/nvim-web-devicons", -- File type icons
+            "nvim-lua/plenary.nvim",           -- Utility functions
+            "MunifTanjim/nui.nvim",            -- UI components
+            "nvim-telescope/telescope.nvim",   -- for file_selector provider telescope
+            "stevearc/dressing.nvim",          -- Input prompts and selection menus
+            "folke/snacks.nvim",               -- for input provider snacks
+            "nvim-tree/nvim-web-devicons",     -- File type icons
             "nvim-treesitter/nvim-treesitter", -- Syntax highlighting and parsing
-            "zbirenbaum/copilot.lua", -- Required for copilot provider
+            "zbirenbaum/copilot.lua",          -- Required for copilot provider
             -- Remember avante and codecompanion both use markdown config changes should be made in both
             {
                 'MeanderingProgrammer/render-markdown.nvim',
-                ft = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput", 
+                ft = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
                     "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
                 opts = {
-                    file_types = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput", 
+                    file_types = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
                         "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
                     render_modes = true,
                 },

@@ -8,27 +8,27 @@ return {
     opts = {
         -- Outline window configuration
         outline_window = {
-            position = "right", -- 'left' or 'right'
-            width = 25, -- Slightly smaller for better screen usage
-            relative_width = true, -- Use percentage of screen width
-            auto_close = true, -- Auto close the outline window if goto_location is triggered and not for
+            position = "right",            -- 'left' or 'right'
+            width = 25,                    -- Slightly smaller for better screen usage
+            relative_width = true,         -- Use percentage of screen width
+            auto_close = true,             -- Auto close the outline window if goto_location is triggered and not for
             jump_highlight_duration = 300, -- Duration of highlight when jumping
-            center_on_jump = true, -- Center the cursor when jumping to symbol
-            show_numbers = false, -- Don't show line numbers (cleaner look)
+            center_on_jump = true,         -- Center the cursor when jumping to symbol
+            show_numbers = false,          -- Don't show line numbers (cleaner look)
             show_relative_numbers = false,
             wrap = false,
-            auto_jump = true, -- Don't auto-jump to outline when opened
+            auto_jump = true,     -- Don't auto-jump to outline when opened
             focus_on_open = true, -- Don't focus outline window on open
-            winhl = "", -- Custom window highlighting
+            winhl = "",           -- Custom window highlighting
         },
 
         -- Outline tree configuration
         outline_items = {
-            show_symbol_details = true, -- Show extra symbol details
-            show_symbol_lineno = true, -- Don't show line numbers next to symbols
+            show_symbol_details = true,     -- Show extra symbol details
+            show_symbol_lineno = true,      -- Don't show line numbers next to symbols
             highlight_hovered_item = false, --DOn't highlight item under cursor
             -- auto_set_cursor and auto_update_events go hand in hand
-            auto_set_cursor = true, -- Auto set cursor to nearest symbol when moving in the code
+            auto_set_cursor = true,         -- Auto set cursor to nearest symbol when moving in the code
             auto_update_events = {
                 follow = { "CursorMoved" }, -- Update outline when cursor moves
                 items = { "InsertLeave", "WinEnter", "BufEnter", "BufWinEnter", "TabEnter", "BufWritePost" },
@@ -48,10 +48,10 @@ return {
 
         -- Symbol configuration
         symbol_folding = {
-            autofold_depth = 1, -- Auto-fold symbols deeper than this level
+            autofold_depth = 1,   -- Auto-fold symbols deeper than this level
             auto_unfold = {
-                hovered = true, -- Unfold when hovering
-                only = true, -- Only unfold the hovered item
+                hovered = true,   -- Unfold when hovering
+                only = true,      -- Only unfold the hovered item
             },
             markers = { "", "" }, -- Folding markers (using simple chars for compatibility)
         },
@@ -60,7 +60,7 @@ return {
         preview_window = {
             auto_preview = false, -- Don't auto-preview on hover
             open_hover_on_preview = false,
-            width = 50, -- Preview window width
+            width = 50,           -- Preview window width
             min_width = 50,
             relative_width = true,
             border = "rounded", -- Border style: 'single', 'double', 'rounded', 'solid', 'shadow'

@@ -43,7 +43,7 @@ local function toggle_telescope(harpoon_files)
             end)
 
             -- Custom mapping: <leader>fha to grep in all harpoon files once you are in harpoon
-            map({"n", "i"}, "<leader>fha", function()
+            map({ "n", "i" }, "<leader>fha", function()
                 require("telescope.actions").close(prompt_bufnr)
                 builtin.live_grep({
                     search_dirs = file_paths,
@@ -53,7 +53,7 @@ local function toggle_telescope(harpoon_files)
             end)
 
             -- Custom mapping: <leader>fhs to grep in selected file only
-            map({"n", "i"}, "<leader>fhs", function()
+            map({ "n", "i" }, "<leader>fhs", function()
                 local selection = require("telescope.actions.state").get_selected_entry()
                 require("telescope.actions").close(prompt_bufnr)
                 builtin.live_grep({
@@ -76,14 +76,22 @@ return {
         "nvim-telescope/telescope.nvim" -- Make sure telescope is a dependency
     },
     keys = {
-        { "<M-a>", function() require('harpoon'):list():add() end, desc = "Harpoon add file" },
-        { "<M-h>", function()
-            local harpoon = require('harpoon')
-            harpoon.ui:toggle_quick_menu(harpoon:list())
-        end, desc = "Harpoon toggle menu" },
-        { "<leader>fh", function()
-            toggle_telescope(require('harpoon'):list())
-        end, desc = "Search in harpoon files" },
+        { "<M-a>", function() require('harpoon'):list():add() end,     desc = "Harpoon add file" },
+        {
+            "<M-h>",
+            function()
+                local harpoon = require('harpoon')
+                harpoon.ui:toggle_quick_menu(harpoon:list())
+            end,
+            desc = "Harpoon toggle menu"
+        },
+        {
+            "<leader>fh",
+            function()
+                toggle_telescope(require('harpoon'):list())
+            end,
+            desc = "Search in harpoon files"
+        },
         -- Quick access to first 4 files
         { "<M-1>", function() require('harpoon'):list():select(1) end, desc = "Harpoon file 1" },
         { "<M-2>", function() require('harpoon'):list():select(2) end, desc = "Harpoon file 2" },

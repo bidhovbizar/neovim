@@ -50,6 +50,11 @@ end, { desc = 'Toggle scrollbind for current window' })
 -- Set up autocommands and keymaps
 local augroup = vim.api.nvim_create_augroup("FormattersGroup", { clear = true })
 
+-- There are 3 ways to format the code
+-- 1. Using LSP formatter (if available) using :lua vim.lsp.buf.format() or <leader>lf
+-- 2. Using nvim-treesitter default formatter using ==
+-- 3. Using external formatters like gofmt, autopep8, shfmt using the command <M-f> as written in this file
+--
 -- Format files with default tree-sitter formatter.
 -- Format Go code using gofmt
 local function format_go()

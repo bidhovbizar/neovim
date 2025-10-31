@@ -29,18 +29,6 @@ return {
                 "lua",
                 "vim",
                 "yaml",
-                --"html",
-                --"regex",
-                --"javascript",
-                --"luadoc",
-                --"luap",
-                --"query",
-                --"rust",
-                --"vimdoc",
-                --"c",
-                --"gomod",
-                --"gowork",
-                --"gosum",
             },
             incremental_selection = {
                 enable = true,
@@ -126,16 +114,16 @@ return {
         -- Configure treesitter-context for sticky function headers
         require('treesitter-context').setup({
             enable = true,
-            max_lines = 3,          -- How many lines the window should span.
-            min_window_height = 0,  -- Minimum editor window height to enable context
-            line_numbers = true,    -- Show line numbers in context
+            max_lines = 3,            -- How many lines the window should span.
+            min_window_height = 0,    -- Minimum editor window height to enable context
+            line_numbers = true,      -- Show line numbers in context
             multiline_threshold = 20, -- Maximum number of lines to show for a single context
-            trim_scope = 'inner',   -- Which context lines to discard if `max_lines` is exceeded
+            trim_scope = 'inner',     -- Which context lines to discard if `max_lines` is exceeded
             --trim_scope = 'outer',   -- Which context lines to discard if `max_lines` is exceeded
-            mode = 'cursor',        -- Line used to calculate context. 'cursor' or 'topline'
-            separator = nil,        -- Separator between context and content (nil uses default)
-            zindex = 20,           -- Z-index of the context window
-            on_attach = nil,       -- Callback when attaching to a buffer
+            mode = 'cursor',          -- Line used to calculate context. 'cursor' or 'topline'
+            separator = nil,          -- Separator between context and content (nil uses default)
+            zindex = 20,              -- Z-index of the context window
+            on_attach = nil,          -- Callback when attaching to a buffer
 
             -- You can customize patterns per language
             patterns = {

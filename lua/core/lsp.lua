@@ -19,14 +19,14 @@ vim.api.nvim_create_autocmd("FileType", {
         --vim.lsp.enable("gopls")   -- This won't attach anything as nvim wont attach later
         -- Section 2
         -- Caveat: This will look for gopls package in your $PATH so install go and gopls in your server manually and only then uncomment the following start()
-        vim.api.nvim_create_autocmd("InsertEnter", {  -- This will start the lsp server only when you enter insert mode
-            buffer = 0,  -- Only for the current buffer
-            once = true, -- Only once for the current buffer
-            callback = function ()
+        vim.api.nvim_create_autocmd("InsertEnter", { -- This will start the lsp server only when you enter insert mode
+            buffer = 0,                              -- Only for the current buffer
+            once = true,                             -- Only once for the current buffer
+            callback = function()
                 vim.lsp.start({
                     name = "gopls",
                     cmd = config.cmd,
-                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, { upward = true })[1]),
                     settings = config.settings,
                     --capabilities = capabilities,
                 })
@@ -48,14 +48,14 @@ vim.api.nvim_create_autocmd("FileType", {
         --vim.lsp.enable("yamlls")   -- This won't attach anything as nvim wont attach later
         -- Section 2
         -- Caveat: This will look for yaml-language-server package in your $PATH so install nodejs and yaml-language-server manually and only then uncomment the following start()
-        vim.api.nvim_create_autocmd("InsertEnter", {  -- This will start the lsp server only when you enter insert mode
-            buffer = 0,  -- Only for the current buffer
-            once = true, -- Only once for the current buffer
-            callback = function ()
+        vim.api.nvim_create_autocmd("InsertEnter", { -- This will start the lsp server only when you enter insert mode
+            buffer = 0,                              -- Only for the current buffer
+            once = true,                             -- Only once for the current buffer
+            callback = function()
                 vim.lsp.start({
                     name = "yamlls",
                     cmd = config.cmd,
-                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, { upward = true })[1]),
                     settings = config.settings,
                     --capabilities = capabilities,
                 })
@@ -78,15 +78,15 @@ vim.api.nvim_create_autocmd("FileType", {
         --vim.lsp.enable("pyright")   -- This won't attach anything as nvim wont attach later
         -- Section 2
         -- Caveat: This will look for pyright package in your $PATH so install pyright in your server manually and only then uncomment the following start()
-        vim.api.nvim_create_autocmd("InsertEnter", {  -- This will start the lsp server only when you enter insert mode
-            buffer = 0,  -- Only for the current buffer
-            once = true, -- Only once for the current buffer
-            callback = function ()
+        vim.api.nvim_create_autocmd("InsertEnter", { -- This will start the lsp server only when you enter insert mode
+            buffer = 0,                              -- Only for the current buffer
+            once = true,                             -- Only once for the current buffer
+            callback = function()
                 vim.lsp.start({
                     name = "pyright",
                     --name = "basedpyright",  -- investigate and decide which one to use
                     cmd = config.cmd,
-                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, { upward = true })[1]),
                     settings = config.settings,
                     --capabilities = capabilities,
                 })
@@ -108,14 +108,14 @@ vim.api.nvim_create_autocmd("FileType", {
         --vim.lsp.enable("lua_ls")  -- This won't attach anything as nvim wont attach later
         -- Section 2
         -- The following will look for the lsp server lua_ls so install lua-language-server in your server manually and only then uncomment the following start()
-        vim.api.nvim_create_autocmd("InsertEnter", {  -- This will start the lsp server only when you enter insert mode
-            buffer = 0,  -- Only for the current buffer
-            once = true, -- Only once for the current buffer
-            callback = function ()
+        vim.api.nvim_create_autocmd("InsertEnter", { -- This will start the lsp server only when you enter insert mode
+            buffer = 0,                              -- Only for the current buffer
+            once = true,                             -- Only once for the current buffer
+            callback = function()
                 vim.lsp.start({
                     name = "lua_ls",
                     cmd = config.cmd,
-                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, { upward = true })[1]),
                     settings = config.settings,
                     --capabilities = capabilities,
                     single_file_support = config.single_file_support,
@@ -128,7 +128,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Bash
 -- This would be installed along with the OS and bash or zsh shell is available
 vim.api.nvim_create_autocmd("FileType", {
-    pattern = {"sh", "bash", "zsh"},
+    pattern = { "sh", "bash", "zsh" },
     group = group,
     callback = function()
         -- We fetch the values written in ~/.config/nvim/lua/lsp/bash_ls.lua into variable 'config'
@@ -141,14 +141,14 @@ vim.api.nvim_create_autocmd("FileType", {
         -- Uncomment the following only after installing bash-language-server and shellcheck
         -- Install bash-language-server using npm install -g bash-language-server
         -- Install shellcheck using sudo apt install shellcheck
-        vim.api.nvim_create_autocmd("InsertEnter", {  -- This will start the lsp server only when you enter insert mode
-            buffer = 0,  -- Only for the current buffer
-            once = true, -- Only once for the current buffer
-            callback = function ()
+        vim.api.nvim_create_autocmd("InsertEnter", { -- This will start the lsp server only when you enter insert mode
+            buffer = 0,                              -- Only for the current buffer
+            once = true,                             -- Only once for the current buffer
+            callback = function()
                 vim.lsp.start({
                     name = "bash_ls",
                     cmd = config.cmd,
-                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, {upward = true})[1]),
+                    root_dir = vim.fs.dirname(vim.fs.find(config.root_markers, { upward = true })[1]),
                     settings = config.settings,
                     --capabilities = capabilities,
                     single_file_support = config.single_file_support,
@@ -261,15 +261,18 @@ end, { desc = 'Disable diagnostics' })
 vim.keymap.set('n', '<leader>ds', toggle_diagnostic_display, { desc = 'Toggle diagnostic display' })
 
 -- Show diagnostics in a floating window
-vim.keymap.set("n","<leader>/", vim.diagnostic.open_float, { desc = "LSP: Open Diagnostic Float" })
+vim.keymap.set("n", "<leader>/", vim.diagnostic.open_float, { desc = "LSP: Open Diagnostic Float" })
 vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP: Hover Documentation" })
 -- To jump into the Documentation window press <C-w>w or press Shift+k again.
-vim.keymap.set("n", "g2D", "<cmd>vsplit | lua vim.lsp.buf.declaration()<cr>", { desc = "LSP: Goto Declaration in vertical split" })
-vim.keymap.set("n", "g2d", "<cmd>vsplit | lua vim.lsp.buf.definition()<cr>", { desc = "LSP: Goto Definition in Vertical Split" })
+vim.keymap.set("n", "g2D", "<cmd>vsplit | lua vim.lsp.buf.declaration()<cr>",
+    { desc = "LSP: Goto Declaration in vertical split" })
+vim.keymap.set("n", "g2d", "<cmd>vsplit | lua vim.lsp.buf.definition()<cr>",
+    { desc = "LSP: Goto Definition in Vertical Split" })
 vim.keymap.set("n", "g2s", vim.lsp.buf.signature_help, { desc = "LSP: Signature Documentation" })
 vim.keymap.set("n", "g2i", "<cmd>vsplit | lua vim.lsp.buf.implementation()<cr>", { desc = "LSP: Go to Implementation" })
+vim.keymap.set("n", "<leader>g2r", vim.lsp.buf.references, { desc = "LSP: List all references" })
 vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, { desc = "LSP: Code Action" })
-vim.keymap.set("n", "<leader>ra", vim.lsp.buf.rename, { desc = "LSP: Rename all references" })
+vim.keymap.set("n", "<leader>lr", vim.lsp.buf.rename, { desc = "LSP: Rename all references" })
 vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { desc = "LSP: Format" })
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
@@ -279,7 +282,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- This will pop up hints while filling the function with arguments. This only helps if the function definition has inlay hints e.g. add(x:int,y:int) -> int
 local bufnr = vim.api.nvim_get_current_buf()
 if vim.lsp.inlay_hint then
-    vim.lsp.inlay_hint.enable(true, {bufnr = bufnr})
+    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
 end
 
 -- Toggle inlay hints for current buffer

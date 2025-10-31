@@ -100,7 +100,7 @@ return {
                 parentSkeletonSelectedFirst = true
             },
             trace = {
-                server = "off"  -- Set to "messages" or "verbose" for debugging if needed
+                server = "off" -- Set to "messages" or "verbose" for debugging if needed
             }
         }
     }

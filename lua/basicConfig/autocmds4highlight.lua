@@ -8,9 +8,9 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- Read log files as json as the syntax highlighting is better
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
-  pattern = {"*.log", "*/logs/*", "*_log", "*logfile*"},
-  command = "set filetype=json",
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+    pattern = { "*.log", "*/logs/*", "*_log", "*logfile*" },
+    command = "set filetype=json",
 })
 
 -- Same occurance of a variable in a file gets highlighted when the cursor is on it (Very heavy for server)

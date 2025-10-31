@@ -60,9 +60,9 @@ vim.opt.listchars = { tab = '» ', trail = '␣', nbsp = '⦙', extends = '>', p
 vim.opt.inccommand = 'split'
 
 vim.g.netrw_liststyle = 1 -- 3: Use tree view by default, 1: Shows folder view with size and time
-vim.g.netrw_banner = 1 -- Show the banner at the top
-vim.g.netrw_winsize = 75 -- Set width of the newly opened window (in percentage)
-vim.g.netrw_altv = 1 -- Open files in vertical split to the right when you press v and not <CR>
+vim.g.netrw_banner = 1    -- Show the banner at the top
+vim.g.netrw_winsize = 75  -- Set width of the newly opened window (in percentage)
+vim.g.netrw_altv = 1      -- Open files in vertical split to the right when you press v and not <CR>
 
 -- Open files in vertical split to the right under <CR>(not in netrw split)
 -- vim.g.netrw_browse_split = 2

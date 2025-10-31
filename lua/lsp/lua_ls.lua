@@ -34,8 +34,8 @@ return {
                 },
             },
             workspace = {
-            -- Make the server aware of Neovim runtime files
-                library = vim.api.nvim_get_runtime_file('', true),  -- This is the key part!
+                -- Make the server aware of Neovim runtime files
+                library = vim.api.nvim_get_runtime_file('', true), -- This is the key part!
                 checkThirdParty = false,
             },
             format = {
@@ -49,11 +49,11 @@ return {
                 enable = false,
             },
             hint = {
-                enable = true, -- Enable inlay hints overall control over the hints
+                enable = true,   -- Enable inlay hints overall control over the hints
                 setType = false, -- Show type hints for variable assignments, so when you press = you will see what is expected
                 --semicolon = "Enable", -- Show semicolon hints; Didn't see it yet
                 --paramType = false, -- Show parameter type hints; Didn' see it yet
-                paramName = "Disable", -- Don't show parameter name hints to the left of variable within already written function calls
+                paramName = "Disable",  -- Don't show parameter name hints to the left of variable within already written function calls
                 arrayIndex = "Disable", -- Doesn't show [1], [2] as array index hints
             },
         },

@@ -19,39 +19,39 @@ vim.opt.rtp:prepend(lazypath)
 -- Setup lazy.nvim with configuration
 require("lazy").setup({ import = "plugins" }, {
     install = {
-        missing = true, -- Install missing plugins automatically
+        missing = true,             -- Install missing plugins automatically
         colorscheme = { "gruvbox" } -- Set default colorscheme
     },
     checker = {
-        enabled = false,  -- Disable automatic plugin update checking
-        notify = false,   -- Disable notifications for update checking
+        enabled = false, -- Disable automatic plugin update checking
+        notify = false,  -- Disable notifications for update checking
     },
     change_detection = {
-        enabled = true,  -- Enable configuration file change detection automatically otherwise, if its false then :Lazy reload <plugin> is required
-        notify = false,   -- Disable notifications for change detection
+        enabled = true,                           -- Enable configuration file change detection automatically otherwise, if its false then :Lazy reload <plugin> is required
+        notify = false,                           -- Disable notifications for change detection
     },
-    concurrency = vim.uv.available_parallelism(),  -- Limit the number of concurrent tasks
+    concurrency = vim.uv.available_parallelism(), -- Limit the number of concurrent tasks
     ui = {
         -- border = "rounded" -- Optional: set UI border style
     },
     performance = {
         cache = {
-            enabled = true,  -- Enable caching for faster loads
+            enabled = true,        -- Enable caching for faster loads
         },
-        reset_packpath = true,  -- Clean up packpath for performance
+        reset_packpath = true,     -- Clean up packpath for performance
         rtp = {
-            reset = true,  -- Reset runtime path for cleaner loading
+            reset = true,          -- Reset runtime path for cleaner loading
             disabled_plugins = {
-                "gzip",           -- Disable gzip plugin
-                "tarPlugin",      -- Disable tar archive plugin
-                "tohtml",         -- Disable HTML conversion
-                "zipPlugin",      -- Disable zip archive plugin
-                "2html_plugin",   -- Disable HTML conversion plugin
-                "getscript",      -- Disable script downloading
-                "getscriptPlugin",-- Disable script downloading plugin
-                "rrhelper",       -- Disable remote helper
-                "vimball",        -- Disable Vimball archive handling
-                "vimballPlugin",  -- Disable Vimball plugin
+                "gzip",            -- Disable gzip plugin
+                "tarPlugin",       -- Disable tar archive plugin
+                "tohtml",          -- Disable HTML conversion
+                "zipPlugin",       -- Disable zip archive plugin
+                "2html_plugin",    -- Disable HTML conversion plugin
+                "getscript",       -- Disable script downloading
+                "getscriptPlugin", -- Disable script downloading plugin
+                "rrhelper",        -- Disable remote helper
+                "vimball",         -- Disable Vimball archive handling
+                "vimballPlugin",   -- Disable Vimball plugin
             },
         },
     },

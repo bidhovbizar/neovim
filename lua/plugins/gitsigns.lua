@@ -21,8 +21,8 @@ return {
         },
         signs_staged_enable = true,
         signcolumn = true, -- Toggle with `:Gitsigns toggle_signs`
-        numhl = false, -- Toggle with `:Gitsigns toggle_numhl`
-        linehl = false, -- Toggle with `:Gitsigns toggle_linehl`
+        numhl = false,     -- Toggle with `:Gitsigns toggle_numhl`
+        linehl = false,    -- Toggle with `:Gitsigns toggle_linehl`
         word_diff = false, -- Toggle with `:Gitsigns toggle_word_diff`
         watch_gitdir = {
             follow_files = true,
@@ -41,7 +41,7 @@ return {
         current_line_blame_formatter = "<author>, <author_time:%Y-%m-%d> - <summary>",
         sign_priority = 6,
         update_debounce = 100,
-        status_formatter = nil, -- Use default
+        status_formatter = nil,  -- Use default
         max_file_length = 40000, -- Disable if file is longer than this (in lines)
         preview_config = {
             -- Options passed to nvim_open_win
@@ -91,6 +91,8 @@ return {
             map("v", "<leader>hr", function()
                 gitsigns.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
             end, { desc = "Reset hunk" })
+            -- Quickfix list
+            map("n", "<leader>hq", gitsigns.setqflist, { desc = "Set quickfix list" })
             -- Preview keymap
             map("n", "<leader>hp", gitsigns.preview_hunk, { desc = "Preview hunk" })
             map("n", "<leader>hi", gitsigns.preview_hunk_inline, { desc = "Preview hunk inline" })
@@ -98,7 +100,7 @@ return {
                 gitsigns.blame()
                 vim.defer_fn(function()
                     vim.cmd("wincmd p")
-                end, 100)  -- wait 100ms before switching back
+                end, 100) -- wait 100ms before switching back
             end, { desc = "Run Gitsigns blame and return to previous window" })
 
             map("n", "<leader>hbl", function()

@@ -17,6 +17,7 @@ return {
         { "<leader>ft", desc = "Telescope show git files" },
         { "<leader>fr", desc = "Telescope resume last search" },
         { "<leader>fp", desc = "Telescope find all packages" },
+        { "<leader>fh", desc = "Telescope help tags" },
     },
     config = function()
         local telescope = require('telescope')
@@ -62,8 +63,8 @@ return {
 
             -- Set prompt title based on case sensitivity
             local prompt_title = vim.g.telescope_case_sensitive
-            and "Multi Grep (Case Sensitive - double space = AND)"
-            or "Multi Grep (Smart Case - double space = AND)"
+                and "Multi Grep (Case Sensitive - double space = AND)"
+                or "Multi Grep (Smart Case - double space = AND)"
 
             pickers.new(opts, {
                 prompt_title = prompt_title,
@@ -108,8 +109,8 @@ return {
 
                         for i = 2, #patterns do
                             local grep_args = vim.g.telescope_case_sensitive
-                            and "--case-sensitive"
-                            or "--smart-case"
+                                and "--case-sensitive"
+                                or "--smart-case"
                             cmd = cmd .. " | rg --color=never " .. grep_args .. " " .. vim.fn.shellescape(patterns[i])
                         end
 
@@ -143,7 +144,8 @@ return {
                         vim.g.telescope_case_sensitive = not vim.g.telescope_case_sensitive
 
                         if vim.g.telescope_case_sensitive then
-                            vim.notify("Multi Grep: Case sensitive search enabled", vim.log.levels.INFO, { timeout = 1500 })
+                            vim.notify("Multi Grep: Case sensitive search enabled", vim.log.levels.INFO,
+                                { timeout = 1500 })
                         else
                             vim.notify("Multi Grep: Smart case search enabled", vim.log.levels.INFO, { timeout = 1500 })
                         end
@@ -168,7 +170,8 @@ return {
 
             -- Set prompt title based on case sensitivity
             if not opts.prompt_title then
-                opts.prompt_title = vim.g.telescope_case_sensitive and "Live Grep (Case Sensitive)" or "Live Grep (Smart Case)"
+                opts.prompt_title = vim.g.telescope_case_sensitive and "Live Grep (Case Sensitive)" or
+                "Live Grep (Smart Case)"
             end
 
             opts.attach_mappings = function(prompt_bufnr, map)
@@ -327,9 +330,9 @@ return {
                             'rg', '--color=never', '--no-heading', '--with-filename',
                             '--line-number', '--column', '--case-sensitive'
                         } or {
-                                'rg', '--color=never', '--no-heading', '--with-filename',
-                                '--line-number', '--column', '--smart-case'
-                            }
+                            'rg', '--color=never', '--no-heading', '--with-filename',
+                            '--line-number', '--column', '--smart-case'
+                        }
                     })
                     switch_to_normal_mode()
                 elseif picker_name:lower():match("find") or picker_name:lower():match("files") then
@@ -411,10 +414,10 @@ return {
             },
             extensions = {
                 fzf = {
-                    fuzzy = true,                    -- false will only do exact matching
-                    override_generic_sorter = true,  -- override the generic sorter
-                    override_file_sorter = true,     -- override the file sorter
-                    case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+                    fuzzy = true,                   -- false will only do exact matching
+                    override_generic_sorter = true, -- override the generic sorter
+                    override_file_sorter = true,    -- override the file sorter
+                    case_mode = "smart_case",       -- or "ignore_case" or "respect_case"
                 }
             }
         })
@@ -424,9 +427,12 @@ return {
 
         -- Main telescope functions with enhanced history tracking
         vim.keymap.set('n', '<leader>ff', function() enhanced_find_files() end, { desc = 'Telescope find files' })
-        vim.keymap.set('n', '<leader>fg', function() enhanced_live_grep() end, { desc = 'Telescope live grep within a folder' })
-        vim.keymap.set('n', '<leader>fm', function() enhanced_multi_grep() end, { desc = 'Telescope multi grep (double space = AND)' })
+        vim.keymap.set('n', '<leader>fg', function() enhanced_live_grep() end,
+            { desc = 'Telescope live grep within a folder' })
+        vim.keymap.set('n', '<leader>fm', function() enhanced_multi_grep() end,
+            { desc = 'Telescope multi grep (double space = AND)' })
         vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope in buffers' })
+        vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
         -- To clear any file in the buffer do :ls to find files or <leader>fb then to remove do :bd <buffer_number> e.g. :bd 33
         -- To clear all buffers do :bwipeout
         vim.keymap.set('n', '<leader>fo', builtin.oldfiles, { desc = 'Telescope show oldfiles' })
@@ -436,14 +442,20 @@ return {
         vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = 'Telescope resume last search' })
 
         -- Quick access to last searches
-        vim.keymap.set('n', '<leader>ffr', function() repeat_last_search('find_files') end, { desc = 'Repeat last find files' })
-        vim.keymap.set('n', '<leader>fgr', function() repeat_last_search('live_grep') end, { desc = 'Repeat last live grep' })
-        vim.keymap.set('n', '<leader>fmr', function() repeat_last_search('multi_grep') end, { desc = 'Repeat last multi grep' })
+        vim.keymap.set('n', '<leader>ffr', function() repeat_last_search('find_files') end,
+            { desc = 'Repeat last find files' })
+        vim.keymap.set('n', '<leader>fgr', function() repeat_last_search('live_grep') end,
+            { desc = 'Repeat last live grep' })
+        vim.keymap.set('n', '<leader>fmr', function() repeat_last_search('multi_grep') end,
+            { desc = 'Repeat last multi grep' })
 
         -- Show specific search history
-        vim.keymap.set('n', '<leader>ffh', function() show_search_history('find_files') end, { desc = 'Find files history' })
-        vim.keymap.set('n', '<leader>fgh', function() show_search_history('live_grep') end, { desc = 'Live grep history' })
-        vim.keymap.set('n', '<leader>fmh', function() show_search_history('multi_grep') end, { desc = 'Multi grep history' })
+        vim.keymap.set('n', '<leader>ffh', function() show_search_history('find_files') end,
+            { desc = 'Find files history' })
+        vim.keymap.set('n', '<leader>fgh', function() show_search_history('live_grep') end,
+            { desc = 'Live grep history' })
+        vim.keymap.set('n', '<leader>fmh', function() show_search_history('multi_grep') end,
+            { desc = 'Multi grep history' })
 
         vim.keymap.set('n', '<leader>fp', function()
             local lazy_path = vim.fs.joinpath(vim.fn.stdpath("data"), "lazy")

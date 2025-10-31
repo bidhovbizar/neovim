@@ -6,10 +6,10 @@ return {
         -- Remember avante and codecompanion both use markdown config changes should be made in both
         {
             'MeanderingProgrammer/render-markdown.nvim',
-            ft = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput", 
+            ft = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
                 "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
             opts = {
-                file_types = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput", 
+                file_types = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
                     "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
                 render_modes = true,
             },
@@ -115,16 +115,16 @@ return {
         display = {
             chat = {
                 intro_message = "Welcome to CodeCompanion ✨! Press ? for help",
-                separator = "-", -- The separator between the different messages in the chat buffer
-                show_context = true, -- Show context (from slash commands and variables) in the chat buffer
+                separator = "-",              -- The separator between the different messages in the chat buffer
+                show_context = true,          -- Show context (from slash commands and variables) in the chat buffer
                 show_header_separator = true, -- Show header separators in the chat buffer? Set this to false if you're using an external markdown formatting plugin
-                show_settings = false, -- Show LLM settings at the top of the chat buffer including model, temperature, etc.
-                show_token_count = false, -- Show the token count for each response
+                show_settings = false,        -- Show LLM settings at the top of the chat buffer including model, temperature, etc.
+                show_token_count = false,     -- Show the token count for each response
                 show_tools_processing = true, -- Show the loading message when tools are being executed
                 start_in_insert_mode = false, -- Open the chat buffer in insert mode?
-                auto_scroll = true, -- Automatically scroll to the bottom of the chat buffer on new messages
-                fold_context = false, -- Fold context messages by default if set to true
-                fold_reasoning = false, -- Fold reasoning messages by default if set to true
+                auto_scroll = true,           -- Automatically scroll to the bottom of the chat buffer on new messages
+                fold_context = false,         -- Fold context messages by default if set to true
+                fold_reasoning = false,       -- Fold reasoning messages by default if set to true
                 icons = {
                     chat_context = "📎 ",
                     chat_fold = " ",
@@ -133,13 +133,13 @@ return {
                 -- window properties
                 window = {
                     layout = "vertical", -- float|vertical|horizontal|buffer
-                    position = nil, -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
+                    position = nil,      -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
                     border = "rounded",
                     height = 0.8,
                     width = 0.45,
                     relative = "editor",
                     full_height = true, -- when set to false, vsplit will be used to open the chat buffer vs. botright/topleft vsplit
-                    sticky = true, -- when set to true and `layout` is not `"buffer"`, the chat buffer will remain opened when switching tabs
+                    sticky = true,      -- when set to true and `layout` is not `"buffer"`, the chat buffer will remain opened when switching tabs
                     opts = {
                         breakindent = true,
                         cursorcolumn = false,
@@ -157,12 +157,12 @@ return {
             action_palette = {
                 width = 95,
                 height = 10,
-                prompt = "Prompt ", -- Prompt used for interactive LLM calls
-                provider = "telescope", -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks".
+                prompt = "Prompt ",                     -- Prompt used for interactive LLM calls
+                provider = "telescope",                 -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks".
                 opts = {
-                    show_default_actions = true, -- Show the default actions in the action palette?
+                    show_default_actions = true,        -- Show the default actions in the action palette?
                     show_default_prompt_library = true, -- Show the default prompt library in the action palette?
-                    title = "CodeCompanion actions", -- The title of the action palette
+                    title = "CodeCompanion actions",    -- The title of the action palette
                 },
             },
             diff = {
@@ -196,11 +196,11 @@ return {
                         },
 
                         opts = {
-                            context_lines = 3, -- Number of context lines in hunks
-                            dim = 25, -- Background dim level for floating diff (0-100, [100 full transparent], only applies when layout = "float")
+                            context_lines = 3,         -- Number of context lines in hunks
+                            dim = 25,                  -- Background dim level for floating diff (0-100, [100 full transparent], only applies when layout = "float")
                             full_width_removed = true, -- Make removed lines span full width
-                            show_keymap_hints = true, -- Show "gda: accept | gdr: reject" hints above diff
-                            show_removed = true, -- Show removed lines as virtual text
+                            show_keymap_hints = true,  -- Show "gda: accept | gdr: reject" hints above diff
+                            show_removed = true,       -- Show removed lines as virtual text
                         },
                     },
 
@@ -213,7 +213,7 @@ return {
                             "filler",
                             "closeoff",
                             "algorithm:histogram", -- https://adamj.eu/tech/2024/01/18/git-improve-diff-histogram/
-                            "indent-heuristic", -- https://blog.k-nut.eu/better-git-diffs
+                            "indent-heuristic",    -- https://blog.k-nut.eu/better-git-diffs
                             "followwrap",
                             "linematch:120",
                         },
@@ -224,27 +224,27 @@ return {
     },
     keys = {
         -- Open action palette (works in normal and visual mode)
-        { "<leader>cp", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "CodeCompanion Actions" },
+        { "<leader>cp", "<cmd>CodeCompanionActions<cr>",     mode = { "n", "v" }, desc = "CodeCompanion Actions" },
 
         -- Toggle chat buffer
         { "<leader>CC", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "Toggle Chat" },
 
         -- Add visual selection to chat
-        { "<leader>ca", "<cmd>CodeCompanionChat Add<cr>", mode = "v", desc = "Add to Chat" },
+        { "<leader>ca", "<cmd>CodeCompanionChat Add<cr>",    mode = "v",          desc = "Add to Chat" },
 
         -- Quick prompts from prompt library
-        { "<leader>ce", "<cmd>CodeCompanion /explain<cr>", mode = "v", desc = "Explain Code" },
-        { "<leader>cf", "<cmd>CodeCompanion /fix<cr>", mode = "v", desc = "Fix Code" },
-        { "<leader>ct", "<cmd>CodeCompanion /tests<cr>", mode = "v", desc = "Generate Tests" },
-        { "<leader>cl", "<cmd>CodeCompanion /lsp<cr>", mode = "v", desc = "Explain LSP Diagnostics" },
-        { "<leader>cm", "<cmd>CodeCompanion /commit<cr>", mode = "n", desc = "Generate Commit Message" },
-        { "<leader>cg", "<cmd>CodeCompanionAgent<cr>", mode = { "n", "v" }, desc = "CodeCompanion Agent" },
+        { "<leader>ce", "<cmd>CodeCompanion /explain<cr>",   mode = "v",          desc = "Explain Code" },
+        { "<leader>cf", "<cmd>CodeCompanion /fix<cr>",       mode = "v",          desc = "Fix Code" },
+        { "<leader>ct", "<cmd>CodeCompanion /tests<cr>",     mode = "v",          desc = "Generate Tests" },
+        { "<leader>cl", "<cmd>CodeCompanion /lsp<cr>",       mode = "v",          desc = "Explain LSP Diagnostics" },
+        { "<leader>cm", "<cmd>CodeCompanion /commit<cr>",    mode = "n",          desc = "Generate Commit Message" },
+        { "<leader>cg", "<cmd>CodeCompanionAgent<cr>",       mode = { "n", "v" }, desc = "CodeCompanion Agent" },
 
         -- Inline assistant
-        { "<leader>ci", "<cmd>CodeCompanion<cr>", mode = { "n", "v" }, desc = "Inline Assistant" },
+        { "<leader>ci", "<cmd>CodeCompanion<cr>",            mode = { "n", "v" }, desc = "Inline Assistant" },
 
         -- CodeCompanion Help
-        { "<leader>ch", "<cmd>help CodeCompanion<cr>", mode = "n", desc = "Open CodeCompanion Documentation" },
+        { "<leader>ch", "<cmd>help CodeCompanion<cr>",       mode = "n",          desc = "Open CodeCompanion Documentation" },
 
     },
     config = function(_, opts)

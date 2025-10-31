@@ -13,13 +13,13 @@ return {
         dependencies = {
             {
                 "rafamadriz/friendly-snippets",
-                lazy = false, -- Make sure this loads before luasnip as it will fetch the friendly-snippets from runpath
+                lazy = false,               -- Make sure this loads before luasnip as it will fetch the friendly-snippets from runpath
             },
             "Kaiser-Yang/blink-cmp-avante", -- Dependency ensures proper load order
             {
                 "L3MON4D3/LuaSnip",
                 --lazy = true,
-                event = "InsertEnter", -- Only load when entering insert mode
+                event = "InsertEnter",           -- Only load when entering insert mode
                 build = "make install_jsregexp", -- Optional: for better snippet support
                 config = function()
                     -- Move LuaSnip loading here to avoid loading on startup
@@ -135,8 +135,8 @@ return {
                 keymap = {
                     preset = "default", -- Keep default preset
 
-                    ["<C-b>"] = {}, -- Don't clash with documentation scroll
-                    ["<C-f>"] = {}, -- Don't clash with documentation scroll
+                    ["<C-b>"] = {},     -- Don't clash with documentation scroll
+                    ["<C-f>"] = {},     -- Don't clash with documentation scroll
                     ["<Enter>"] = { "accept", "fallback" },
                     --['<Esc>'] = { 'hide', 'fallback' },  -- Uncommenting this will make 1st Esc quit autocompletion then 2nd Esc will quit to n mode
                     ["<C-y>"] = { "accept" },
@@ -169,7 +169,7 @@ return {
                         draw = {
                             columns = {
                                 { "kind_icon" },
-                                { "label", "label_description", gap = 1 },
+                                { "label",      "label_description", gap = 1 },
                                 { "kind" },
                                 { "source_name" }, -- Shows which source provided the item
                             },

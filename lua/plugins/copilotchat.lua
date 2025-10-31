@@ -5,8 +5,8 @@ return {
         --event = "InsertEnter", -- This will load copilotchat when you enter insert mode for the first time
         cmd = { "CopilotChat", "CopilotChatCommit", "CopilotChatExplain", "CopilotChatReview", "CopilotChatFix", "CopilotChatOptimize", "CopilotChatDocs", "CopilotChatTests" },
         dependencies = {
-            { "zbirenbaum/copilot.lua" },                   -- or zbirenbaum/copilot.lua or github/copilot.vim
-            { "nvim-lua/plenary.nvim" }, -- for curl, log and async functions
+            { "zbirenbaum/copilot.lua" }, -- or zbirenbaum/copilot.lua or github/copilot.vim
+            { "nvim-lua/plenary.nvim" },  -- for curl, log and async functions
         },
         --build = "make tiktoken",                            -- Only on MacOS or Linux
         opts = {
@@ -40,15 +40,15 @@ return {
                 },
             },
             prompts = {
-                ciscocodereview= {
+                ciscocodereview = {
                     prompt = "Review the following code for improvements and best practices.",
-                    system_prompt = require("prompts.copilotprompts").prompt,  -- Ensure that your prompt is defined in lua/prompts/copilotprompts.lua
+                    system_prompt = require("prompts.copilotprompts").prompt, -- Ensure that your prompt is defined in lua/prompts/copilotprompts.lua
                     description = "Cisco Code Review",
                 },
             },
         },
         keys = {
-            { "<leader>cc", "<cmd>CopilotChat<CR>",         mode = { "n", "v"},   desc = "Chat with Copilot" },
+            { "<leader>cc", "<cmd>CopilotChat<CR>", mode = { "n", "v" }, desc = "Chat with Copilot" },
             --{ "<leader>cm", "<cmd>CopilotChatCommit<CR>",   mode = { "n", "v"},   desc = "Generate Commit Message" },
             --{ "<leader>ce", "<cmd>CopilotChatExplain<CR>",  mode = "v",           desc = "Explain Code" },
             --{ "<leader>cr", "<cmd>CopilotChatReview<CR>",   mode = "v",           desc = "Review Code" },

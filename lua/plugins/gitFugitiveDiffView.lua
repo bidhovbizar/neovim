@@ -3,29 +3,33 @@ return {
         'tpope/vim-fugitive',
         cmd = { 'Git', 'Git blame', 'Git push', 'Git pull', 'Gdiff' },
         keys = {
-            { '<leader>gb', function()
-                vim.cmd('Git blame')
-                vim.defer_fn(function ()
-                    vim.cmd("wincmd p")
-                end, 100)  -- wait 100ms before switching back
-            end, desc = 'Git blame' },
+            {
+                '<leader>gb',
+                function()
+                    vim.cmd('Git blame')
+                    vim.defer_fn(function()
+                        vim.cmd("wincmd p")
+                    end, 100) -- wait 100ms before switching back
+                end,
+                desc = 'Git blame'
+            },
             --{ '<leader>gd3', '<cmd>Gvdiffsplit!<cr>', desc = 'Git 3-way diff' }, -- DiffViews 3 way merge is better than this
         },
     },
     {
         'sindrets/diffview.nvim',
         dependencies = {
-            'nvim-lua/plenary.nvim',      -- Required dependency
+            'nvim-lua/plenary.nvim',       -- Required dependency
             'nvim-tree/nvim-web-devicons', -- Optional: for file icons
-            'tpope/vim-fugitive',         -- Ensure fugitive is loaded with diffview to do Git actions
+            'tpope/vim-fugitive',          -- Ensure fugitive is loaded with diffview to do Git actions
         },
         keys = {
-            { '<leader>gd', '<cmd>DiffviewOpen<cr>', desc = 'Open Diffview' },
-            { '<leader>gc', '<cmd>DiffviewClose<cr>', desc = 'Close Diffview' },
-            { '<leader>gt', '<cmd>DiffviewToggleFiles<cr>', desc = 'Toggle Diffview Files' },
-            { '<leader>grh', '<cmd>DiffviewFileHistory<cr>', desc = 'Git Repository History' },
+            { '<leader>gd',  '<cmd>DiffviewOpen<cr>',          desc = 'Open Diffview' },
+            { '<leader>gc',  '<cmd>DiffviewClose<cr>',         desc = 'Close Diffview' },
+            { '<leader>gt',  '<cmd>DiffviewToggleFiles<cr>',   desc = 'Toggle Diffview Files' },
+            { '<leader>grh', '<cmd>DiffviewFileHistory<cr>',   desc = 'Git Repository History' },
             { '<leader>gfh', '<cmd>DiffviewFileHistory %<cr>', desc = 'Git Opened File History', mode = 'n' },
-            { '<leader>gfh', ":'<,'>DiffviewFileHistory<cr>", desc = 'Git Line History', mode = 'v' },
+            { '<leader>gfh', ":'<,'>DiffviewFileHistory<cr>",  desc = 'Git Line History',        mode = 'v' },
         },
         cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggleFiles', 'DiffviewFocusFiles', 'DiffviewFileHistory' },
         config = function()
@@ -33,23 +37,23 @@ return {
             local buffers_with_conflicts = {}
 
             require('diffview').setup({
-                diff_binaries = false,    -- Show diffs for binaries
+                diff_binaries = false,   -- Show diffs for binaries
                 enhanced_diff_hl = true, -- See ':h diffview-config-enhanced_diff_hl'
-                git_cmd = { "git" },      -- The git executable followed by default args
-                use_icons = true,         -- Requires nvim-web-devicons
-                watch_index = true,       -- Auto-refresh when git index changes
+                git_cmd = { "git" },     -- The git executable followed by default args
+                use_icons = true,        -- Requires nvim-web-devicons
+                watch_index = true,      -- Auto-refresh when git index changes
                 view = {
                     default = {
-                        layout = "diff2_horizontal",  -- or "diff2_vertical" based on preference
+                        layout = "diff2_horizontal", -- or "diff2_vertical" based on preference
                     },
                     merge_tool = {
-                        layout = "diff3_mixed",  -- 3-way merge with horizontal layout diff3_horizontal
+                        layout = "diff3_mixed", -- 3-way merge with horizontal layout diff3_horizontal
                     },
                 },
                 file_panel = {
                     listing_style = "tree",
                     win_config = {
-                        width = 35,  -- Reasonable default width
+                        width = 35, -- Reasonable default width
                     },
                 },
                 hooks = {
@@ -167,8 +171,8 @@ return {
 
                 -- Skip diffview buffers (including file panel previews)
                 if buf_name:match("diffview://") or
-                   buf_filetype == "DiffviewFiles" or
-                   buf_filetype == "DiffviewFileHistory" then
+                    buf_filetype == "DiffviewFiles" or
+                    buf_filetype == "DiffviewFileHistory" then
                     return
                 end
 
@@ -253,7 +257,7 @@ return {
                 for i, line in ipairs(lines) do
                     if line:match("^<<<<<<<") then
                         conflict_start = i
-                        header_line = i - 1  -- Convert to 0-based indexing
+                        header_line = i - 1 -- Convert to 0-based indexing
                     elseif line:match("^>>>>>>>") and conflict_start then
                         conflict_end = i
 
@@ -262,7 +266,7 @@ return {
                             -- Show hint as virtual text on the conflict header line
                             local hint_text = "[co: OURS, ct: THEIRS, [x: PREV, ]x: NEXT, cr: REFRESH]"
                             vim.api.nvim_buf_set_extmark(bufnr, hint_ns, header_line, 0, {
-                                virt_text = {{ hint_text, "DiagnosticVirtualLinesError" }},
+                                virt_text = { { hint_text, "DiagnosticVirtualLinesError" } },
                                 virt_text_pos = "right_align",
                                 priority = 1000,
                             })

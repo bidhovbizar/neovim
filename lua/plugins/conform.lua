@@ -21,7 +21,8 @@ return {
         })
     end,
     keys = {
-        -- This is disabled as I am using nvim treesitter formatter
+        -- This is disabled as I am using nvim treesitter formatter and lsp formatter
+        -- The same command is used for running
         --{ "<M-f>", function() require("conform").format({ async = true, lsp_fallback = true }) end, mode = "n", desc = "Format buffer" },
     }
 }

@@ -275,7 +275,7 @@ vim.keymap.set("n", "<leader>la", vim.lsp.buf.code_action, { desc = "LSP: Code A
 vim.keymap.set("n", "<leader>lr", vim.lsp.buf.rename, { desc = "LSP: Rename all references" })
 vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { desc = "LSP: Format" })
 
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<leader>dq', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 ------------------------------------------------------------------------
 -- Enable inlay hints for the current buffer

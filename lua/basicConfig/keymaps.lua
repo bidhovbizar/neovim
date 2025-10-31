@@ -17,6 +17,18 @@ vim.keymap.set('n', '<M-Right>', ':vertical resize +2<CR>', { silent = true })
 vim.keymap.set('n', '<leader>bn', ':bnext<CR>', { desc = 'Next buffer' })
 vim.keymap.set('n', '<leader>bp', ':bprev<CR>', { desc = 'Previous buffer' })
 
+-- Naviagate through all the quickfix list items
+vim.keymap.set('n', '<leader>qn', ':cnext<CR>', { desc = 'Next quickfix item' })
+vim.keymap.set('n', '<leader>qp', ':cprev<CR>', { desc = 'Previous quickfix item' })
+vim.keymap.set('n', '<leader>qN', ':cnfile<CR>', { desc = 'Next file in quickfix' })
+vim.keymap.set('n', '<leader>qP', ':cpfile<CR>', { desc = 'Previous file in quickfix' })
+vim.keymap.set('n', '<leader>qo', ':copen<CR>', { desc = 'Open quickfix list' })
+vim.keymap.set('n', '<leader>qc', ':cclose<CR>', { desc = 'Close quickfix list' })
+vim.keymap.set('n', '<leader>ql', ':clist<CR>', { desc = 'Just list quickfix items' })
+vim.keymap.set('n', '<leader>qa', ':caddbuffer<CR>', { desc = 'Add buffer to quickfix list' })
+vim.keymap.set('n', '<leader>qh', ':chistory<CR>', { desc = 'Show quickfix history' })
+
+
 -- Toggle relative numbers
 vim.keymap.set('n', '<leader>tr', function()
     vim.opt.relativenumber = not vim.opt.relativenumber:get()

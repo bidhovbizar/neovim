@@ -139,6 +139,7 @@ return {
                     ["<C-f>"] = {},     -- Don't clash with documentation scroll
                     ["<Enter>"] = { "accept", "fallback" },
                     --['<Esc>'] = { 'hide', 'fallback' },  -- Uncommenting this will make 1st Esc quit autocompletion then 2nd Esc will quit to n mode
+                    ['<C-Space>'] = { 'show' },
                     ["<C-y>"] = { "accept" },
                     ["<C-e>"] = { "cancel" },
                     ["<C-n>"] = { "select_next" },

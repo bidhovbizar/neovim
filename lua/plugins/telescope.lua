@@ -5,7 +5,8 @@ return {
         {
             'nvim-telescope/telescope-fzf-native.nvim',
             build = 'make'
-        }
+        },
+        'jmacadie/telescope-hierarchy.nvim'
     },
     cmd = "Telescope",
     keys = {
@@ -18,6 +19,8 @@ return {
         { "<leader>fr", function() require('telescope.builtin').resume() end, desc = "Resume search" },
         { "<leader>fp", function() require('telescope.builtin').builtin() end, desc = "Find all Telescope builtin picker" },
         { "<leader>fh", function() require('telescope.builtin').help_tags() end, desc = "Help tags" },
+        { "<leader>fic", function() require('telescope').extensions.hierarchy.incoming_calls() end, desc = "Hierarchy picker" },
+        { "<leader>foc", function() require('telescope').extensions.hierarchy.outgoing_calls() end, desc = "Hierarchy picker" },
     },
     config = function()
         local telescope = require('telescope')
@@ -106,20 +109,27 @@ return {
                     override_generic_sorter = true,
                     override_file_sorter = true,
                     case_mode = "smart_case",
-                }
+                },
+                hierarchy = {
+                    -- telescope-hierarchy.nvim config
+                    initial_multi_expand = false, -- Run a multi-expand on open? If false, will only expand one layer deep by default
+                    multi_depth = 5, -- How many layers deep should a multi-expand go?
+                    layout_strategy = "horizontal",
+                },
             }
         })
 
         -- Load extensions
         telescope.load_extension('fzf')
+        telescope.load_extension('hierarchy')
 
         -- Create a custom extension for complex functions to defer their loading
         telescope.extensions.telescope_config = {
             enhanced_live_grep = function()
                 local builtin = require('telescope.builtin')
                 local prompt_title = vim.g.telescope_case_sensitive
-                    and "Live Grep (Case Sensitive)"
-                    or "Live Grep (Smart Case)"
+                and "Live Grep (Case Sensitive)"
+                or "Live Grep (Smart Case)"
 
                 builtin.live_grep({
                     prompt_title = prompt_title,
@@ -127,9 +137,9 @@ return {
                         'rg', '--color=never', '--no-heading', '--with-filename',
                         '--line-number', '--column', '--case-sensitive'
                     } or {
-                        'rg', '--color=never', '--no-heading', '--with-filename',
-                        '--line-number', '--column', '--smart-case'
-                    }
+                            'rg', '--color=never', '--no-heading', '--with-filename',
+                            '--line-number', '--column', '--smart-case'
+                        }
                 })
             end,
 
@@ -141,8 +151,8 @@ return {
                 local conf = require('telescope.config').values
 
                 local prompt_title = vim.g.telescope_case_sensitive
-                    and "Multi Grep (Case Sensitive) - double space = AND"
-                    or "Multi Grep (Smart Case) - double space = AND"
+                and "Multi Grep (Case Sensitive) - double space = AND"
+                or "Multi Grep (Smart Case) - double space = AND"
 
                 pickers.new({}, {
                     prompt_title = prompt_title,

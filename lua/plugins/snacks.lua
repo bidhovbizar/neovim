@@ -84,5 +84,10 @@ return {
         { "<leader>bD", function() Snacks.bufdelete() vim.notify("Removed opened file from buffer") end, desc = "Deleted opened file from buffer", mode = "n" },
         { "<leader>bd", function() Snacks.bufdelete.other() vim.notify("Removed all other buffers") end, desc = "Delete everyone else in the buffer", mode = "n" },
         { "<leader>gl", function() Snacks.git.blame_line() end, desc = "Blame line with full details", mode = "n" },
+        { "<leader>sp", function() Snacks.picker() end, desc = "Snacks all the pickers", mode = "n" },
+        { "<leader>sf", function() Snacks.picker.files() end, desc = "Snacks Find files", mode = "n" },
+        { "<leader>sg", function() Snacks.picker.grep() end, desc = "Snacks Grep word", mode = "n" },
+        { "<leader>sd", function() Snacks.picker.git_diff() end, desc = "Snacks git diff", mode = "n" },
+        { "<leader>sr", function() Snacks.picker.resume() end, desc = "Snacks picker resume", mode = "n" },
     },
 }

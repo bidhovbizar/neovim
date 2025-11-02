@@ -64,5 +64,9 @@ vim.g.netrw_banner = 1    -- Show the banner at the top
 vim.g.netrw_winsize = 75  -- Set width of the newly opened window (in percentage)
 vim.g.netrw_altv = 1      -- Open files in vertical split to the right when you press v and not <CR>
 
+-- Neovim commandline gives options to complete when pressed <Tab>
+vim.opt.wildmode = 'longest:full,full'
+vim.opt.wildoptions = 'pum'
+
 -- Open files in vertical split to the right under <CR>(not in netrw split)
 -- vim.g.netrw_browse_split = 2

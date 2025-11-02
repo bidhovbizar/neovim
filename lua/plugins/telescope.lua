@@ -2,11 +2,12 @@ return {
     'nvim-telescope/telescope.nvim',
     dependencies = {
         'nvim-lua/plenary.nvim',
+        'jmacadie/telescope-hierarchy.nvim',
+        'nvim-telescope/telescope-frecency.nvim',
         {
             'nvim-telescope/telescope-fzf-native.nvim',
             build = 'make'
         },
-        'jmacadie/telescope-hierarchy.nvim'
     },
     cmd = "Telescope",
     keys = {
@@ -19,6 +20,7 @@ return {
         { "<leader>fr", function() require('telescope.builtin').resume() end, desc = "Resume search" },
         { "<leader>fp", function() require('telescope.builtin').builtin() end, desc = "Find all Telescope builtin picker" },
         { "<leader>fh", function() require('telescope.builtin').help_tags() end, desc = "Help tags" },
+        { "<leader>fq", function() require('telescope').extensions.frecency.frecency() end, desc = "Frecency (smart files)" },
         { "<leader>fic", function() require('telescope').extensions.hierarchy.incoming_calls() end, desc = "Hierarchy picker" },
         { "<leader>foc", function() require('telescope').extensions.hierarchy.outgoing_calls() end, desc = "Hierarchy picker" },
     },
@@ -95,7 +97,14 @@ return {
                 },
                 prompt_prefix = '🔍 ',
                 selection_caret = '➤ ',
-                layout_strategy = 'bottom_pane',
+                layout_strategy = 'vertical',
+                layout_config = {
+                    vertical = {
+                        width = 0.99,
+                        height = 0.99,
+                        preview_width = 0.6,
+                    },
+                },
                 mappings = {
                     n = {
                         -- Toggle case sensitivity with <leader>tc in normal mode
@@ -122,6 +131,7 @@ return {
         -- Load extensions
         telescope.load_extension('fzf')
         telescope.load_extension('hierarchy')
+        telescope.load_extension('frecency')
 
         -- Create a custom extension for complex functions to defer their loading
         telescope.extensions.telescope_config = {

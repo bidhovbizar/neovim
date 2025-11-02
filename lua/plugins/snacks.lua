@@ -57,9 +57,25 @@ return {
         lazygit = { enabled = false }, -- We have to explicitly install lazygit and have it in path for this to work
         notifier = { enabled = false },
         picker = { 
+            -- This is the expanded version of ivy layout.
             enabled = true,
             layout = {
-                preset = "ivy", -- Options: "select" (side), "ivy" (bottom), or default (center)
+                layout = {
+                    box = "vertical",
+                    backdrop = false,
+                    row = -1,
+                    width = 0,
+                    height = 0.5, -- For ivy its 0.4
+                    border = "top",
+                    title = " {title} {live} {flags}",
+                    title_pos = "left",
+                    { win = "input", height = 1, border = "bottom" },
+                    {
+                        box = "horizontal",
+                        { win = "list", border = "none" },
+                        { win = "preview", title = "{preview}", width = 0.65, border = "left" }, -- For ivy width is 0.6
+                    },
+                },
             },
         },   -- So much picking ability for colour and file picking
         profiler = { enabled = false }, -- Its a profiler only for lua, so not needed
@@ -88,11 +104,18 @@ return {
         { "<M-e>", function() Snacks.explorer() end, desc = "File Explorer", mode = "n" },
         { "<leader>bD", function() Snacks.bufdelete() vim.notify("Removed opened file from buffer") end, desc = "Deleted opened file from buffer", mode = "n" },
         { "<leader>bd", function() Snacks.bufdelete.other() vim.notify("Removed all other buffers") end, desc = "Delete everyone else in the buffer", mode = "n" },
-        { "<leader>gl", function() Snacks.git.blame_line() end, desc = "Blame line with full details", mode = "n" },
+        { "<leader>gB", function() Snacks.git.blame_line() end, desc = "Blame line with full details", mode = "n" },
         { "<leader>sp", function() Snacks.picker() end, desc = "Snacks all the pickers", mode = "n" },
         { "<leader>sf", function() Snacks.picker.files() end, desc = "Snacks Find files", mode = "n" },
+        { "<leader>sb", function() Snacks.picker.git_branches() end, desc = "Snacks Find files", mode = "n" },
         { "<leader>sg", function() Snacks.picker.grep() end, desc = "Snacks Grep word", mode = "n" },
-        { "<leader>sd", function() Snacks.picker.git_diff() end, desc = "Snacks git diff", mode = "n" },
         { "<leader>sr", function() Snacks.picker.resume() end, desc = "Snacks picker resume", mode = "n" },
+        { "<leader>su", function() Snacks.picker.undo() end, desc = "Snacks undo tree", mode = "n" },
+        { "<leader>sl", function() Snacks.picker.lines() end, desc = "Snacks picker in a file matching string in all the lines", mode = "n" },
+        { "<leader>sd", function() Snacks.picker.git_diff() end, desc = "Snacks list git diff", mode = "n" },
+        { "<leader>se", function() Snacks.picker.icons() end, desc = "Snacks picker for icons and emoji", mode = "n" },
+        { "<leader>sw", function() Snacks.picker.grep_word() end, desc = "Snacks picker for the occurance of the word under cursor across CWD", mode = "n" },
+        { "<leader>sl", function() Snacks.picker.git_log_line() end, desc = "Snacks for viewing git log line details with commit details", mode = "n" },
+        { "<leader>sk", function() Snacks.picker.keymaps() end, desc = "Snacks picker for all defined keymaps", mode = "n" },
     },
 }

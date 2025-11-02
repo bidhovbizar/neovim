@@ -56,7 +56,12 @@ return {
         input = { enabled = false },   -- Moves commandline to center like a dialogue box
         lazygit = { enabled = false }, -- We have to explicitly install lazygit and have it in path for this to work
         notifier = { enabled = false },
-        picker = { enabled = true },   -- So much picking ability for colour and file picking
+        picker = { 
+            enabled = true,
+            layout = {
+                preset = "ivy", -- Options: "select" (side), "ivy" (bottom), or default (center)
+            },
+        },   -- So much picking ability for colour and file picking
         profiler = { enabled = false }, -- Its a profiler only for lua, so not needed
         quickfile = { enabled = true }, -- Ensure that buffer loads first if there are only one file.
         scratch = { enabled = false }, -- Temporary create a floating window to test lua code

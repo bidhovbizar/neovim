@@ -73,7 +73,7 @@ return {
                     {
                         box = "horizontal",
                         { win = "list", border = "none" },
-                        { win = "preview", title = "{preview}", width = 0.65, border = "left" }, -- For ivy width is 0.6
+                        { win = "preview", title = "{preview}", width = 0.5, border = "left" }, -- For ivy width is 0.6. Use <M-w> to toggle preview
                     },
                 },
             },

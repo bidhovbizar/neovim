@@ -94,7 +94,8 @@ return {
             -- Quickfix list
             map("n", "<leader>hq", gitsigns.setqflist, { desc = "Set quickfix list" })
             -- Preview keymap
-            map("n", "<leader>hp", gitsigns.preview_hunk, { desc = "Preview hunk" })
+            map("n", "<leader>hD", gitsigns.diffthis, { desc = "Diff this" })
+            map("n", "<leader>hd", gitsigns.preview_hunk, { desc = "Preview hunk" })
             map("n", "<leader>hi", gitsigns.preview_hunk_inline, { desc = "Preview hunk inline" })
             map("n", "<leader>hb", function()
                 gitsigns.blame()
@@ -103,13 +104,9 @@ return {
                 end, 100) -- wait 100ms before switching back
             end, { desc = "Run Gitsigns blame and return to previous window" })
 
-            map("n", "<leader>hbl", function()
+            map("n", "<leader>hl", function()
                 gitsigns.blame_line({ full = true })
             end, { desc = "Blame line" })
-            map("n", "<leader>hd", gitsigns.diffthis, { desc = "Diff this" })
-            map("n", "<leader>hD", function()
-                gitsigns.diffthis("~")
-            end, { desc = "Diff this ~" })
 
             -- Toggles Keymap
             map("n", "<leader>tb", gitsigns.toggle_current_line_blame, { desc = "Toggle line blame" })

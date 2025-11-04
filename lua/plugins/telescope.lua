@@ -34,9 +34,6 @@ return {
         -- Initialize case sensitivity state
         vim.g.telescope_case_sensitive = false
 
-        -- Shared vimgrep arguments base
-        local rg_base_args = { 'rg', '--color=never', '--no-heading', '--with-filename', '--line-number', '--column' }
-
         -- Function to create case toggle mapping
         local function create_case_toggle_mapping()
             return function(prompt_bufnr)
@@ -188,7 +185,7 @@ return {
 
                             local cmd = table.concat(args, " ") .. " " .. vim.fn.shellescape(patterns[1])
                             for i = 2, #patterns do
-                                cmd = cmd .. " | rg --color=never " .. case_flag .. " " .. vim.fn.shellescape(patterns[i])
+                                cmd = cmd .. " | rg --color=never --no-heading --with-filename --line-number --column " .. case_flag .. " " .. vim.fn.shellescape(patterns[i])
                             end
 
                             return { "sh", "-c", cmd }
@@ -211,7 +208,7 @@ return {
                 else
                     vim.notify("Lazy plugin directory not found: " .. lazy_path, vim.log.levels.ERROR)
                 end
-            end
+            end,
         }
     end
 }

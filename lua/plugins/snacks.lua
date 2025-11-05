@@ -2,6 +2,15 @@
 -- Note for explorer to install you should have fd or fdfind.
 --      For Ubuntu use: sudo apt install fd-find. Check fd --version
 --      For RHEL: Usually has its installed automatically. Check fd --version
+local picker_settings = {matcher = { sort_empty = true,
+                                     fuzzy = false},
+                         --sort = { fields = { "score:desc", "#text", "idx" }, }, -- Default sort but I changed to see sorting by line number
+                         sort = { fields = { "idx", "#text", "score:desc" }, },
+                            }
+-- Remember the shortcuts:
+-- <a-w> cycles through the preview window in picker
+-- <a-p> toggles the preview window in picker
+-- <a-m> maximizes or resize the selected picker
 return {
     "folke/snacks.nvim",
     priority = 1000,
@@ -106,16 +115,16 @@ return {
         { "<leader>bd", function() Snacks.bufdelete.other() vim.notify("Removed all other buffers") end, desc = "Delete everyone else in the buffer", mode = "n" },
         { "<leader>gB", function() Snacks.git.blame_line() end, desc = "Blame line with full details", mode = "n" },
         { "<leader>sp", function() Snacks.picker() end, desc = "Snacks all the pickers", mode = "n" },
-        { "<leader>sf", function() Snacks.picker.files() end, desc = "Snacks Find files", mode = "n" },
-        { "<leader>sb", function() Snacks.picker.git_branches() end, desc = "Snacks Find files", mode = "n" },
-        { "<leader>sg", function() Snacks.picker.grep() end, desc = "Snacks Grep word", mode = "n" },
+        { "<leader>sf", function() Snacks.picker.files(picker_settings) end, desc = "Snacks Find files", mode = "n" },
+        { "<leader>sb", function() Snacks.picker.git_branches() end, desc = "Snacks git branch", mode = "n" },
+        { "<leader>sg", function() Snacks.picker.grep(picker_settings) end, desc = "Snacks Grep word", mode = "n" },
         { "<leader>sr", function() Snacks.picker.resume() end, desc = "Snacks picker resume", mode = "n" },
         { "<leader>su", function() Snacks.picker.undo() end, desc = "Snacks undo tree", mode = "n" },
-        { "<leader>sl", function() Snacks.picker.lines() end, desc = "Snacks picker in a file matching string in all the lines", mode = "n" },
         { "<leader>sd", function() Snacks.picker.git_diff() end, desc = "Snacks list git diff", mode = "n" },
         { "<leader>se", function() Snacks.picker.icons() end, desc = "Snacks picker for icons and emoji", mode = "n" },
-        { "<leader>sw", function() Snacks.picker.grep_word() end, desc = "Snacks picker for the occurance of the word under cursor across CWD", mode = "n" },
-        { "<leader>sl", function() Snacks.picker.git_log_line() end, desc = "Snacks for viewing git log line details with commit details", mode = "n" },
-        { "<leader>sk", function() Snacks.picker.keymaps() end, desc = "Snacks picker for all defined keymaps", mode = "n" },
+        { "<leader>s*", function() Snacks.picker.grep_word(picker_settings) end, desc = "Snacks picker find word under cursor across CWD", mode = "n" },
+        { "<leader>sl", function() Snacks.picker.git_log_line() end, desc = "Snacks view commit details of that line", mode = "n" },
+        { "<leader>sk", function() Snacks.picker.keymaps(picker_settings) end, desc = "Snacks picker defined keymaps", mode = "n" },
+        { "<leader>sw", function() Snacks.picker.lines(picker_settings) end, desc = "Snacks picker match words in current file", mode = "n" }
     },
 }

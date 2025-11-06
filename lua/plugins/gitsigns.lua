@@ -94,9 +94,9 @@ return {
             -- Quickfix list
             map("n", "<leader>hq", gitsigns.setqflist, { desc = "Set quickfix list" })
             -- Preview keymap
-            map("n", "<leader>hD", gitsigns.diffthis, { desc = "Diff this" })
-            map("n", "<leader>hd", gitsigns.preview_hunk, { desc = "Preview hunk" })
-            map("n", "<leader>hi", gitsigns.preview_hunk_inline, { desc = "Preview hunk inline" })
+            map("n", "<leader>hd", gitsigns.diffthis, { desc = "Diff this" })
+            map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "Preview hunk" })
+            map("n", "<leader>hp", gitsigns.preview_hunk_inline, { desc = "Preview hunk inline" })
             map("n", "<leader>hb", function()
                 gitsigns.blame()
                 vim.defer_fn(function()

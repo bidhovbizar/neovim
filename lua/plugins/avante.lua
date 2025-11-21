@@ -26,7 +26,8 @@ return {
             providers = {
                 copilot = {
                     -- Use <leader>a? to find the list of all the models available. Set the specific model version permanently
-                    model = "claude-sonnet-4", -- Best allrounder model and fast
+                    --model = "claude-sonnet-4", -- Best allrounder model and fast
+                    model = "claude-haiku-4.5", -- Costliest
                     --model = "claude-sonnet-4.5", -- Used for thinking response but slow
                     --model = "gpt-4o-2024-11-20",  -- Used for super faster response but it may get stuck in loop
                     extra_request_body = {

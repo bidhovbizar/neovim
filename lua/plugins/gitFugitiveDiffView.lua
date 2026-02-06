@@ -24,7 +24,8 @@ return {
             'tpope/vim-fugitive',          -- Ensure fugitive is loaded with diffview to do Git actions
         },
         keys = {
-            { '<leader>gd',  '<cmd>DiffviewOpen<cr>',          desc = 'Open Diffview' },
+            { '<leader>gd',  '<cmd>DiffviewOpen<cr>',          desc = 'Open diffview to show uncommited changes' },
+            { '<leader>gdm', '<cmd>DiffviewOpen master<cr>',   desc = 'Open Diffview to show diff comparing master' },
             { '<leader>gc',  '<cmd>DiffviewClose<cr>',         desc = 'Close Diffview' },
             { '<leader>gt',  '<cmd>DiffviewToggleFiles<cr>',   desc = 'Toggle Diffview Files' },
             { '<leader>grh', '<cmd>DiffviewFileHistory<cr>',   desc = 'Git Repository History' },

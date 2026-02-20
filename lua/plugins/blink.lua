@@ -116,6 +116,13 @@ return {
                         buffer = {
                             max_items = 20, -- Limit buffer completions
                             min_keyword_length = 2,
+                            opts = {
+                                -- raise these if big files (like 6000+ lines) get skipped
+                                max_sync_buffer_size  = 200000,  -- bytes-ish threshold for sync scanning
+                                max_async_buffer_size = 500000,  -- per-buffer async threshold
+                                max_total_buffer_size = 2000000, -- total text across buffers to consider
+                                retention_order = { 'focused', 'visible', 'recency', 'largest' }, -- optional
+                            },
                         },
 
                         lsp = {

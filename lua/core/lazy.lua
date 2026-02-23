@@ -27,8 +27,11 @@ require("lazy").setup({ import = "plugins" }, {
         notify = false,  -- Disable notifications for update checking
     },
     change_detection = {
-        enabled = true,                           -- Enable configuration file change detection automatically otherwise, if its false then :Lazy reload <plugin> is required
-        notify = false,                           -- Disable notifications for change detection
+        enabled = true,  -- Enable configuration file change detection automatically otherwise, if its false then :Lazy reload <plugin> is required
+        notify = false,  -- Disable notifications for change detection
+    },
+    rocks = {
+        enabled = false, -- Disables luarocks completely. luarocks is a package manager for Lua modules.
     },
     concurrency = vim.uv.available_parallelism(), -- Limit the number of concurrent tasks
     ui = {

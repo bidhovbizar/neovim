@@ -84,7 +84,7 @@ return {
             inline = {
                 adapter = {
                     name = "copilot",
-                    model = "claude-sonnet-4.5",
+                    model = "claude-opus-4.5",
                 },
                 keymaps = {
                     accept_change = {
@@ -101,7 +101,7 @@ return {
             agent = {
                 adapter = {
                     name = "copilot",
-                    model = "claude-sonnet-4.5",
+                    model = "claude-opus-4.5",
                 },
             },
         },

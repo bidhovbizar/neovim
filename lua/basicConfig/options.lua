@@ -6,8 +6,13 @@
 -- 1. Disables autoindentation for {}, [] and auto tab
 -- 2. Diables copilot accepting suggestions
 -- Remember to keep paste mode off always
+-- To toggle paste mode, use <leader>tp
 -- :set paste -- To revert it
 -- :set nopaste -- To disable paste mode
+--
+-- Benefits of scrollbind
+-- 1. Allows you to scroll multiple windows simultaneously, which is useful for comparing files side by side.
+-- To toggle scrollbind, use <leader>ts
 
 -- Disable Python providers early to speed up startup
 vim.g.loaded_python3_provider = 0
@@ -27,6 +32,7 @@ vim.opt.number = true -- Show line numbers
 vim.opt.mouse = ''
 
 -- Indentation
+-- To toggle relativenumber, use <leader>tr
 vim.opt.relativenumber = false
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
@@ -42,6 +48,7 @@ vim.opt.hlsearch = true   -- Highlight search matches
 
 -- Appearance
 vim.opt.signcolumn = 'yes' -- Always show the left side ruler and prevents text overflow during diagnostic messages
+-- To toggle word wrap, use <leader>tw
 vim.opt.wrap = true        -- Wrap long lines
 vim.opt.scrolloff = 1      -- Set scroll buffer 1 lines top and bottom
 
@@ -56,6 +63,7 @@ vim.g.have_nerd_font = false
 vim.opt.breakindent = true
 vim.opt.updatetime = 250 -- Faster updates for CursorHold events, like diagnostics and highlighting
 vim.opt.list = true
+-- To toggle listchars, use <leader>tl
 vim.opt.listchars = { tab = '» ', trail = '␣', nbsp = '⦙', extends = '>', precedes = '<' } --nbsp is non-breaking space
 vim.opt.inccommand = 'split'
 

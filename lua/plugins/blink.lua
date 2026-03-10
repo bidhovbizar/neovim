@@ -16,6 +16,7 @@ return {
                 lazy = false,               -- Make sure this loads before luasnip as it will fetch the friendly-snippets from runpath
             },
             "Kaiser-Yang/blink-cmp-avante", -- Dependency ensures proper load order
+            "pxwg/blink-cmp-copilot-chat", -- Dependency for copilot-chat filetype support
             {
                 "L3MON4D3/LuaSnip",
                 --lazy = true,
@@ -72,11 +73,15 @@ return {
                         Avante = { "avante", "lsp", "path", "snippets", "buffer" },
                         avante = { "avante", "lsp", "path", "snippets", "buffer" },
 
+                        -- CodeCompanion: custom source if you have one
+                        --codecompanion = { "codecompanion", "lsp", "snippets", "path", "buffer" },
+                        codecompanion = { "codecompanion", "lsp", "snippets", "buffer" },
+
+                        -- copilot-chat
+                        ["copilot-chat"] = { "copilot_c", "lsp", "snippets", "buffer", "path" },
+
                         -- Lua: prioritize lazydev for Neovim API
                         lua = { "lazydev", "lsp", "path", "snippets", "buffer" },
-
-                        -- CodeCompanion: custom source if you have one
-                        codecompanion = { "lsp", "path", "snippets", "buffer" },
 
                         -- Python: standard sources
                         python = { "lsp", "path", "snippets", "buffer" },
@@ -104,6 +109,19 @@ return {
                                 trigger_characters = { "@", "/" },
                                 score_offset = 500, -- Added: High priority for @ and / triggers
                             }
+                        },
+
+                        codecompanion = {
+                            name = "CodeCompanion",
+                            module = "codecompanion.providers.completion.blink",
+                            enabled = function()
+                                return vim.bo.filetype == "codecompanion"
+                            end,
+                        },
+
+                        copilot_c = {
+                            name = "copilot",
+                            module = "blink-cmp-copilot-chat",
                         },
 
                         lazydev = {

@@ -1,16 +1,21 @@
 return {
     "olimorris/codecompanion.nvim",
     dependencies = {
-        { "nvim-lua/plenary.nvim", branch = "master" },
+        { "nvim-lua/plenary.nvim" },
+        {
+            "nvim-treesitter/nvim-treesitter",
+            lazy = false,
+            build = ":TSUpdate",
+        },
         -- Markdown is used for chat and action palette formatting
         -- Remember avante and codecompanion both use markdown config changes should be made in both
         {
             'MeanderingProgrammer/render-markdown.nvim',
-            ft = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
-                "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
+            -- ft = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
+            -- "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
             opts = {
                 file_types = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
-                    "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
+                "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
                 render_modes = true,
             },
             config = function(_, opts)
@@ -31,7 +36,10 @@ return {
         {
             "echasnovski/mini.diff",
             config = function()
+                -- Load the mini.diff module
                 local diff = require("mini.diff")
+                -- Configure mini.diff with no default source
+                -- This disables automatic diff detection, allowing manual control
                 diff.setup({
                     source = diff.gen_source.none(),
                 })
@@ -39,9 +47,11 @@ return {
         },
     },
     opts = {
-        adapter = {
-            opts = {
-                show_model_choices = true,
+        adapters = {
+            copilot = {
+                opts = {
+                    show_model_choices = true,
+                },
             },
         },
         strategies = {
@@ -49,15 +59,14 @@ return {
                 roles = { user = "Bidhov" },
                 adapter = {
                     name = "copilot",
-                    model = "claude-sonnet-4.5",
+                    model = "claude-opus-4.5",
                 },
                 opts = {
                     completion_provider = "blink", -- blink|cmp|coc|default
                 },
                 slash_commands = {
                     ["file"] = {
-                        -- Location to the slash command in CodeCompanion
-                        callback = "strategies.chat.slash_commands.file",
+                        --callback = "strategies.chat.slash_commands.file",
                         description = "Select a file using Telescope",
                         opts = {
                             provider = "telescope", -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks"
@@ -71,12 +80,7 @@ return {
                             -- While using #buffer in CodeCompanion chat the context can be controlled with:
                             -- pin: Is used to pins the entire buffer (sends entire buffer on changes)
                             -- watch: Is used to watches the change in the buffer (sends only diffs on changes)
-                            default_params = 'pin', -- or 'watch'
-
-                            -- Another way to use the
-                            --     #{buffer}{pin} - Pins the buffer (sends entire buffer on changes)
-                            --     #{buffer}{watch} - Watches for changes (sends only changes)
-                            --     #{buffer:config.lua}{pin} - Combines targeting with parameters
+                            pin = true,
                         },
                     },
                 },
@@ -88,13 +92,13 @@ return {
                 },
                 keymaps = {
                     accept_change = {
-                        modes = { n = "ct" }, -- Remember this as DiffAccept
+                        modes = { n = "ct" }, -- To accept incoming change
                     },
                     reject_change = {
-                        modes = { n = "co" }, -- Remember this as DiffReject
+                        modes = { n = "co" }, -- To reject incoming change
                     },
                     always_accept = {
-                        modes = { n = "cT" }, -- Remember this as DiffYolo
+                        modes = { n = "cT" }, -- To accept all incoming changes without further prompts
                     },
                 },
             },
@@ -106,11 +110,7 @@ return {
             },
         },
         memory = {
-            opts = {
-                chat = {
-                    enabled = true,
-                },
-            },
+            enabled = true,
         },
         display = {
             chat = {
@@ -130,7 +130,6 @@ return {
                     chat_fold = " ",
                 },
 
-                -- window properties
                 window = {
                     layout = "vertical", -- float|vertical|horizontal|buffer
                     position = nil,      -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
@@ -158,7 +157,7 @@ return {
                 width = 95,
                 height = 10,
                 prompt = "Prompt ",                     -- Prompt used for interactive LLM calls
-                provider = "telescope",                 -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks".
+                provider = "snacks",                 -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks".
                 opts = {
                     show_default_actions = true,        -- Show the default actions in the action palette?
                     show_default_prompt_library = true, -- Show the default prompt library in the action palette?
@@ -224,24 +223,21 @@ return {
     },
     keys = {
         -- Open action palette (works in normal and visual mode)
-        { "<leader>cp", "<cmd>CodeCompanionActions<cr>",     mode = { "n", "v" }, desc = "CodeCompanion Actions" },
+        { "<leader>cl", "<cmd>CodeCompanionActions<cr>",     mode = { "n", "v" }, desc = "cc list all actions" },
 
         -- Toggle chat buffer
-        { "<leader>CC", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "Toggle Chat" },
+        { "<leader>CC", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "cc Toggle Chat" },
 
         -- Add visual selection to chat
-        { "<leader>ca", "<cmd>CodeCompanionChat Add<cr>",    mode = "v",          desc = "Add to Chat" },
+        { "<leader>ca", "<cmd>CodeCompanionChat Add<cr>",    mode = "v",          desc = "cc add to Chat" },
 
         -- Quick prompts from prompt library
-        { "<leader>ce", "<cmd>CodeCompanion /explain<cr>",   mode = "v",          desc = "Explain Code" },
-        { "<leader>cf", "<cmd>CodeCompanion /fix<cr>",       mode = "v",          desc = "Fix Code" },
-        { "<leader>ct", "<cmd>CodeCompanion /tests<cr>",     mode = "v",          desc = "Generate Tests" },
-        { "<leader>cl", "<cmd>CodeCompanion /lsp<cr>",       mode = "v",          desc = "Explain LSP Diagnostics" },
-        { "<leader>cm", "<cmd>CodeCompanion /commit<cr>",    mode = "n",          desc = "Generate Commit Message" },
-        { "<leader>cg", "<cmd>CodeCompanionAgent<cr>",       mode = { "n", "v" }, desc = "CodeCompanion Agent" },
+        { "<leader>ce", "<cmd>CodeCompanion /explain<cr>",   mode = "v",          desc = "cc Explain Code" },
+        { "<leader>cf", "<cmd>CodeCompanion /fix<cr>",       mode = "v",          desc = "cc Fix Code" },
+        { "<leader>ct", "<cmd>CodeCompanion /tests<cr>",     mode = "v",          desc = "cc Generate Tests" },
 
         -- Inline assistant
-        { "<leader>ci", "<cmd>CodeCompanion<cr>",            mode = { "n", "v" }, desc = "Inline Assistant" },
+        { "<leader>cp", "<cmd>CodeCompanion<cr>",            mode = { "n", "v" }, desc = "Inline Assistant" },
 
         -- CodeCompanion Help
         { "<leader>ch", "<cmd>help CodeCompanion<cr>",       mode = "n",          desc = "Open CodeCompanion Documentation" },

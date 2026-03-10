@@ -137,8 +137,8 @@ return {
             -- Remember avante and codecompanion both use markdown config changes should be made in both
             {
                 'MeanderingProgrammer/render-markdown.nvim',
-                ft = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
-                    "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
+                --ft = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
+                --    "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
                 opts = {
                     file_types = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
                         "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },

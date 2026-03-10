@@ -10,6 +10,8 @@ return {
         },
         --build = "make tiktoken",                            -- Only on MacOS or Linux
         opts = {
+            -- Disables copilotchat default autocompletee and suggestion to avoid conflicts from blink.cmp
+            chat_autocomplete = false,
             -- Set model to use for Copilot Chat first find which model you wish to use.
             -- You can find it by starting copilotchat and then presseing `$`.
             --
@@ -42,7 +44,7 @@ return {
             prompts = {
                 ciscocodereview = {
                     prompt = "Review the following code for improvements and best practices.",
-                    system_prompt = require("prompts.copilotprompts").prompt, -- Ensure that your prompt is defined in lua/prompts/copilotprompts.lua
+                    system_prompt = require("prompts.ciscopythoncodereview").prompt, -- Ensure that your prompt is defined in lua/prompts/copilotprompts.lua
                     description = "Cisco Code Review",
                 },
             },

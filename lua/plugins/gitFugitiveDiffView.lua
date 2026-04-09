@@ -46,9 +46,11 @@ return {
                 view = {
                     default = {
                         layout = "diff2_horizontal", -- or "diff2_vertical" based on preference
+                        winbar_info = true,
                     },
                     merge_tool = {
                         layout = "diff3_mixed", -- 3-way merge with horizontal layout diff3_horizontal
+                        winbar_info = true,
                     },
                 },
                 file_panel = {
@@ -145,9 +147,9 @@ return {
             })
 
             -- Add keymap descriptions to existing mappings
-            vim.keymap.set('n', 'cq', '<cmd>GitConflictListQf<cr>', { desc = "List All Conflicts in Quickfix" })
-            vim.keymap.set('n', 'cr', '<cmd>GitConflictRefresh<cr>', { desc = "Refresh Git Conflicts" })
-            vim.keymap.set('n', 'gh', '<cmd>GitConflictHelp<cr>', { desc = "Shows Git Conflict Help" })
+            vim.keymap.set('n', '<leader>cq', '<cmd>GitConflictListQf<cr>', { desc = "List All Conflicts in Quickfix" })
+            vim.keymap.set('n', '<leader>cr', '<cmd>GitConflictRefresh<cr>', { desc = "Refresh Git Conflicts" })
+            vim.keymap.set('n', '<leader>gh', '<cmd>GitConflictHelp<cr>', { desc = "Shows Git Conflict Help" })
 
             -- Store reference to git-conflict for safer access
             local git_conflict = require('git-conflict')

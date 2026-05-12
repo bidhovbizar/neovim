@@ -39,6 +39,14 @@ return {
                 lualine_y = {'progress'},               -- remove progress %
                 lualine_z = { 'location' },            -- line/column
             },
+            -- Applying some changes to inactive windows
+            inactive_sections = {
+                lualine_c = {
+                    {
+                        'filename', path = 3,
+                    }
+                }
+            },
         },
-    },
+    }
 }

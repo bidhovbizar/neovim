@@ -78,3 +78,19 @@ vim.opt.wildoptions = 'pum'
 
 -- Open files in vertical split to the right under <CR>(not in netrw split)
 -- vim.g.netrw_browse_split = 2
+
+-- Limit the number of oldfiles stored to 100 and 
+-- the size of each file to 50KB, and 
+-- store up to 10 search patterns.
+-- The 'h' flag prevents storing command-line history.
+-- vim.o.shada = "!,'100,<50,s10,h"  -- default value
+--vim.o.shada = table.concat({
+--    "'50",   -- Remember marks for 50 files (reduces oldfiles)
+--    "<50",   -- Max 50 lines per register
+--    "s10",   -- Skip registers > 10KB
+--    "h",     -- No hlsearch on load
+--    ":100",  -- 100 command-line history
+--    "/50",   -- 50 search patterns
+--    "r/tmp", -- Ignore /tmp files
+--    "r/mnt", -- Ignore mounted drives
+--}, ",")

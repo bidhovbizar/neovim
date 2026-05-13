@@ -48,6 +48,10 @@ return {
                         layout = "diff2_horizontal", -- or "diff2_vertical" based on preference
                         winbar_info = true,
                     },
+                    file_history = {
+                        layout = "diff2_horizontal",
+                        winbar_info = true,  -- Shows commit info in winbar
+                    },
                     merge_tool = {
                         layout = "diff3_mixed", -- 3-way merge with horizontal layout diff3_horizontal
                         winbar_info = true,

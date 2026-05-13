@@ -3,7 +3,10 @@ return {
     dependencies = {
         'nvim-lua/plenary.nvim',
         'jmacadie/telescope-hierarchy.nvim',
-        'nvim-telescope/telescope-frecency.nvim',
+        {
+            'nvim-telescope/telescope-frecency.nvim',
+            version = '^1.0.0',
+        },
         {
             'nvim-telescope/telescope-fzf-native.nvim',
             build = 'make'
@@ -21,8 +24,8 @@ return {
         { "<leader>fp", function() require('telescope.builtin').builtin() end, desc = "Find all Telescope builtin picker" },
         { "<leader>fh", function() require('telescope.builtin').help_tags() end, desc = "Help tags" },
         { "<leader>fq", function() require('telescope').extensions.frecency.frecency() end, desc = "Frecency (smart files)" },
-        { "<leader>fic", function() require('telescope').extensions.hierarchy.incoming_calls() end, desc = "Hierarchy picker" },
-        { "<leader>foc", function() require('telescope').extensions.hierarchy.outgoing_calls() end, desc = "Hierarchy picker" },
+        { "<leader>fci", function() require('telescope').extensions.hierarchy.incoming_calls() end, desc = "Hierarchy picker" },
+        { "<leader>fco", function() require('telescope').extensions.hierarchy.outgoing_calls() end, desc = "Hierarchy picker" },
     },
     config = function()
         local telescope = require('telescope')

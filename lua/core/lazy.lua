@@ -18,6 +18,9 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Setup lazy.nvim with configuration
 require("lazy").setup({ import = "plugins" }, {
+    git = {
+        timeout = 300,
+    },
     install = {
         missing = true,             -- Install missing plugins automatically
         colorscheme = { "gruvbox" } -- Set default colorscheme

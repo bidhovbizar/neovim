@@ -61,6 +61,11 @@ return {
                     name = "copilot",
                     model = "claude-opus-4.5",
                 },
+                keymaps = {
+                    options = {
+                        modes = { n = "g?" }, -- Change from ? to g?
+                    },
+                },
                 opts = {
                     completion_provider = "blink", -- blink|cmp|coc|default
                 },
@@ -89,6 +94,8 @@ return {
                 adapter = {
                     name = "copilot",
                     model = "claude-opus-4.5",
+                    --model = 'claude-sonnet-4', -- This is thinking model which is slow
+                    --model = 'gpt-4o-mini',      -- This is for fast responses
                 },
                 keymaps = {
                     accept_change = {
@@ -106,6 +113,8 @@ return {
                 adapter = {
                     name = "copilot",
                     model = "claude-opus-4.5",
+                    --model = 'claude-sonnet-4', -- This is thinking model which is slow
+                    --model = 'gpt-4o-mini',      -- This is for fast responses
                 },
             },
         },

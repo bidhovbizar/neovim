@@ -116,8 +116,8 @@ return {
         -- 2. <leader>b is used during diffview open files
         --{ "<leader>b", function() Snacks.picker.buffers() end, desc = "Buffers" }, -- Even with picker disabled this works
         { "<M-e>", function() Snacks.explorer() end, desc = "File Explorer", mode = "n" },
-        { "<leader>bD", function() Snacks.bufdelete() vim.notify("Removed opened file from buffer") end, desc = "Deleted opened file from buffer", mode = "n" },
-        { "<leader>bd", function() Snacks.bufdelete.other() vim.notify("Removed all other buffers") end, desc = "Delete everyone else in the buffer", mode = "n" },
+        { "<leader>bd", function() Snacks.bufdelete() vim.notify("Removed opened file from buffer") end, desc = "Delete the opened file from buffer", mode = "n" },
+        { "<leader>bD", function() Snacks.bufdelete.other() vim.notify("Removed all other buffers") end, desc = "Delete other opened files from the buffer", mode = "n" },
         { "<leader>gl", function() Snacks.git.blame_line() end, desc = "Blame line with full details", mode = "n" },
         { "<leader>sp", function() Snacks.picker() end, desc = "Snacks all the pickers", mode = "n" },
         { "<leader>sf", function() Snacks.picker.files(picker_notfuzzy_settings) end, desc = "Snacks Find files", mode = "n" },

@@ -147,6 +147,7 @@
 return {
     "nvim-treesitter/nvim-treesitter",
     version = false,
+    branch = "master",
     build = ":TSUpdate",
     event = "VeryLazy",
     --event = { "BufReadPost", "BufNewFile" },

@@ -168,7 +168,7 @@ return {
                 additional_vim_regex_highlighting = false,
             },
             indent = { enable = true },
-            auto_install = true,
+            auto_install = false, -- This when false will install all the packages in ensure_installed, if true it will install missing parsers on demand
             ensure_installed = {
                 "bash",
                 "python",
@@ -177,6 +177,10 @@ return {
                 "lua",
                 "vim",
                 "yaml",
+                "vimdoc",
+                "query",
+                "markdown",
+                "markdown_inline",
             },
             incremental_selection = {
                 enable = true,

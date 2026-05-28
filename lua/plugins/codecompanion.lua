@@ -46,6 +46,7 @@ return {
             end,
         },
     },
+    version = "*",
     opts = {
         adapters = {
             copilot = {
@@ -53,13 +54,49 @@ return {
                     show_model_choices = true,
                 },
             },
+            acp = {
+                codex = function()
+                    return require("codecompanion.adapters").extend("codex", {
+                        --commands = {
+                        --    default = {
+                        --        "/ws/bbizar-bgl/codex-acp/bin/codex-acp",
+                        --    },
+                        --},
+                        defaults = {
+                            auth_method = "chatgpt",
+                            -- remember if you give gty in chat buffer it will accept everything
+                            --session_config_options = {
+                            --    mode = "Full Access",
+                            --},
+                        },
+                    })
+                end,
+            },
         },
+        --interactions = {
+            --    chat = {
+                --        adapter = {
+                    --            name = "codex",
+                    --            model = "gpt-5.4",
+                    --        },
+        --    },
+        --},
         strategies = {
             chat = {
-                roles = { user = "Bidhov" },
+                roles = {
+                    user = "Bidhov",
+                    llm = function(adapter)
+                        return "CodeCompanion (" .. adapter.formatted_name .. ")"
+                    end,
+                },
                 adapter = {
+                    -- Uncomment the adapter you want
+                    -- Copilot
                     name = "copilot",
                     model = "claude-opus-4.5",
+
+                    --Codex
+                    --name = "codex",
                 },
                 keymaps = {
                     options = {
@@ -92,10 +129,15 @@ return {
             },
             inline = {
                 adapter = {
+                    -- Uncomment the adapter you want
+                    -- copilot
                     name = "copilot",
                     model = "claude-opus-4.5",
                     --model = 'claude-sonnet-4', -- This is thinking model which is slow
                     --model = 'gpt-4o-mini',      -- This is for fast responses
+
+                    -- codex
+                    --name = "codex",
                 },
                 keymaps = {
                     accept_change = {
@@ -111,10 +153,15 @@ return {
             },
             agent = {
                 adapter = {
-                    name = "copilot",
-                    model = "claude-opus-4.5",
+                    -- Uncomment the adapter you want
+                    -- copilot
+                    --name = "copilot",
+                    --model = "claude-opus-4.5",
                     --model = 'claude-sonnet-4', -- This is thinking model which is slow
                     --model = 'gpt-4o-mini',      -- This is for fast responses
+
+                    -- codex
+                    name = "codex",
                 },
             },
         },
@@ -169,7 +216,9 @@ return {
                 provider = "snacks",                 -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks".
                 opts = {
                     show_default_actions = true,        -- Show the default actions in the action palette?
-                    show_default_prompt_library = true, -- Show the default prompt library in the action palette?
+                    show_default_prompt_library = true, -- Show the default prompt library in the action palette
+                    show_preset_prompts = true,
+                    show_preset_actions = true,
                     title = "CodeCompanion actions",    -- The title of the action palette
                 },
             },
@@ -236,6 +285,8 @@ return {
 
         -- Toggle chat buffer
         { "<leader>CC", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "cc Toggle Chat" },
+        -- Open chat with Codex explicitly
+        { "<leader>cC", "<cmd>CodeCompanionChat adapter=codex<cr>", mode = { "n", "v" }, desc = "cc Chat Codex" },
 
         -- Add visual selection to chat
         { "<leader>ca", "<cmd>CodeCompanionChat Add<cr>",    mode = "v",          desc = "cc add to Chat" },
@@ -257,5 +308,24 @@ return {
 
         -- Expand 'cc' into 'CodeCompanion' in command line
         vim.cmd([[cab cc CodeCompanion]])
+
+        -- Make CodeCompanion requests visible
+        local group = vim.api.nvim_create_augroup("BidhovCodeCompanionStatus", { clear = true })
+
+        vim.api.nvim_create_autocmd("User", {
+            group = group,
+            pattern = "CodeCompanionRequestStarted",
+            callback = function()
+                vim.notify("CodeCompanion: request sent, waiting for response...", vim.log.levels.INFO)
+            end,
+        })
+
+        vim.api.nvim_create_autocmd("User", {
+            group = group,
+            pattern = "CodeCompanionRequestFinished",
+            callback = function()
+                vim.notify("CodeCompanion: response finished", vim.log.levels.INFO)
+            end,
+        })
     end,
 }

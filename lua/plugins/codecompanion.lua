@@ -155,13 +155,13 @@ return {
                 adapter = {
                     -- Uncomment the adapter you want
                     -- copilot
-                    --name = "copilot",
-                    --model = "claude-opus-4.5",
+                    name = "copilot",
+                    model = "claude-opus-4.5",
                     --model = 'claude-sonnet-4', -- This is thinking model which is slow
                     --model = 'gpt-4o-mini',      -- This is for fast responses
 
                     -- codex
-                    name = "codex",
+                    --name = "codex",
                 },
             },
         },
@@ -294,10 +294,9 @@ return {
         -- Quick prompts from prompt library
         { "<leader>ce", "<cmd>CodeCompanion /explain<cr>",   mode = "v",          desc = "cc Explain Code" },
         { "<leader>cf", "<cmd>CodeCompanion /fix<cr>",       mode = "v",          desc = "cc Fix Code" },
-        { "<leader>ct", "<cmd>CodeCompanion /tests<cr>",     mode = "v",          desc = "cc Generate Tests" },
 
         -- Inline assistant
-        { "<leader>cp", "<cmd>CodeCompanion<cr>",            mode = { "n", "v" }, desc = "Inline Assistant" },
+        { "<leader>ci", "<cmd>CodeCompanion<cr>",            mode = { "n", "v" }, desc = "cc Inline Assistant" },
 
         -- CodeCompanion Help
         { "<leader>ch", "<cmd>help CodeCompanion<cr>",       mode = "n",          desc = "Open CodeCompanion Documentation" },

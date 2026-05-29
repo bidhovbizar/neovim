@@ -38,6 +38,7 @@ return {
         { "<leader>fp", function() require('telescope.builtin').builtin() end, desc = "Find all Telescope builtin picker" },
         { "<leader>fh", function() require('telescope.builtin').help_tags() end, desc = "Help tags" },
         { "<leader>fq", function() require('telescope').extensions.frecency.frecency() end, desc = "Frecency (smart files)" },
+        { "<leader>f`", function() require('telescope.builtin').marks() end, desc = "Find saved marks" },
         { "<leader>fci", function() require('telescope').extensions.hierarchy.incoming_calls() end, desc = "Hierarchy picker" },
         { "<leader>fco", function() require('telescope').extensions.hierarchy.outgoing_calls() end, desc = "Hierarchy picker" },
         { "<leader><BS>", "<cmd>e #<cr>", desc = "Alternate buffer" },

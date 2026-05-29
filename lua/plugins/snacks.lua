@@ -2,7 +2,7 @@
 -- Note for explorer to install you should have fd or fdfind.
 --      For Ubuntu use: sudo apt install fd-find. Check fd --version
 --      For RHEL: Usually has its installed automatically. Check fd --version
-local picker_fuzzy_setting= { matcher = { sort_empty = true,
+local picker_fuzzy_settings= { matcher = { sort_empty = true,
                                      fuzzy = true },
                          --sort = { fields = { "score:desc", "#text", "idx" }, }, -- Default sort but I changed to see sorting by line number
                          sort = { fields = { "idx", "#text", "score:desc" }, },
@@ -70,7 +70,7 @@ return {
         input = { enabled = false },   -- Moves commandline to center like a dialogue box
         lazygit = { enabled = false }, -- We have to explicitly install lazygit and have it in path for this to work
         notifier = { enabled = false },
-        picker = { 
+        picker = {
             -- This is the expanded version of ivy layout.
             enabled = true,
             layout = {
@@ -127,7 +127,7 @@ return {
         end, desc = "Snacks find files in buffer dir", mode = "n" },
         { "<leader>sb", function() Snacks.picker.git_branches() end, desc = "Snacks git branch", mode = "n" },
         { "<leader>sg", function() Snacks.picker.grep(picker_notfuzzy_settings) end, desc = "Snacks Grep word", mode = "n" },
-        { "<leader>sG", function() 
+        { "<leader>sG", function()
             local buf_dir = vim.fn.expand("%:p:h")
             Snacks.picker.grep(vim.tbl_extend("force", picker_notfuzzy_settings, { cwd = buf_dir }))
         end, desc = "Snacks Grep in buffer dir", mode = "n" },
@@ -138,6 +138,7 @@ return {
         { "<leader>s*", function() Snacks.picker.grep_word(picker_notfuzzy_settings) end, desc = "Snacks picker find word under cursor across CWD", mode = "n" },
         { "<leader>sl", function() Snacks.picker.git_log_line() end, desc = "Snacks view commit details of that line", mode = "n" },
         { "<leader>sk", function() Snacks.picker.keymaps(picker_fuzzy_settings) end, desc = "Snacks picker defined keymaps", mode = "n" },
-        { "<leader>sw", function() Snacks.picker.lines(picker_notfuzzy_settings) end, desc = "Snacks picker match words in current file", mode = "n" }
+        { "<leader>sw", function() Snacks.picker.lines(picker_notfuzzy_settings) end, desc = "Snacks picker match words in current file", mode = "n" },
+        { "<leader>s`", function() Snacks.picker.marks() end, desc = "Snacks picker marks", mode = "n" }
     },
 }

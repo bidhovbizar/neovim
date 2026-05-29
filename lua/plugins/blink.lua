@@ -64,7 +64,7 @@ return {
                 signature = { enabled = true },
 
                 sources = {
-                    -- CHANGED: All sources available everywhere by default
+                    -- All sources available everywhere by default
                     default = { "lsp", "path", "snippets", "buffer", "lazydev", "avante" },
 
                     -- Per-filetype overrides (optional, will use default if not specified)
@@ -74,13 +74,14 @@ return {
                         avante = { "avante", "lsp", "path", "snippets", "buffer" },
 
                         -- CodeCompanion: custom source if you have one
-                        --codecompanion = { "codecompanion", "lsp", "snippets", "path", "buffer" },
-                        codecompanion = { "codecompanion", "lsp", "snippets", "buffer" },
+                        codecompanion = { "codecompanion", "lsp", "snippets", "path", "buffer" },
 
                         -- copilot-chat
                         ["copilot-chat"] = { "copilot_c", "lsp", "snippets", "buffer", "path" },
 
                         -- Lua: prioritize lazydev for Neovim API
+                        -- Caveat: lua_ls is very intelligent and won't show buffer value unless it thinks its relevant
+                        -- such as after " or ' or --
                         lua = { "lazydev", "lsp", "path", "snippets", "buffer" },
 
                         -- Python: standard sources
@@ -114,6 +115,7 @@ return {
                         codecompanion = {
                             name = "CodeCompanion",
                             module = "codecompanion.providers.completion.blink",
+                            max_items = 50, -- Added: Increase limit for this provider
                             enabled = function()
                                 return vim.bo.filetype == "codecompanion"
                             end,
@@ -139,16 +141,32 @@ return {
                                 max_sync_buffer_size  = 200000,  -- bytes-ish threshold for sync scanning
                                 max_async_buffer_size = 500000,  -- per-buffer async threshold
                                 max_total_buffer_size = 2000000, -- total text across buffers to consider
-                                retention_order = { 'focused', 'visible', 'recency', 'largest' }, -- optional
+                                get_bufnrs = function()
+                                    local seen = {}
+                                    local bufs = {}
+                                    -- Add current buffer first
+                                    local current = vim.api.nvim_get_current_buf()
+                                    seen[current] = true
+                                    table.insert(bufs, current)
+                                    -- Add visible buffers
+                                    for _, win in ipairs(vim.api.nvim_list_wins()) do
+                                        local buf = vim.api.nvim_win_get_buf(win)
+                                        if not seen[buf] then
+                                            seen[buf] = true
+                                            table.insert(bufs, buf)
+                                        end
+                                    end
+                                    return bufs
+                                end,
                             },
                         },
 
                         lsp = {
-                            max_items = 20, -- ADDED: Limit LSP items too
+                            max_items = 20, -- Limit LSP items too
                         },
 
                         snippets = {
-                            max_items = 20, -- ADDED: Limit snippet items
+                            max_items = 20, -- Limit snippet items
                         },
 
                         cmdline = {
@@ -184,7 +202,7 @@ return {
 
                 completion = {
                     list = {
-                        max_items = 11, -- CHANGED: Increased from 11 (this is the global limit)
+                        max_items = 30, -- This is the global limit which means you can't scroll down more than 30
                     },
 
                     menu = {
@@ -212,13 +230,6 @@ return {
                         auto_show_delay_ms = 500,
                     },
                 },
-
-                --trigger = {
-                --    completion = {
-                --        keyword_length = 1, -- Allow single character triggers like @
-                --        --keyword_regex = "[%w@/]", -- Include @ and / in keyword matching
-                --    },
-                --},
 
                 -- Added: Enable completion in special buffer types (important for Avante)
                 enabled = function()

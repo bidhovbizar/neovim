@@ -121,8 +121,16 @@ return {
         { "<leader>gl", function() Snacks.git.blame_line() end, desc = "Blame line with full details", mode = "n" },
         { "<leader>sp", function() Snacks.picker() end, desc = "Snacks all the pickers", mode = "n" },
         { "<leader>sf", function() Snacks.picker.files(picker_notfuzzy_settings) end, desc = "Snacks Find files", mode = "n" },
+        { "<leader>sF", function()
+            local buf_dir = vim.fn.expand("%:p:h")
+            Snacks.picker.files(vim.tbl_extend("force", picker_notfuzzy_settings, { cwd = buf_dir }))
+        end, desc = "Snacks find files in buffer dir", mode = "n" },
         { "<leader>sb", function() Snacks.picker.git_branches() end, desc = "Snacks git branch", mode = "n" },
         { "<leader>sg", function() Snacks.picker.grep(picker_notfuzzy_settings) end, desc = "Snacks Grep word", mode = "n" },
+        { "<leader>sG", function() 
+            local buf_dir = vim.fn.expand("%:p:h")
+            Snacks.picker.grep(vim.tbl_extend("force", picker_notfuzzy_settings, { cwd = buf_dir }))
+        end, desc = "Snacks Grep in buffer dir", mode = "n" },
         { "<leader>sr", function() Snacks.picker.resume() end, desc = "Snacks picker resume", mode = "n" },
         { "<leader>su", function() Snacks.picker.undo() end, desc = "Snacks undo tree", mode = "n" },
         { "<leader>sd", function() Snacks.picker.git_diff() end, desc = "Snacks list git diff", mode = "n" },

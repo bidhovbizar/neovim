@@ -15,7 +15,21 @@ return {
     cmd = "Telescope",
     keys = {
         { "<leader>ff", function() require('telescope.builtin').find_files() end, desc = "Find files" },
+        { "<leader>fF", function()
+            local cwd = require("telescope.utils").buffer_dir()
+            require('telescope.builtin').find_files({
+                cwd = cwd,
+                prompt_title = "Files in " .. cwd,
+            })
+        end, desc = "Find files in opened buffer directory)" },
         { "<leader>fg", function() require('telescope').extensions.telescope_config.enhanced_live_grep() end, desc = "Live grep" },
+        { "<leader>fG", function()
+            local cwd = require("telescope.utils").buffer_dir()
+            require('telescope.builtin').live_grep({
+                cwd = cwd,
+                prompt_title = "Grep in " .. cwd,
+            })
+        end, desc = "Live grep in buffer directory" },
         { "<leader>fm", function() require('telescope').extensions.telescope_config.multi_grep() end, desc = "Multi grep (AND)" },
         { "<leader>fb", function() require('telescope.builtin').buffers() end, desc = "Find buffers" },
         { "<leader>fo", function() require('telescope.builtin').oldfiles() end, desc = "Recent files" },
@@ -26,6 +40,7 @@ return {
         { "<leader>fq", function() require('telescope').extensions.frecency.frecency() end, desc = "Frecency (smart files)" },
         { "<leader>fci", function() require('telescope').extensions.hierarchy.incoming_calls() end, desc = "Hierarchy picker" },
         { "<leader>fco", function() require('telescope').extensions.hierarchy.outgoing_calls() end, desc = "Hierarchy picker" },
+        { "<leader><BS>", "<cmd>e #<cr>", desc = "Alternate buffer" },
     },
     config = function()
         local telescope = require('telescope')
@@ -86,6 +101,7 @@ return {
                 preview = {
                     treesitter = false,
                 },
+                scroll_strategy = "limit", -- This will ensure the preview doesn't scroll past the end of the file
                 vimgrep_arguments = {
                     'rg',
                     '--color=never',
@@ -109,6 +125,11 @@ return {
                     n = {
                         -- Toggle case sensitivity with <leader>tc in normal mode
                         ["<leader>tc"] = create_case_toggle_mapping(),
+                        ["d"] = actions.delete_buffer,
+                        ["J"] = actions.preview_scrolling_down,
+                        ["K"] = actions.preview_scrolling_up,
+                        ["H"] = actions.preview_scrolling_left,
+                        ["L"] = actions.preview_scrolling_right,
                     },
                 },
             },
@@ -137,9 +158,10 @@ return {
         telescope.extensions.telescope_config = {
             enhanced_live_grep = function()
                 local builtin = require('telescope.builtin')
+                local cwd = vim.fn.getcwd()
                 local prompt_title = vim.g.telescope_case_sensitive
-                and "Live Grep (Case Sensitive)"
-                or "Live Grep (Smart Case)"
+                and "Live Grep (Case Sensitive) " .. cwd
+                or "Live Grep (Smart Case) " .. cwd
 
                 builtin.live_grep({
                     prompt_title = prompt_title,
@@ -159,10 +181,11 @@ return {
                 local finders = require('telescope.finders')
                 local make_entry = require('telescope.make_entry')
                 local conf = require('telescope.config').values
+                local cwd = vim.fn.getcwd()
 
                 local prompt_title = vim.g.telescope_case_sensitive
-                and "Multi Grep (Case Sensitive) - double space = AND"
-                or "Multi Grep (Smart Case) - double space = AND"
+                and "Multi Grep (Case Sensitive) " .. cwd .. " - double space = AND"
+                or "Multi Grep (Smart Case) " .. cwd .. " - double space = AND"
 
                 pickers.new({}, {
                     prompt_title = prompt_title,

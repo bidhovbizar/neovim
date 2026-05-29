@@ -35,7 +35,11 @@ return {
                 lualine_c = {
                     { 'filename', path = 1 },          -- 0: only file name; 1: path relative
                 },
-                lualine_x = {}, -- remove 'diff', 'diagnostics', 'filetype', 'encoding', etc.
+                lualine_x = {
+                    function()
+                        return "[󰈙 " .. vim.fn.len(vim.fn.getbufinfo({ buflisted = 1 })) .. "]"
+                    end,
+                }, -- remove 'diff', 'diagnostics', 'filetype', 'encoding', etc.
                 lualine_y = {'progress'},               -- remove progress %
                 lualine_z = { 'location' },            -- line/column
             },

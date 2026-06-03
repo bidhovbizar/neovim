@@ -58,14 +58,31 @@ return {
             -- I → Toggle ignored files (from gitignore)
             -- Z → Close all directories
             enabled = true,       -- Adds a tree based home structure
-            replace_netrw = false -- Replace netrw with snacks explore False: Opens the folder in netrw. True: Opens the folder in snacks explorerr
+            replace_netrw = false -- Replace netrw with snacks explore False: Opens the folder in netrw. True: Opens the folder in snacks explorer
         },
         gh = { enabled = false }, -- Is disabled as PR is different account and copilot is different account hence gh doesn't work well
+        gitbrowse = {
+            enabled = true,
+            notify = false, -- Disable the "Opening [origin]" notification
+            -- Copy to clipboard instead of opening browser (useful on remote server)
+            open = function(url)
+                vim.fn.setreg("+", url) -- Copy to clipboard only
+                vim.notify("Copied: " .. url, vim.log.levels.INFO)
+            end,
+            url_patterns = {
+                ["github%-hyc%.scm%.engit%.cisco%.com"] = {
+                    branch    = "/tree/{branch}",
+                    file      = "/blob/{branch}/{file}#L{line_start}-L{line_end}",
+                    permalink = "/blob/{commit}/{file}#L{line_start}-L{line_end}",
+                    commit    = "/commit/{commit}",
+                },
+            },
+        },
         indent = {
             --enabled = true,  -- Help with the line in the indentation for each code block
             enabled = false,            -- In true mode '|' will be there during copying
-            only_scope = false,         -- True: Only show indent guides of the scope
-            only_current = false
+            only_scope = false,
+            only_current = false        -- True: Only show indent guides of the scope
         },                              -- True: Only show indent guides of the current line
         input = { enabled = false },   -- Moves commandline to center like a dialogue box
         lazygit = { enabled = false }, -- We have to explicitly install lazygit and have it in path for this to work
@@ -125,7 +142,6 @@ return {
             local buf_dir = vim.fn.expand("%:p:h")
             Snacks.picker.files(vim.tbl_extend("force", picker_notfuzzy_settings, { cwd = buf_dir }))
         end, desc = "Snacks find files in buffer dir", mode = "n" },
-        { "<leader>sb", function() Snacks.picker.git_branches() end, desc = "Snacks git branch", mode = "n" },
         { "<leader>sg", function() Snacks.picker.grep(picker_notfuzzy_settings) end, desc = "Snacks Grep word", mode = "n" },
         { "<leader>sG", function()
             local buf_dir = vim.fn.expand("%:p:h")
@@ -139,6 +155,16 @@ return {
         { "<leader>sl", function() Snacks.picker.git_log_line() end, desc = "Snacks view commit details of that line", mode = "n" },
         { "<leader>sk", function() Snacks.picker.keymaps(picker_fuzzy_settings) end, desc = "Snacks picker defined keymaps", mode = "n" },
         { "<leader>sw", function() Snacks.picker.lines(picker_notfuzzy_settings) end, desc = "Snacks picker match words in current file", mode = "n" },
-        { "<leader>s`", function() Snacks.picker.marks() end, desc = "Snacks picker marks", mode = "n" }
+        { "<leader>s`", function() Snacks.picker.marks() end, desc = "Snacks picker marks", mode = "n" },
+        { "<leader>sb", function() Snacks.gitbrowse() end, desc = "Post GitHub URL to :messages", mode = "n" },
+        { "<leader>sb", function()
+            local line_start = vim.fn.line("v")
+            local line_end = vim.fn.line(".")
+            if line_start > line_end then
+                line_start, line_end = line_end, line_start
+            end
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
+            Snacks.gitbrowse({ line_start = line_start, line_end = line_end })
+        end, desc = "Post selected Github URl to :messages", mode = "x" },
     },
 }

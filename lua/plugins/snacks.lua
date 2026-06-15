@@ -1,3 +1,8 @@
+-- Remember the shortcuts:
+-- <a-w> cycles through the preview window in picker
+-- <a-p> toggles the preview window in picker
+-- <a-m> maximizes or resize the selected picker
+
 -- Only reason to use snacks is to have quickfile, buffer delete, explorer and git blame line. The indent animate is disturbing
 -- Note for explorer to install you should have fd or fdfind.
 --      For Ubuntu use: sudo apt install fd-find. Check fd --version
@@ -7,15 +12,25 @@ local picker_fuzzy_settings= { matcher = { sort_empty = true,
                          --sort = { fields = { "score:desc", "#text", "idx" }, }, -- Default sort but I changed to see sorting by line number
                          sort = { fields = { "idx", "#text", "score:desc" }, },
                             }
+
 local picker_notfuzzy_settings = { matcher = { sort_empty = true,
                                      fuzzy = false },
                          --sort = { fields = { "score:desc", "#text", "idx" }, }, -- Default sort but I changed to see sorting by line number
                          sort = { fields = { "idx", "#text", "score:desc" }, },
                             }
--- Remember the shortcuts:
--- <a-w> cycles through the preview window in picker
--- <a-p> toggles the preview window in picker
--- <a-m> maximizes or resize the selected picker
+
+-- This picker setting is just for keymaps to search by key and description only in not fuzzy way.
+local picker_keymap_settings = { matcher = { sort_empty = true,
+                                    fuzzy = false, },
+                            sort = { fields = { "score:desc", "#text", "idx" } },
+                            transform = function(item)
+                                        local lhs = item.key or (item.item and item.item.lhs) or ""
+                                        local desc = item.desc or (item.item and item.item.desc) or ""
+                                        item.text = Snacks.util.normkey(lhs) .. " " .. lhs .. " " .. desc
+                                        return item
+                                    end,
+                            }
+
 return {
     "folke/snacks.nvim",
     priority = 1000,
@@ -58,7 +73,8 @@ return {
             -- I → Toggle ignored files (from gitignore)
             -- Z → Close all directories
             enabled = true,       -- Adds a tree based home structure
-            replace_netrw = false -- Replace netrw with snacks explore False: Opens the folder in netrw. True: Opens the folder in snacks explorer
+            --layout = { layout = "sidebar", position = "left", width = 30 },
+            replace_netrw = false, -- Replace netrw with snacks explore False: Opens the folder in netrw. True: Opens the folder in snacks explorer
         },
         gh = { enabled = false }, -- Is disabled as PR is different account and copilot is different account hence gh doesn't work well
         gitbrowse = {
@@ -136,7 +152,7 @@ return {
         { "<leader>bd", function() Snacks.bufdelete() vim.notify("Removed opened file from buffer") end, desc = "Delete the opened file from buffer", mode = "n" },
         { "<leader>bD", function() Snacks.bufdelete.other() vim.notify("Removed all other buffers") end, desc = "Delete other opened files from the buffer", mode = "n" },
         { "<leader>gl", function() Snacks.git.blame_line() end, desc = "Blame line with full details", mode = "n" },
-        { "<leader>sp", function() Snacks.picker() end, desc = "Snacks all the pickers", mode = "n" },
+        { "<leader>sp", function() Snacks.picker(picker_notfuzzy_settings) end, desc = "Snacks all the pickers", mode = "n" },
         { "<leader>sf", function() Snacks.picker.files(picker_notfuzzy_settings) end, desc = "Snacks Find files", mode = "n" },
         { "<leader>sF", function()
             local buf_dir = vim.fn.expand("%:p:h")
@@ -150,10 +166,10 @@ return {
         { "<leader>sr", function() Snacks.picker.resume() end, desc = "Snacks picker resume", mode = "n" },
         { "<leader>su", function() Snacks.picker.undo() end, desc = "Snacks undo tree", mode = "n" },
         { "<leader>sd", function() Snacks.picker.git_diff() end, desc = "Snacks list git diff", mode = "n" },
-        { "<leader>se", function() Snacks.picker.icons() end, desc = "Snacks picker for icons and emoji", mode = "n" },
+        { "<leader>se", function() Snacks.picker.icons(picker_notfuzzy_settings) end, desc = "Snacks picker for icons and emoji", mode = "n" },
         { "<leader>s*", function() Snacks.picker.grep_word(picker_notfuzzy_settings) end, desc = "Snacks picker find word under cursor across CWD", mode = "n" },
         { "<leader>sl", function() Snacks.picker.git_log_line() end, desc = "Snacks view commit details of that line", mode = "n" },
-        { "<leader>sk", function() Snacks.picker.keymaps(picker_fuzzy_settings) end, desc = "Snacks picker defined keymaps", mode = "n" },
+        { "<leader>sk", function() Snacks.picker.keymaps(picker_keymap_settings) end, desc = "Snacks picker defined keymaps", mode = "n" },
         { "<leader>sw", function() Snacks.picker.lines(picker_notfuzzy_settings) end, desc = "Snacks picker match words in current file", mode = "n" },
         { "<leader>s`", function() Snacks.picker.marks() end, desc = "Snacks picker marks", mode = "n" },
         { "<leader>sb", function() Snacks.gitbrowse() end, desc = "Post GitHub URL to :messages", mode = "n" },

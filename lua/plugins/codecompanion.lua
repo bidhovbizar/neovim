@@ -281,19 +281,19 @@ return {
     },
     keys = {
         -- Open action palette (works in normal and visual mode)
-        { "<leader>cl", "<cmd>CodeCompanionActions<cr>",     mode = { "n", "v" }, desc = "cc list all actions" },
+        { "<leader>cA", "<cmd>CodeCompanionActions<cr>",     mode = { "n", "v" }, desc = "cc list all code actions" },
 
         -- Toggle chat buffer
-        { "<leader>CC", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "cc Toggle Chat" },
+        { "<leader>CC", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "cc Toggle Chat copilot" },
         -- Open chat with Codex explicitly
-        { "<leader>cC", "<cmd>CodeCompanionChat adapter=codex<cr>", mode = { "n", "v" }, desc = "cc Chat Codex" },
+        { "<leader>cC", "<cmd>CodeCompanionChat adapter=codex<cr>", mode = { "n", "v" }, desc = "cc Chat with Codex" },
 
         -- Add visual selection to chat
         { "<leader>ca", "<cmd>CodeCompanionChat Add<cr>",    mode = "v",          desc = "cc add to Chat" },
 
         -- Quick prompts from prompt library
-        { "<leader>ce", "<cmd>CodeCompanion /explain<cr>",   mode = "v",          desc = "cc Explain Code" },
         { "<leader>cf", "<cmd>CodeCompanion /fix<cr>",       mode = "v",          desc = "cc Fix Code" },
+        --{ "<leader>ce", "<cmd>CodeCompanion /explain<cr>",   mode = "v",          desc = "cc Explain Code" },
 
         -- Inline assistant
         { "<leader>ci", "<cmd>CodeCompanion<cr>",            mode = { "n", "v" }, desc = "cc Inline Assistant" },

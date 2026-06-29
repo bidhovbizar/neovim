@@ -68,7 +68,7 @@ return {
                     else
                         gitsigns.nav_hunk("next")
                     end
-                end, { desc = "Next Hunk" })
+                end, { desc = "Git Next Hunk" })
             end
 
             -- Navigation to previous hunk
@@ -79,52 +79,52 @@ return {
                     else
                         gitsigns.nav_hunk("prev")
                     end
-                end, { desc = "Prev Hunk" })
+                end, { desc = "Git Prev Hunk" })
             end
 
             -- To do cih, vih, dih, yih when your cursor is in the hunk
-            map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>", { desc = "Select hunk" })
+            map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>", { desc = "Git Select hunk" })
 
             -- Preview keymap
-            map("n", "<leader>hd", gitsigns.diffthis, { desc = "Diff this" })
-            map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "Preview hunk" })
-            map("n", "<leader>hp", gitsigns.preview_hunk_inline, { desc = "Preview hunk inline" })
+            map("n", "<leader>hd", gitsigns.diffthis, { desc = "Git Diff this" })
+            map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "Git Preview hunk" })
+            map("n", "<leader>hp", gitsigns.preview_hunk_inline, { desc = "Git Preview hunk inline" })
             map("n", "<leader>hb", function()
                 gitsigns.blame()
                 vim.defer_fn(function()
                     vim.cmd("wincmd p")
                 end, 100) -- wait 100ms before switching back
-            end, { desc = "Run Gitsigns blame and return to previous window" })
+            end, { desc = "Git Run Gitsigns blame and return to previous window" })
 
             -- Full file Buffer Keymap
-            map("n", "<leader>hS", gitsigns.stage_buffer, { desc = "Stage full buffer" })
-            map("n", "<leader>hR", gitsigns.reset_buffer, { desc = "Reset full buffer" })
+            map("n", "<leader>hS", gitsigns.stage_buffer, { desc = "Git Stage full buffer" })
+            map("n", "<leader>hR", gitsigns.reset_buffer, { desc = "Git Reset full buffer" })
 
             -- Stage hunk
-            map("n", "<leader>hs", gitsigns.stage_hunk, { desc = "Stage hunk" })
+            map("n", "<leader>hs", gitsigns.stage_hunk, { desc = "Git Stage hunk" })
             map("v", "<leader>hs", function()
                 gitsigns.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
-            end, { desc = "Stage hunk" })
+            end, { desc = "Git Stage hunk" })
 
             -- Reset hunk
-            map("n", "<leader>hr", gitsigns.reset_hunk, { desc = "Reset hunk" })
+            map("n", "<leader>hr", gitsigns.reset_hunk, { desc = "Git Reset hunk" })
             map("v", "<leader>hr", function()
                 gitsigns.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
-            end, { desc = "Reset hunk" })
+            end, { desc = "Git Reset hunk" })
 
             -- Undo staged hunk
-            map("n", "<leader>hu", gitsigns.undo_stage_hunk, { desc = "Undo stage hunk" })
+            map("n", "<leader>hu", gitsigns.undo_stage_hunk, { desc = "Git Undo stage hunk" })
 
             -- Quickfix list
-            map("n", "<leader>hq", gitsigns.setqflist, { desc = "Set quickfix list" })
+            map("n", "<leader>hq", gitsigns.setqflist, { desc = "Git Set quickfix list" })
             map("n", "<leader>hl", function()
                 gitsigns.blame_line({ full = true })
-            end, { desc = "Blame line" })
+            end, { desc = "Git Blame line" })
 
             -- Toggles Keymap
-            map("n", "<leader>tb", gitsigns.toggle_current_line_blame, { desc = "Toggle do line blame with message" })
-            map("n", "<leader>td", gitsigns.toggle_deleted, { desc = "Toggle view deleted lines in file" })
-            map("n", "<leader>tw", gitsigns.toggle_word_diff, { desc = "Toggle view character diff in file " })
+            map("n", "<leader>tb", gitsigns.toggle_current_line_blame, { desc = "Git Toggle do line blame with message" })
+            map("n", "<leader>td", gitsigns.toggle_deleted, { desc = "Git Toggle view deleted lines in file" })
+            map("n", "<leader>tw", gitsigns.toggle_word_diff, { desc = "Git Toggle view character diff in file " })
 
         end,
     },

@@ -24,10 +24,10 @@ return {
             'tpope/vim-fugitive',          -- Ensure fugitive is loaded with diffview to do Git actions
         },
         keys = {
-            { '<leader>gmc',  '<cmd>DiffviewOpen<cr>',          desc = 'merge conflict resolver to show uncommited changes' },
-            { '<leader>gd', '<cmd>DiffviewOpen master<cr>',   desc = 'show diff comparing master' },
-            { '<leader>gc',  '<cmd>DiffviewClose<cr>',         desc = 'Close Diffview' },
-            { '<leader>gt',  '<cmd>DiffviewToggleFiles<cr>',   desc = 'Toggle Diffview File Explorer' },
+            { '<leader>gmc',  '<cmd>DiffviewOpen<cr>',          desc = 'Git merge conflict resolver to show uncommited changes' },
+            { '<leader>gd', '<cmd>DiffviewOpen master<cr>',   desc = 'Git show diff comparing master' },
+            { '<leader>gc',  '<cmd>DiffviewClose<cr>',         desc = 'Git Close Diffview' },
+            { '<leader>gt',  '<cmd>DiffviewToggleFiles<cr>',   desc = 'Git Toggle Diffview File Explorer' },
             { '<leader>grh', '<cmd>DiffviewFileHistory<cr>',   desc = 'Git Repository History' },
             { '<leader>gfh', '<cmd>DiffviewFileHistory %<cr>', desc = 'Git Opened File History', mode = 'n' },
             { '<leader>gfh', ":'<,'>DiffviewFileHistory<cr>",  desc = 'Git Line History',        mode = 'v' },
@@ -151,7 +151,7 @@ return {
             })
 
             -- Add keymap descriptions to existing mappings
-            vim.keymap.set('n', '<leader>cq', '<cmd>GitConflictListQf<cr>', { desc = "List All Conflicts in Quickfix" })
+            vim.keymap.set('n', '<leader>cq', '<cmd>GitConflictListQf<cr>', { desc = "Git List All Conflicts in Quickfix" })
             vim.keymap.set('n', '<leader>cr', '<cmd>GitConflictRefresh<cr>', { desc = "Refresh Git Conflicts" })
             vim.keymap.set('n', '<leader>gh', '<cmd>GitConflictHelp<cr>', { desc = "Shows Git Conflict Help" })
 
@@ -378,7 +378,7 @@ return {
                 show_conflict_hints()
 
                 print("Git-conflict re-initialized for current buffer")
-            end, { desc = "Re-initialize git-conflict for current buffer" })
+            end, { desc = "Re-initialize git conflict for current buffer" })
 
             -- Optional: Create a command to show help
             vim.api.nvim_create_user_command("GitConflictHelp", function()

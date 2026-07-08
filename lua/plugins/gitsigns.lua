@@ -72,7 +72,7 @@ return {
             end
 
             -- Navigation to previous hunk
-            for _, key in ipairs({ "[c", "]x" , "[h" }) do
+            for _, key in ipairs({ "[c", "[x" , "[h" }) do
                 map("n", key, function()
                     if vim.wo.diff then
                         vim.cmd.normal({ "[c", bang = true })
@@ -98,7 +98,7 @@ return {
 
             -- Full file Buffer Keymap
             map("n", "<leader>hS", gitsigns.stage_buffer, { desc = "Git Stage full buffer" })
-            map("n", "<leader>hR", gitsigns.reset_buffer, { desc = "Git Reset full buffer" })
+            map("n", "<leader>hR", gitsigns.reset_buffer, { desc = "Git restore full buffer" })
 
             -- Stage hunk
             map("n", "<leader>hs", gitsigns.stage_hunk, { desc = "Git Stage hunk" })
@@ -107,10 +107,10 @@ return {
             end, { desc = "Git Stage hunk" })
 
             -- Reset hunk
-            map("n", "<leader>hr", gitsigns.reset_hunk, { desc = "Git Reset hunk" })
+            map("n", "<leader>hr", gitsigns.reset_hunk, { desc = "Git restore hunk" })
             map("v", "<leader>hr", function()
                 gitsigns.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
-            end, { desc = "Git Reset hunk" })
+            end, { desc = "Git restore hunk" })
 
             -- Undo staged hunk
             map("n", "<leader>hu", gitsigns.undo_stage_hunk, { desc = "Git Undo stage hunk" })

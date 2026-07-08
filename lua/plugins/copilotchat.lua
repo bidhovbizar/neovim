@@ -45,7 +45,7 @@ return {
             -- Custom prompts
             prompts = {
                 commentonchanges= {
-                    prompt = "I made some changes to this code based on our previous discussion. Please review what I've done compared to what we discussed - not git changes, just evaluate if my implementation looks correct and matches our conversation. Any feedback?",
+                    prompt = "Check if we discussed any code changes earlier in this conversation. If yes, compare my current buffer against what we discussed and evaluate my implementation. If no prior discussion exists, check #gitdiff for recent changes and review those. If there are no git changes either, analyze the current buffer for syntax errors, bugs, or potential issues. If this is the start of our conversation with no context available, let me know and offer to help review or discuss any code I'd like to work on. Always provide actionable feedback.",
                     description = "Comment on changes made from our discussion",
                 },
                 reviewgitchanges= {

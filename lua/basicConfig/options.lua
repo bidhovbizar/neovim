@@ -47,10 +47,14 @@ vim.opt.incsearch = true  -- Show matches as you type
 vim.opt.hlsearch = true   -- Highlight search matches
 
 -- Appearance
-vim.opt.signcolumn = 'yes' -- Always show the left side ruler and prevents text overflow during diagnostic messages
+vim.opt.signcolumn = 'yes'          -- Always show the left side ruler and prevents text overflow during diagnostic messages
 -- To toggle word wrap, use <leader>tw
-vim.opt.wrap = true        -- Wrap long lines
-vim.opt.scrolloff = 1      -- Set scroll buffer 1 lines top and bottom
+vim.opt.wrap = true                 -- Wrap long lines
+vim.opt.scrolloff = 1               -- Set scroll buffer 1 lines top and bottom
+-- To fix the tmux jumbled letters issue; But there is no change but keeping some changes
+vim.opt.termguicolors = true        -- Enable true color support for tmux
+--vim.opt.lazyredraw = true          -- Disable lazy redraw to fix glitches
+vim.opt.ttyfast = true              -- Optimize for fast terminal connection
 
 -- Split behavior
 vim.opt.splitright = true -- Vertical splits to the right

@@ -1,3 +1,10 @@
+local ai_chat_filetypes = {
+    ["copilot-chat"] = true,
+    codecompanion = true,
+    codecompanion_input = true,
+    AvanteInput = true,
+    AvantePromptInput = true,
+}
 return {
     {
         "zbirenbaum/copilot.lua",
@@ -32,6 +39,14 @@ return {
             filetypes = {
                 ["*"] = true,
             },
+            should_attach = function(bufnr, _)
+                if ai_chat_filetypes[vim.bo[bufnr].filetype] then
+                    return true
+                end
+
+                return vim.bo[bufnr].buflisted and vim.bo[bufnr].buftype == ""
+            end,
+
             server_opts_overrides = {},
         },
     },

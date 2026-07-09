@@ -44,13 +44,13 @@ return {
             },
             -- Custom prompts
             prompts = {
-                commentonchanges= {
-                    prompt = "Check if we discussed any code changes earlier in this conversation. If yes, compare my current buffer against what we discussed and evaluate my implementation. If no prior discussion exists, check #gitdiff for recent changes and review those. If there are no git changes either, analyze the current buffer for syntax errors, bugs, or potential issues. If this is the start of our conversation with no context available, let me know and offer to help review or discuss any code I'd like to work on. Always provide actionable feedback.",
-                    description = "Comment on changes made from our discussion",
+                commentonchanges = {
+                    prompt = "Check if we discussed any code changes earlier in this conversation. If yes, compare my current buffer against what we discussed and evaluate my implementation. If no prior discussion exists, analyze the current buffer for syntax errors, bugs, or potential issues. If the buffer looks good, check #gitdiff for recent unstaged changes and review those. If this is the start of our conversation with no context available, let me know and offer to help review or discuss any code I'd like to work on. Always provide actionable feedback.",
+                    description = "Review current buffer for issues and verify against prior discussion",
                 },
-                reviewgitchanges= {
+                reviewgitchanges = {
                     prompt = "#gitdiff\n\nPlease review my unstaged git changes. Analyze what I've modified, check for any issues, suggest improvements, and let me know if the changes look good overall.",
-                    description = "Review unstaged git changes",
+                    description = "Review all unstaged git changes across the repo",
                 },
                 ciscocodereview = {
                     prompt = "Review the following code for improvements and best practices.",

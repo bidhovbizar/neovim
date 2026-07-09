@@ -235,7 +235,7 @@ return {
         prompt_library = {
             ["Comment On Changes"] = {
                 strategy = "chat",
-                description = "Comment on changes made from our discussion",
+                description = "Review current buffer for issues and verify against prior discussion",
                 opts = {
                     alias = "commentonchanges",
                     auto_submit = true,
@@ -244,13 +244,13 @@ return {
                 prompts = {
                     {
                         role = "user",
-                        content = "#{buffer}\n\nCheck if we discussed any code changes earlier in this conversation. If yes, compare my current buffer against what we discussed and evaluate my implementation. If no prior discussion exists, check git diff for recent changes and review those. If there are no git changes either, analyze the current buffer for syntax errors, bugs, or potential issues. If this is the start of our conversation with no context available, let me know and offer to help review or discuss any code I'd like to work on. Always provide actionable feedback.",
+                        content = "#{buffer}\n\nCheck if we discussed any code changes earlier in this conversation. If yes, compare my current buffer against what we discussed and evaluate my implementation. If no prior discussion exists, analyze the current buffer for syntax errors, bugs, or potential issues. If the buffer looks good, check #{diff} for recent git changes and review those. If this is the start of our conversation with no context available, let me know and offer to help review or discuss any code I'd like to work on. Always provide actionable feedback.",
                     },
                 },
             },
             ["Review Git Changes"] = {
                 strategy = "chat",
-                description = "Review unstaged git changes",
+                description = "Review all git changes across the repo",
                 opts = {
                     alias = "reviewgitchanges",
                     auto_submit = true,
@@ -259,7 +259,7 @@ return {
                 prompts = {
                     {
                         role = "user",
-                        content = "#{diff}\n#{buffer}\n\nPlease review my unstaged git changes. Analyze what I've modified, check for any issues, suggest improvements, and let me know if the changes look good overall.",
+                        content = "#{diff}\n\nReview all my git changes across the entire repository:\n1. Analyze what I've modified in each file\n2. Check for consistency across files\n3. Look for any issues, bugs, or improvements\n4. Confirm the changes work well together as a whole\n\nThis is my final review before committing - let me know if everything looks good or what needs attention.",
                     },
                 },
             },

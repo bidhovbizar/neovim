@@ -151,8 +151,9 @@ return {
             })
 
             -- Add keymap descriptions to existing mappings
-            vim.keymap.set('n', '<leader>cq', '<cmd>GitConflictListQf<cr>', { desc = "Git List All Conflicts in Quickfix" })
-            vim.keymap.set('n', '<leader>cr', '<cmd>GitConflictRefresh<cr>', { desc = "Refresh Git Conflicts" })
+            vim.keymap.set('n', '<leader>qg', '<cmd>GitConflictListQf<cr>', { desc = "Git List All Conflicts in Quickfix" })
+            vim.keymap.set('n', '<leader>qr', '<cmd>GitConflictRefresh<cr>', { desc = "Git Conflicts Rescan Buffer During Out of sync" })
+            -- We need to edit the above changes in the <leader>gh
             vim.keymap.set('n', '<leader>gh', '<cmd>GitConflictHelp<cr>', { desc = "Shows Git Conflict Help" })
 
             -- Store reference to git-conflict for safer access
@@ -385,18 +386,20 @@ return {
                 local help_text = {
                     "Git Conflict Resolution:",
                     "",
-                    "CONFLICT RESOLUTION:",
+                    "CONFLICT RESOLUTION (no leader key):",
                     "co - Choose Ours (HEAD/current branch)",
                     "ct - Choose Theirs (incoming/merge branch)",
                     "cb - Choose Both (keep both changes)",
                     "c0 - Choose None (delete conflict)",
-                    "cr - Refresh Git Conflicts",
-                    "cq - List All Conflicts in Quickfix",
-                    "gh - Show Git Conflict Help",
                     "",
-                    "NAVIGATION:",
+                    "NAVIGATION (no leader key):",
                     "]x - Go to Next Conflict",
                     "[x - Go to Previous Conflict",
+                    "",
+                    "CUSTOM MAPPINGS (with leader key):",
+                    "<leader>qg - List All Conflicts in Quickfix",
+                    "<leader>qr - Refresh/Rescan Buffer for Conflicts",
+                    "<leader>gh - Show This Help",
                     "",
                     "COMMANDS:",
                     ":GitConflictListQf - List all conflicts in quickfix",

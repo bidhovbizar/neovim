@@ -1,3 +1,67 @@
+local function run_prompt_in_chat(alias)
+    local codecompanion = require("codecompanion")
+    local chat = codecompanion.buf_get_chat(0) or codecompanion.last_chat()
+
+    if not chat then
+        chat = codecompanion.chat()
+    end
+
+    if not chat then
+        return vim.notify("CodeCompanion: could not open chat", vim.log.levels.WARN)
+    end
+
+    local context = require("codecompanion.utils.context").get(vim.api.nvim_get_current_buf())
+    local prompt = require("codecompanion.action_palette").resolve_from_alias(alias, context)
+
+    if not prompt then
+        return vim.notify("CodeCompanion: prompt not found: " .. alias, vim.log.levels.WARN)
+    end
+
+    require("codecompanion.interactions.chat.slash_commands").run({
+        label = "/" .. alias,
+        type = "slash_command",
+        from_prompt_library = true,
+        config = prompt,
+        context = context,
+    }, chat)
+
+    chat.ui:open()
+
+    if prompt.opts and prompt.opts.auto_submit then
+        chat:submit()
+    end
+end
+
+local function resume_acp_chat()
+    local codecompanion = require("codecompanion")
+    local chat = codecompanion.chat({ params = { adapter = "codex" } })
+
+    if not chat then
+        return vim.notify("CodeCompanion: could not open Codex chat", vim.log.levels.WARN)
+    end
+
+    local function run_resume(attempt)
+        local conn = chat.acp_connection
+        if conn and conn.is_connected and conn:is_connected() then
+            return require("codecompanion.interactions.chat.slash_commands").new():execute({
+                label = "/resume",
+                type = "slash_command",
+                config = require("codecompanion.config").interactions.chat.slash_commands.resume,
+            }, chat)
+        end
+
+        if attempt >= 30 then
+            return vim.notify("CodeCompanion: ACP connection was not ready for /resume", vim.log.levels.WARN)
+        end
+
+        vim.defer_fn(function()
+            run_resume(attempt + 1)
+        end, 100)
+    end
+
+    run_resume(0)
+end
+
 return {
     "olimorris/codecompanion.nvim",
     dependencies = {
@@ -168,6 +232,66 @@ return {
         memory = {
             enabled = true,
         },
+        prompt_library = {
+            ["Comment On Changes"] = {
+                strategy = "chat",
+                description = "Comment on changes made from our discussion",
+                opts = {
+                    alias = "commentonchanges",
+                    auto_submit = true,
+                    is_slash_cmd = true,
+                },
+                prompts = {
+                    {
+                        role = "user",
+                        content = "#{buffer}\n\nCheck if we discussed any code changes earlier in this conversation. If yes, compare my current buffer against what we discussed and evaluate my implementation. If no prior discussion exists, check git diff for recent changes and review those. If there are no git changes either, analyze the current buffer for syntax errors, bugs, or potential issues. If this is the start of our conversation with no context available, let me know and offer to help review or discuss any code I'd like to work on. Always provide actionable feedback.",
+                    },
+                },
+            },
+            ["Review Git Changes"] = {
+                strategy = "chat",
+                description = "Review unstaged git changes",
+                opts = {
+                    alias = "reviewgitchanges",
+                    auto_submit = true,
+                    is_slash_cmd = true,
+                },
+                prompts = {
+                    {
+                        role = "user",
+                        content = "#{diff}\n#{buffer}\n\nPlease review my unstaged git changes. Analyze what I've modified, check for any issues, suggest improvements, and let me know if the changes look good overall.",
+                    },
+                },
+            },
+            ["Cisco Code Review"] = {
+                strategy = "chat",
+                description = "Cisco Code Review",
+                opts = {
+                    adapter = {
+                        name = "codex",  -- Use Codex instead of default
+                    },
+                    modes = { "v" },
+                    alias = "ciscocodereview",
+                    auto_submit = true,
+                    is_slash_cmd = true,
+                },
+                prompts = {
+                    {
+                        role = "system",
+                        content = function()
+                            local ok, prompt = pcall(function()
+                                return require("prompts.ciscopythoncodereview").prompt
+                            end)
+                            return ok and prompt or "You are a code reviewer. Review the code for improvements and best practices."
+                        end,
+                    },
+                    {
+                        role = "user",
+                        content = "Review the following code for improvements and best practices:\n\n${selection}",
+                    },
+                },
+            },
+        },
         display = {
             chat = {
                 intro_message = "Welcome to CodeCompanion ✨! Press ? for help",
@@ -299,7 +423,20 @@ return {
         { "<leader>ci", "<cmd>CodeCompanion<cr>",            mode = { "n", "v" }, desc = "cc Inline Assistant" },
 
         -- CodeCompanion Help
-        { "<leader>ch", "<cmd>help CodeCompanion<cr>",       mode = "n",          desc = "Open CodeCompanion Documentation" },
+        { "<leader>ch", "<cmd>help CodeCompanion<cr>",       mode = "n",          desc = "cc Open CodeCompanion Documentation" },
+
+        -- Resume an ACP session in a fresh Codex chat
+        { "<leader>cr", function()
+            resume_acp_chat()
+        end, mode = "n", desc = "cc Resume ACP session" },
+
+        -- Custom prompts (using different keys to avoid copilotchat conflicts)
+        { "<leader>cG", function()
+            run_prompt_in_chat("reviewgitchanges")
+        end, mode = "n", desc = "cc Review Git Changes" },
+        { "<leader>cO", function()
+            run_prompt_in_chat("commentonchanges")
+        end, mode = "n", desc = "cc Comment on Changes" },
 
     },
     config = function(_, opts)

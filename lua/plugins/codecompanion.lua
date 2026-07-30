@@ -287,7 +287,13 @@ return {
                     },
                     {
                         role = "user",
-                        content = "Review the following code for improvements and best practices:\n\n${selection}",
+                        content = function(context)
+                            return string.format(
+                                "Review the following code for improvements and best practices:\n\n```%s\n%s\n```",
+                                context.filetype or "",
+                                context.code or ""
+                            )
+                        end,
                     },
                 },
             },
@@ -416,7 +422,7 @@ return {
         { "<leader>ca", "<cmd>CodeCompanionChat Add<cr>",    mode = "v",          desc = "cc add to Chat" },
 
         -- Quick prompts from prompt library
-        { "<leader>cf", "<cmd>CodeCompanion /fix<cr>",       mode = "v",          desc = "cc Fix Code" },
+        --{ "<leader>cf", "<cmd>CodeCompanion /fix<cr>",       mode = "v",          desc = "cc Fix Code" },
         --{ "<leader>ce", "<cmd>CodeCompanion /explain<cr>",   mode = "v",          desc = "cc Explain Code" },
 
         -- Inline assistant

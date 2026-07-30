@@ -8,6 +8,14 @@ local ai_chat_filetypes = {
 return {
     {
         "zbirenbaum/copilot.lua",
+        dependencies = {
+            {
+                "copilotlsp-nvim/copilot-lsp",
+                init = function()
+                    vim.g.copilot_nes_debounce = 500
+                end,
+            },
+        },
         cmd = "Copilot",
         event = "InsertEnter",
         build = ":Copilot auth",
@@ -19,17 +27,27 @@ return {
                 debounce = 75,
                 keymap = {
                     --accept = "<Tab>",
-                    accept = "<M-y>",
+                    accept = "<M-y>", -- This is by default kept for snacks to remember the keymap
+                    accept_word = "<M-w>",
                     next = "<M-]>",
                     prev = "<M-[>",
-                    dismiss = "<C-]>",
+                    dismiss = "<C-]>", -- Tried changing to <Esc> but it loses other abilities
+                },
+            },
+            nes = {
+                enabled = true,
+                auto_trigger = true,
+                keymap = {
+                    accept_and_goto = "<M-CR>",
+                    accept = "<M-n>",
+                    dismiss = "<M-d>",
                 },
             },
             panel = {
                 enabled = true,
                 auto_refresh = true,
                 keymap = {
-                    open = "<M-CR>",
+                    open = "<M-o>", -- In copilotchat it opens a list of all possibilities and you can select one to insert into the buffer
                     jump_prev = "[[",
                     jump_next = "]]",
                     accept = "<CR>",
@@ -47,7 +65,15 @@ return {
                 return vim.bo[bufnr].buflisted and vim.bo[bufnr].buftype == ""
             end,
 
-            server_opts_overrides = {},
+            server_opts_overrides = {
+                settings = {
+                    advanced = {
+                        inlineSuggestCount = 2,
+                        listCount = 5,
+                    },
+                },
+
+            },
         },
     },
 }

@@ -34,7 +34,7 @@ local picker_keymap_settings = { matcher = { sort_empty = true,
 return {
     "folke/snacks.nvim",
     priority = 1000,
-    lazy = true,
+    lazy = false,            -- Its suggested to make snacks not lazy so that file selection happens faster
     --event = "VeryLazy",  -- Will definitely load after startup completes, so commented out
     -- For dashboard to work we have to set lazy to false and event to VimEnter
     --lazy = false,
@@ -106,13 +106,15 @@ return {
         picker = {
             -- This is the expanded version of ivy layout.
             enabled = true,
+            ui_select = true,
             layout = {
                 layout = {
                     box = "vertical",
                     backdrop = false,
-                    row = -1,
+                    --row = -1, -- Found out setting row to -1 makes the picker floating and thus preview window is not centered. Hence commented out
                     width = 0,
                     height = 0.5, -- For ivy its 0.4
+                    position = "bottom", -- If not it will assume middle and float again.
                     border = "top",
                     title = " {title} {live} {flags}",
                     title_pos = "left",
@@ -120,7 +122,7 @@ return {
                     {
                         box = "horizontal",
                         { win = "list", border = "none" },
-                        { win = "preview", title = "{preview}", width = 0.5, border = "left" }, -- For ivy width is 0.6. Use <M-w> to toggle preview
+                        { win = "preview", title = "{preview}", width = 0.5, border = "left" }, -- For ivy width is 0.6. Use <M-w> or ctrl+w w to jump between panes
                     },
                 },
             },

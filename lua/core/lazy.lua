@@ -19,7 +19,7 @@ vim.opt.rtp:prepend(lazypath)
 -- Setup lazy.nvim with configuration
 require("lazy").setup({ import = "plugins" }, {
     git = {
-        timeout = 300,
+        timeout = 600, -- This is due to copilot.lua taking too long to git pull and checkout
     },
     install = {
         missing = true,             -- Install missing plugins automatically

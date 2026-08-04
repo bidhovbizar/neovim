@@ -8,14 +8,15 @@ local ai_chat_filetypes = {
 return {
     {
         "zbirenbaum/copilot.lua",
-        dependencies = {
-            {
-                "copilotlsp-nvim/copilot-lsp",
-                init = function()
-                    vim.g.copilot_nes_debounce = 500
-                end,
-            },
-        },
+        -- NES is horrible while suggesting next code change, the suggestion even have error so disabling it
+        --dependencies = {
+        --    {
+        --        "copilotlsp-nvim/copilot-lsp",
+        --        init = function()
+        --            vim.g.copilot_nes_debounce = 500
+        --        end,
+        --    },
+        --},
         cmd = "Copilot",
         event = "InsertEnter",
         build = ":Copilot auth",
@@ -31,18 +32,19 @@ return {
                     accept_word = "<M-w>",
                     next = "<M-]>",
                     prev = "<M-[>",
-                    dismiss = "<C-]>", -- Tried changing to <Esc> but it loses other abilities
+                    dismiss = "<M-d>", -- Tried changing to <Esc> but it loses other abilities
                 },
             },
-            nes = {
-                enabled = true,
-                auto_trigger = true,
-                keymap = {
-                    accept_and_goto = "<M-CR>",
-                    accept = "<M-n>",
-                    dismiss = "<M-d>",
-                },
-            },
+            -- Disabling NES commands as they are not useful and sometimes cause issues with suggestions
+            --nes = {
+            --    enabled = true,
+            --    auto_trigger = true,
+            --    keymap = {
+            --        accept_and_goto = "<M-CR>",
+            --        --accept = "<M-n>",
+            --        dismiss = "<M-d>",
+            --    },
+            --},
             panel = {
                 enabled = true,
                 auto_refresh = true,

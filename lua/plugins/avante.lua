@@ -40,7 +40,7 @@ return {
             selector = {
                 --- @alias avante.SelectorProvider "native" | "fzf_lua" | "mini_pick" | "snacks" | "telescope" | fun(selector: avante.ui.Selector): nil
                 --- @type "fzf" | 'telescope' | "builtin" | "none"
-                provider = "telescope", -- Use Telescope for selecting suggestions
+                provider = "snacks", -- Use Snacks for selecting suggestions
             },
             behaviour = {
                 auto_suggestions = false,        -- Experimental stage
@@ -53,6 +53,8 @@ return {
                 auto_approve_tool_permissions = false, -- Default: show permission prompts for all tools
                 -- auto_approve_tool_permissions = {"bash", "replace_in_file"},
                 enable_fastapply = false,              -- Enable Fast Apply feature
+                ---@type "popup" | "inline_buttons"
+                confirmation_ui_style = "inline_buttons", -- Shows inline accept/reject buttons for diffs
             },
             --        prompt_logger = { -- logs prompts to disk (timestamped, for replay/debugging)
             --            enabled = true, -- toggle logging entirely
@@ -120,8 +122,15 @@ return {
                 },
             },
             input = {
-                provider = "dressing", -- Without this section, you won't be able to focus on the confirmation page and come out of it
-                provider_opts = {},    -- For dressing this field should be empty
+                --provider = "native", -- Without this section, you won't be able to focus on the confirmation page and come out of it
+                --provider = "dressing", -- Without this section, you won't be able to focus on the confirmation page and come out of it
+                --provider_opts = {},    -- For dressing this field should be empty
+                provider = "snacks", -- Without this section, you won't be able to focus on the confirmation page and come out of it
+                provider_opts = {
+                    title = "Avante Input",
+                    icon = " ",
+                    placeholder = "Enter your input...",
+                },
             },
         },
         build = "make",
@@ -129,7 +138,14 @@ return {
             "nvim-lua/plenary.nvim",           -- Utility functions
             "MunifTanjim/nui.nvim",            -- UI components
             "nvim-telescope/telescope.nvim",   -- for file_selector provider telescope
-            "stevearc/dressing.nvim",          -- Input prompts and selection menus
+            -- Commenting as we made select, select provider to snacks so that we can dressing.nvim is no longer needed
+            --{
+            --    "stevearc/dressing.nvim",      -- Input prompts (for avante)
+            --    opts = {
+            --        --input = { enabled = true },
+            --        select = { enabled = false },  -- Race around condition found from checkhealth so let snacks.picker handle vim.ui.select
+            --    },
+            --},
             "folke/snacks.nvim",               -- for input provider snacks
             "nvim-tree/nvim-web-devicons",     -- File type icons
             "nvim-treesitter/nvim-treesitter", -- Syntax highlighting and parsing

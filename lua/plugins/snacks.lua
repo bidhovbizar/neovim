@@ -36,17 +36,31 @@ return {
     priority = 1000,
     lazy = false,            -- Its suggested to make snacks not lazy so that file selection happens faster
     --event = "VeryLazy",  -- Will definitely load after startup completes, so commented out
-    -- For dashboard to work we have to set lazy to false and event to VimEnter
+    -- For snack home dashboard to work we set lazy to false and event to VimEnter but dashboard is not that useful so commented out
     --lazy = false,
     --event = "VimEnter",  -- Load on Vim startup
-    -- Finally change dashboard enabled to true
+    -- Finally change dashboard enabled to true in the opts but disabled for now as dashboard is not that useful
+    --
+    -- This init function is also not that helpful to ensure vim.ui.select is set to Snacks.picker.select. defering 10, 50 isn't helpful need to find the right time.
+    -- Snacks.picker_cmp_fuzzy lib is downloaded/built
+    --        - ✅ OK setup {enabled}
+    --        So❌ ERROR vim.ui.select is not set to Snacks.picker.select
+    --init = function()
+    --    -- Force picker initialization to set vim.ui.select early
+    --    vim.defer_fn(function()
+    --        if Snacks and Snacks.picker then
+    --            -- Access picker to trigger ui_select setup
+    --            local _ = Snacks.picker.select
+    --        end
+    --    end, 50)
+    --end,
     ---@type snacks.Config
     opts = {
         -- your configuration comes here
         -- or leave it empty to use the default settings
         -- refer to the configuration section below
         bigfile = { enabled = true },    -- Ensure not to load lsp or diagnostics if file size is greater than 1.5MB
-        dashboard = { enabled = false }, -- This enables default welcome homescreen where you can see recent files etc.
+        dashboard = { enabled = false }, -- This enables default welcome homescreen where you can see recent files but disabled
         explorer = {
         -- Inside the explorer you can do the following:
         -- Single file operations:

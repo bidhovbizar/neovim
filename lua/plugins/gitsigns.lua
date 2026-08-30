@@ -61,7 +61,7 @@ return {
             end
 
             -- Navigation to next hunk
-            for _, key in ipairs({ "]c", "]x" , "]h" }) do
+            for _, key in ipairs({ "]c", "]h" }) do
                 map("n", key, function()
                     if vim.wo.diff then
                         vim.cmd.normal({ "]c", bang = true })
@@ -72,7 +72,7 @@ return {
             end
 
             -- Navigation to previous hunk
-            for _, key in ipairs({ "[c", "[x" , "[h" }) do
+            for _, key in ipairs({ "[c", "[h" }) do
                 map("n", key, function()
                     if vim.wo.diff then
                         vim.cmd.normal({ "[c", bang = true })

@@ -55,7 +55,7 @@
 --                        ["@function.outer"] = "v",
 --                        ["@conditional.outer"] = "V",
 --                        ["@loop.outer"] = "V",
---                        ["@class.outer"] = "<c-v>",
+--                        ["@class.outer"] = "V",
 --                    },
 --                    include_surrounding_whitespace = false,
 --                },
@@ -149,17 +149,18 @@ return {
     version = false,
     branch = "master",
     build = ":TSUpdate",
-    event = "VeryLazy",
+    lazy = false, -- Load immediately on startup
+    --lazy = true, -- This means don't load automatically, only load when called
+    --event = "VeryLazy",
     --event = { "BufReadPost", "BufNewFile" },
     --event = "InsertEnter",
-    --lazy = true, -- This means don't load automatically, only load when called
     dependencies = {
         "nvim-treesitter/nvim-treesitter-textobjects",
         "nvim-treesitter/nvim-treesitter-context",
     },
     config = function()
         -- Main branch: install parsers
-        require("nvim-treesitter").setup({
+        require("nvim-treesitter.configs").setup({
             sync_install = false,
             ignore_install = { "javascript" },
             modules = {},
@@ -168,7 +169,7 @@ return {
                 additional_vim_regex_highlighting = false,
             },
             indent = { enable = true },
-            auto_install = false, -- This when false will install all the packages in ensure_installed, if true it will install missing parsers on demand
+            auto_install = false, -- When false, do not auto-install missing parsers on buffer open; install only ensure_installed parsers
             ensure_installed = {
                 "bash",
                 "python",
@@ -191,7 +192,7 @@ return {
                     node_incremental = "+",
                     scope_incremental = false,
                     -- After the selection press "_" to select the next lower level block from the cursor
-                    node_decremental = "_",
+                    node_decremental = "-",
                 },
             },
             textobjects = {
@@ -227,7 +228,7 @@ return {
                         ["@function.outer"] = "v",    -- charwise
                         ["@conditional.outer"] = "V", -- linewise
                         ["@loop.outer"] = "V",        -- linewise
-                        ["@class.outer"] = "<c-v>",   -- blockwise
+                        ["@class.outer"] = "V",       -- linewise
                     },
                     include_surrounding_whitespace = false,
                 },

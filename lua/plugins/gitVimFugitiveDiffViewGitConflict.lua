@@ -24,6 +24,21 @@ return {
             'tpope/vim-fugitive',          -- Ensure fugitive is loaded with diffview to do Git actions
         },
         keys = {
+            -- When I press <leader>gmc DiffView gets started and <space>cT and <space>cO should work fine
+            -- if that doesn't work :lua require("diffview.actions").conflict_choose_all("theirs")()
+            -- or :lua require("diffview.actions").conflict_choose_all("ours")()
+            -- Press R: If the conflicts are not getting selected that will do :DiffviewRefresh
+            --]x              next conflict
+            --[x              previous conflict
+            --Space c t       choose theirs for current conflict
+            --Space c o       choose ours for current conflict
+            --Space c T       choose theirs for all conflicts in current file
+            --Space c O       choose ours for all conflicts in current file
+            --Space c b       choose base for current conflict
+            --Space c a       keep all versions for current conflict
+            --dx              delete current conflict region
+            --dX              delete all conflict regions in file
+            --R               refresh Diffview file/conflict list
             { '<leader>gmc',  '<cmd>DiffviewOpen<cr>',          desc = 'Git merge conflict resolver to show uncommited changes' },
             { '<leader>gd', '<cmd>DiffviewOpen master<cr>',   desc = 'Git show diff comparing master' },
             { '<leader>gc',  '<cmd>DiffviewClose<cr>',         desc = 'Git Close Diffview' },
@@ -134,7 +149,11 @@ return {
             })
         end,
     },
-    { -- Dedicated conflict resolution plugin
+    { -- Dedicated conflict resolution plugin just when opening a file with conflicts
+      -- Use co, ct, cb or ggVGco ggVGct ggVG to select the section of code and accept
+      --Space q g   list conflicts
+      --Space q n   next quickfix item
+      --Space q p   previous quickfix item
         'akinsho/git-conflict.nvim',
         version = "*",
         event = "BufReadPost",
@@ -384,9 +403,12 @@ return {
             -- Optional: Create a command to show help
             vim.api.nvim_create_user_command("GitConflictHelp", function()
                 local help_text = {
-                    "Git Conflict Resolution:",
+                    "Git Conflict Resolution: In regular file",
                     "",
                     "CONFLICT RESOLUTION (no leader key):",
+                    "ggVG to select the section of code and accept",
+                    "ggVGco - Select all Choose Ours from current branch",
+                    "ggVGct - Select all Choose Theirs from incoming branch",
                     "co - Choose Ours (HEAD/current branch)",
                     "ct - Choose Theirs (incoming/merge branch)",
                     "cb - Choose Both (keep both changes)",
@@ -398,6 +420,8 @@ return {
                     "",
                     "CUSTOM MAPPINGS (with leader key):",
                     "<leader>qg - List All Conflicts in Quickfix",
+                    "<leader>qn   next quickfix item",
+                    "<leader>qp   previous quickfix item",
                     "<leader>qr - Refresh/Rescan Buffer for Conflicts",
                     "<leader>gh - Show This Help",
                     "",
@@ -412,7 +436,7 @@ return {
                 vim.bo[buf].modifiable = false
                 vim.bo[buf].filetype = 'help'
 
-                local width = 50
+                local width = 60
                 local height = #help_text + 2
                 local opts = {
                     relative = 'editor',
@@ -429,7 +453,7 @@ return {
                 local win = vim.api.nvim_open_win(buf, true, opts)
                 vim.wo[win].winhl = 'Normal:Normal,FloatBorder:FloatBorder'
 
-                -- Close on any key press
+                -- Close help on any key press 
                 vim.keymap.set('n', '<ESC>', '<cmd>close<cr>', { buffer = buf })
                 vim.keymap.set('n', 'q', '<cmd>close<cr>', { buffer = buf })
             end, { desc = "Show git conflict resolution help" })

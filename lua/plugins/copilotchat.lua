@@ -35,8 +35,9 @@ return {
             -- `#system`            | System information |
             sticky = {
                 '#buffer',  -- Always gives current buffer as context while talking
-                '#gitdiff', -- If you have git changes in the current buffer, it will give that as context
+                --'#gitdiff',-- commented as @copilot already has that  -- Takes git diff changes in workspace and put in chat
                 '@copilot',  -- Gives the tool capability to use copilot tool that contains a lot of smaller tools
+                
                 },
             window = {
                 layout = 'vertical', -- can be 'horizontal' or 'vertical'

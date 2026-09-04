@@ -149,8 +149,8 @@ return {
     version = false,
     branch = "master",
     build = ":TSUpdate",
-    lazy = false, -- Load immediately on startup
     --lazy = true, -- This means don't load automatically, only load when called
+    lazy = false, -- Load immediately on startup, if in ADS server its heavy then use event = "VeryLazy"
     --event = "VeryLazy",
     --event = { "BufReadPost", "BufNewFile" },
     --event = "InsertEnter",

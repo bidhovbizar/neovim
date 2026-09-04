@@ -198,5 +198,37 @@ return {
             vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
             Snacks.gitbrowse({ line_start = line_start, line_end = line_end })
         end, desc = "Post selected Github URl to :messages", mode = "x" },
+        { "<leader>pr", function()
+            -- Same as <leader>sb: post gh output to :messages. gh uses the git remote host.
+            if vim.fn.executable("gh") == 0 then
+                vim.notify("gh is not installed", vim.log.levels.INFO)
+                return
+            end
+            local ok, result = pcall(function()
+                return vim.system({ "gh", "pr", "view", "--json", "url" }, { text = true, timeout = 15000 }):wait()
+            end)
+            if not ok or type(result) ~= "table" then
+                vim.notify("gh is not available", vim.log.levels.INFO)
+                return
+            end
+            local stdout = result.stdout or ""
+            local stderr = result.stderr or ""
+            if result.code == 0 then
+                local decoded, data = pcall(vim.json.decode, stdout)
+                if decoded and type(data) == "table" and type(data.url) == "string" and data.url ~= "" then
+                    vim.notify("PR Link: " .. data.url, vim.log.levels.INFO)
+                    return
+                end
+            end
+            local msg = vim.trim(stderr ~= "" and stderr or stdout)
+            if msg == "" then
+                if result.signal and result.signal ~= 0 then
+                    msg = "gh timed out or was interrupted"
+                else
+                    msg = "gh pr view failed"
+                end
+            end
+            vim.notify(msg, vim.log.levels.INFO)
+        end, desc = "Show current branch PR URL" },
     },
 }

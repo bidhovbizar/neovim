@@ -32,34 +32,68 @@ local function run_prompt_in_chat(alias)
     end
 end
 
+local function find_codex_chat()
+    -- Do not call last_chat() first: if :q unloaded the buffer, last_chat() destroys the session.
+    local found
+    for _, entry in ipairs(require("codecompanion").buf_get_chat()) do
+        local chat = entry.chat
+        if chat.adapter and chat.adapter.name == "codex" and vim.api.nvim_buf_is_valid(chat.bufnr) then
+            found = chat
+        end
+    end
+    return found
+end
+
+local function toggle_codex_chat()
+    local codecompanion = require("codecompanion")
+    local chat = find_codex_chat()
+    if not chat then
+        return codecompanion.chat({ params = { adapter = "codex" } })
+    end
+    if chat.ui:is_visible() then
+        vim.notify("CodeCompanion: hiding Codex chat", vim.log.levels.INFO)
+        return chat.ui:hide()
+    end
+    vim.notify("CodeCompanion: reopening Codex chat", vim.log.levels.INFO)
+    return codecompanion.restore(chat.bufnr)
+end
+
 local function resume_acp_chat()
     local codecompanion = require("codecompanion")
-    local chat = codecompanion.chat({ params = { adapter = "codex" } })
+    local group = vim.api.nvim_create_augroup("BidhovCodeCompanionResume", { clear = true })
+    local resumed = false
 
-    if not chat then
-        return vim.notify("CodeCompanion: could not open Codex chat", vim.log.levels.WARN)
-    end
-
-    local function run_resume(attempt)
-        local conn = chat.acp_connection
-        if conn and conn.is_connected and conn:is_connected() then
-            return require("codecompanion.interactions.chat.slash_commands").new():execute({
+    -- Wait until session/new finishes so /resume does not race it.
+    vim.api.nvim_create_autocmd("User", {
+        group = group,
+        pattern = "CodeCompanionACPSessionPost",
+        once = true,
+        callback = function()
+            resumed = true
+            local chat = codecompanion.last_chat()
+            if not chat then
+                return vim.notify("CodeCompanion: could not open Codex chat", vim.log.levels.WARN)
+            end
+            require("codecompanion.interactions.chat.slash_commands").new():execute({
                 label = "/resume",
                 type = "slash_command",
                 config = require("codecompanion.config").interactions.chat.slash_commands.resume,
             }, chat)
-        end
+        end,
+    })
 
-        if attempt >= 30 then
-            return vim.notify("CodeCompanion: ACP connection was not ready for /resume", vim.log.levels.WARN)
-        end
-
-        vim.defer_fn(function()
-            run_resume(attempt + 1)
-        end, 100)
+    local chat = codecompanion.chat({ params = { adapter = "codex" } })
+    if not chat then
+        pcall(vim.api.nvim_del_augroup_by_id, group)
+        return vim.notify("CodeCompanion: could not open Codex chat", vim.log.levels.WARN)
     end
 
-    run_resume(0)
+    vim.defer_fn(function()
+        if not resumed then
+            pcall(vim.api.nvim_del_augroup_by_id, group)
+            vim.notify("CodeCompanion: ACP session was not ready for /resume", vim.log.levels.WARN)
+        end
+    end, 20000)
 end
 
 return {
@@ -121,17 +155,21 @@ return {
             acp = {
                 codex = function()
                     return require("codecompanion.adapters").extend("codex", {
-                        --commands = {
-                        --    default = {
-                        --        "/ws/bbizar-bgl/codex-acp/bin/codex-acp",
-                        --    },
-                        --},
+                        env = {
+                            -- Use the `codex` on PATH (npm pin), not a CLI bundled inside codex-acp.
+                            CODEX_PATH = function()
+                                return vim.fn.exepath("codex")
+                            end,
+                        },
                         defaults = {
-                            auth_method = "chatgpt",
-                            -- remember if you give gty in chat buffer it will accept everything
-                            --session_config_options = {
-                            --    mode = "Full Access",
-                            --},
+                            -- This `codex-acp` advertises chat-gpt (not chatgpt).
+                            auth_method = "chat-gpt",
+                            -- gpt-6-astra is Codex CLI's new default and is API-key only.
+                            session_config_options = {
+                                model = "gpt-5.5",
+                                -- remember if you give gty in chat buffer it will accept everything
+                                -- mode = "Full Access",
+                            },
                         },
                     })
                 end,
@@ -157,7 +195,7 @@ return {
                     -- Uncomment the adapter you want
                     -- Copilot
                     name = "copilot",
-                    model = "claude-opus-4.5",
+                    model = "gpt-5.6-sol",
 
                     --Codex
                     --name = "codex",
@@ -196,9 +234,8 @@ return {
                     -- Uncomment the adapter you want
                     -- copilot
                     name = "copilot",
-                    model = "claude-opus-4.5",
-                    --model = 'claude-sonnet-4', -- This is thinking model which is slow
-                    --model = 'gpt-4o-mini',      -- This is for fast responses
+                    model = "gpt-5.6-sol",
+                    --model = 'claude-sonnet-5', -- This is thinking model which is slow
 
                     -- codex
                     --name = "codex",
@@ -220,9 +257,8 @@ return {
                     -- Uncomment the adapter you want
                     -- copilot
                     name = "copilot",
-                    model = "claude-opus-4.5",
-                    --model = 'claude-sonnet-4', -- This is thinking model which is slow
-                    --model = 'gpt-4o-mini',      -- This is for fast responses
+                    model = "gpt-5.6-sol",
+                    --model = 'claude-sonnet-5', -- This is thinking model which is slow
 
                     -- codex
                     --name = "codex",
@@ -317,6 +353,7 @@ return {
                 },
 
                 window = {
+                    buflisted = true, -- Keep the chat in the buffer list so :q hides it instead of wiping it
                     layout = "vertical", -- float|vertical|horizontal|buffer
                     position = nil,      -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
                     border = "rounded",
@@ -416,7 +453,9 @@ return {
         -- Toggle chat buffer
         { "<leader>CC", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "cc Toggle Chat copilot" },
         -- Open chat with Codex explicitly
-        { "<leader>cC", "<cmd>CodeCompanionChat adapter=codex<cr>", mode = { "n", "v" }, desc = "cc Chat with Codex" },
+        { "<leader>cC", function()
+            toggle_codex_chat()
+        end, mode = { "n", "v" }, desc = "cc Chat with Codex" },
 
         -- Add visual selection to chat
         { "<leader>ca", "<cmd>CodeCompanionChat Add<cr>",    mode = "v",          desc = "cc add to Chat" },
@@ -451,22 +490,130 @@ return {
         -- Expand 'cc' into 'CodeCompanion' in command line
         vim.cmd([[cab cc CodeCompanion]])
 
-        -- Make CodeCompanion requests visible
+        -- Codex ACP: session/new is slow. Enter during auth races it and kills the session.
+        -- Block send until session_id exists, and show status in the chat winbar (not :messages).
         local group = vim.api.nvim_create_augroup("BidhovCodeCompanionStatus", { clear = true })
+
+        local function set_codex_winbar(bufnr, text, hl)
+            if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+                return
+            end
+            vim.b[bufnr].codex_acp_status = text
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+                if vim.api.nvim_win_get_buf(win) == bufnr then
+                    vim.wo[win].winbar = "%#" .. (hl or "WarningMsg") .. "#" .. text
+                end
+            end
+        end
+
+        local function acp_session_ready(chat)
+            return chat
+                and chat.adapter
+                and chat.adapter.type == "acp"
+                and chat.acp_connection
+                and chat.acp_connection.session_id
+        end
+
+        vim.api.nvim_create_autocmd("User", {
+            group = group,
+            pattern = "CodeCompanionChatCreated",
+            callback = function(args)
+                local chat = require("codecompanion").buf_get_chat(args.data.bufnr)
+                if not chat then
+                    return
+                end
+                -- :q on an unlisted scratch buffer can wipe it and kill the ACP session.
+                vim.bo[chat.bufnr].buflisted = true
+                vim.bo[chat.bufnr].bufhidden = "hide"
+                if chat.adapter.type ~= "acp" then
+                    return
+                end
+                set_codex_winbar(chat.bufnr, "Codex connecting… wait, Enter is blocked", "WarningMsg")
+                chat:add_callback("on_before_submit", function(c)
+                    if c.adapter.type ~= "acp" then
+                        return
+                    end
+                    if acp_session_ready(c) then
+                        return
+                    end
+                    set_codex_winbar(c.bufnr, "Codex still connecting… Enter is blocked", "WarningMsg")
+                    vim.notify("CodeCompanion: Codex session not ready, Enter is blocked", vim.log.levels.WARN)
+                    return false
+                end)
+            end,
+        })
+
+        vim.api.nvim_create_autocmd("QuitPre", {
+            group = group,
+            callback = function()
+                local bufnr = vim.api.nvim_get_current_buf()
+                local chat = require("codecompanion").buf_get_chat(bufnr)
+                if not chat then
+                    return
+                end
+                vim.bo[bufnr].buflisted = true
+                vim.bo[bufnr].bufhidden = "hide"
+            end,
+        })
+
+        vim.api.nvim_create_autocmd("WinClosed", {
+            group = group,
+            callback = function(args)
+                local win = tonumber(args.match)
+                if not win or not vim.api.nvim_win_is_valid(win) then
+                    return
+                end
+                local bufnr = vim.api.nvim_win_get_buf(win)
+                local chat = require("codecompanion").buf_get_chat(bufnr)
+                if not chat or not chat.adapter or chat.adapter.name ~= "codex" then
+                    return
+                end
+                vim.bo[bufnr].buflisted = true
+                vim.bo[bufnr].bufhidden = "hide"
+                vim.notify("CodeCompanion: Codex chat hidden, <leader>cC to reopen", vim.log.levels.INFO)
+            end,
+        })
 
         vim.api.nvim_create_autocmd("User", {
             group = group,
             pattern = "CodeCompanionRequestStarted",
-            callback = function()
-                vim.notify("CodeCompanion: request sent, waiting for response...", vim.log.levels.INFO)
+            callback = function(args)
+                local adapter = args.data and args.data.adapter
+                local name = adapter and adapter.name or "unknown"
+                vim.notify("CodeCompanion: request sent via " .. name .. ", waiting for response...", vim.log.levels.INFO)
             end,
         })
 
         vim.api.nvim_create_autocmd("User", {
             group = group,
             pattern = "CodeCompanionRequestFinished",
+            callback = function(args)
+                local status = args.data and args.data.status or "unknown"
+                vim.notify("CodeCompanion: response finished (" .. status .. ")", vim.log.levels.INFO)
+            end,
+        })
+
+        vim.api.nvim_create_autocmd("User", {
+            group = group,
+            pattern = "CodeCompanionACPSessionPre",
             callback = function()
-                vim.notify("CodeCompanion: response finished", vim.log.levels.INFO)
+                vim.notify("CodeCompanion: Codex session starting, wait before pressing Enter...", vim.log.levels.INFO)
+                local chat = require("codecompanion").last_chat()
+                if chat and chat.adapter.type == "acp" then
+                    set_codex_winbar(chat.bufnr, "Codex connecting… wait, Enter is blocked", "WarningMsg")
+                end
+            end,
+        })
+
+        vim.api.nvim_create_autocmd("User", {
+            group = group,
+            pattern = "CodeCompanionACPSessionPost",
+            callback = function()
+                vim.notify("CodeCompanion: Codex session ready", vim.log.levels.INFO)
+                local chat = require("codecompanion").last_chat()
+                if chat and chat.adapter.type == "acp" then
+                    set_codex_winbar(chat.bufnr, "Codex ready — press Enter", "DiagnosticOk")
+                end
             end,
         })
     end,

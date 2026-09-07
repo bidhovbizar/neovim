@@ -15,9 +15,8 @@ return {
             -- Set model to use for Copilot Chat first find which model you wish to use.
             -- You can find it by starting copilotchat and then pressing `$`.
             --
-            model = 'claude-opus-4.5', -- This is costliest
-            --model = 'claude-sonnet-4', -- This is thinking model which is slow
-            --model = 'gpt-4o-mini',      -- This is for fast responses
+            model = 'gpt-5.6-sol', -- This is costliest
+            --model = 'claude-sonnet-5', -- This is thinking model which is slow
             -- auto_insert_mode = true, -- This directly move us to insert mode after the chat window opens but also keeps it there after the response
             -- Automatically include current buffer as context, All sticky context options in CopilotChat:
             --  Context             | Description |

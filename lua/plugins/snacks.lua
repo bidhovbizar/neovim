@@ -32,19 +32,29 @@ local picker_keymap_settings = { matcher = { sort_empty = true,
                             }
 
 local function current_buffer_dir()
-    local path = vim.fn.expand("%:p")
+    if vim.bo.filetype == "netrw" then
+        local netrw_dir = vim.b.netrw_curdir
+        if type(netrw_dir) == "string" and vim.fn.isdirectory(netrw_dir) == 1 then
+            return vim.fs.normalize(netrw_dir)
+        end
+    end
 
-    if path ~= "" and vim.fn.isdirectory(path) == 1 then
+    local path = vim.api.nvim_buf_get_name(0)
+    if path == "" then
+        return vim.fn.getcwd()
+    end
+
+    path = vim.fs.normalize(path)
+    if vim.fn.isdirectory(path) == 1 then
         return path
     end
 
-    local dir = vim.fn.expand("%:p:h")
-    if dir ~= "" then
+    local dir = vim.fs.dirname(path)
+    if dir and vim.fn.isdirectory(dir) == 1 then
         return dir
     end
 
-    vim.notify("Unable to determine current buffer directory", vim.log.levels.ERROR)
-    return nil
+    return vim.fn.getcwd()
 end
 
 return {

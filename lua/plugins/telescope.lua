@@ -1,17 +1,27 @@
 local function current_buffer_dir()
-    local path = vim.fn.expand("%:p")
+    if vim.bo.filetype == "netrw" then
+        local netrw_dir = vim.b.netrw_curdir
+        if type(netrw_dir) == "string" and vim.fn.isdirectory(netrw_dir) == 1 then
+            return vim.fs.normalize(netrw_dir)
+        end
+    end
 
-    if path ~= "" and vim.fn.isdirectory(path) == 1 then
+    local path = vim.api.nvim_buf_get_name(0)
+    if path == "" then
+        return vim.fn.getcwd()
+    end
+
+    path = vim.fs.normalize(path)
+    if vim.fn.isdirectory(path) == 1 then
         return path
     end
 
-    local dir = vim.fn.expand("%:p:h")
-    if dir ~= "" then
+    local dir = vim.fs.dirname(path)
+    if dir and vim.fn.isdirectory(dir) == 1 then
         return dir
     end
 
-    vim.notify("Unable to determine current buffer directory", vim.log.levels.ERROR)
-    return nil
+    return vim.fn.getcwd()
 end
 
 return {
@@ -47,9 +57,8 @@ return {
             if not cwd then
                 return
             end
-            require('telescope.builtin').live_grep({
+            require('telescope').extensions.telescope_config.enhanced_live_grep({
                 cwd = cwd,
-                prompt_title = "Grep in " .. cwd,
             })
         end, desc = "Live grep in buffer directory" },
         { "<leader>fm", function() require('telescope').extensions.telescope_config.multi_grep() end, desc = "Multi grep (AND)" },
@@ -81,6 +90,7 @@ return {
                 local current_picker = action_state.get_current_picker(prompt_bufnr)
                 local prompt = current_picker:_get_prompt()
                 local picker_name = current_picker.prompt_title:lower()
+                local cwd = current_picker.cwd
 
                 -- Close current picker
                 actions.close(prompt_bufnr)
@@ -104,10 +114,9 @@ return {
                         end, 100)
                     end
                 end
-
                 -- Support case toggle for both live grep and multi grep
                 if picker_name:match("live.*grep") then
-                    telescope.extensions.telescope_config.enhanced_live_grep()
+                    telescope.extensions.telescope_config.enhanced_live_grep({ cwd = cwd })
                     restore_prompt_and_mode()
                 elseif picker_name:match("multi.*grep") then
                     telescope.extensions.telescope_config.multi_grep()
@@ -179,22 +188,25 @@ return {
 
         -- Create a custom extension for complex functions to defer their loading
         telescope.extensions.telescope_config = {
-            enhanced_live_grep = function()
+            enhanced_live_grep = function(opts)
+                opts = opts or {}
+
                 local builtin = require('telescope.builtin')
-                local cwd = vim.fn.getcwd()
+                local cwd = opts.cwd or vim.fn.getcwd()
                 local prompt_title = vim.g.telescope_case_sensitive
-                and "Live Grep (Case Sensitive) " .. cwd
-                or "Live Grep (Smart Case) " .. cwd
+                    and "Live Grep (Case Sensitive) " .. cwd
+                    or "Live Grep (Smart Case) " .. cwd
 
                 builtin.live_grep({
+                    cwd = cwd,
                     prompt_title = prompt_title,
                     vimgrep_arguments = vim.g.telescope_case_sensitive and {
                         'rg', '--color=never', '--no-heading', '--with-filename',
                         '--line-number', '--column', '--case-sensitive'
                     } or {
-                            'rg', '--color=never', '--no-heading', '--with-filename',
-                            '--line-number', '--column', '--smart-case'
-                        }
+                        'rg', '--color=never', '--no-heading', '--with-filename',
+                        '--line-number', '--column', '--smart-case'
+                    }
                 })
             end,
 

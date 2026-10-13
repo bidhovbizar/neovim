@@ -31,6 +31,22 @@ local picker_keymap_settings = { matcher = { sort_empty = true,
                                     end,
                             }
 
+local function current_buffer_dir()
+    local path = vim.fn.expand("%:p")
+
+    if path ~= "" and vim.fn.isdirectory(path) == 1 then
+        return path
+    end
+
+    local dir = vim.fn.expand("%:p:h")
+    if dir ~= "" then
+        return dir
+    end
+
+    vim.notify("Unable to determine current buffer directory", vim.log.levels.ERROR)
+    return nil
+end
+
 return {
     "folke/snacks.nvim",
     priority = 1000,
@@ -171,12 +187,18 @@ return {
         { "<leader>sp", function() Snacks.picker(picker_notfuzzy_settings) end, desc = "Snacks all the pickers", mode = "n" },
         { "<leader>sf", function() Snacks.picker.files(picker_notfuzzy_settings) end, desc = "Snacks Find files", mode = "n" },
         { "<leader>sF", function()
-            local buf_dir = vim.fn.expand("%:p:h")
+            local buf_dir = current_buffer_dir()
+            if not buf_dir then
+                return
+            end
             Snacks.picker.files(vim.tbl_extend("force", picker_notfuzzy_settings, { cwd = buf_dir }))
         end, desc = "Snacks find files in buffer dir", mode = "n" },
         { "<leader>sg", function() Snacks.picker.grep(picker_notfuzzy_settings) end, desc = "Snacks Grep word", mode = "n" },
         { "<leader>sG", function()
-            local buf_dir = vim.fn.expand("%:p:h")
+            local buf_dir = current_buffer_dir()
+            if not buf_dir then
+                return
+            end
             Snacks.picker.grep(vim.tbl_extend("force", picker_notfuzzy_settings, { cwd = buf_dir }))
         end, desc = "Snacks Grep in buffer dir", mode = "n" },
         { "<leader>sr", function() Snacks.picker.resume() end, desc = "Snacks picker resume", mode = "n" },

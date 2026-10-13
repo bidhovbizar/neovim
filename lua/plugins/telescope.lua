@@ -1,3 +1,19 @@
+local function current_buffer_dir()
+    local path = vim.fn.expand("%:p")
+
+    if path ~= "" and vim.fn.isdirectory(path) == 1 then
+        return path
+    end
+
+    local dir = vim.fn.expand("%:p:h")
+    if dir ~= "" then
+        return dir
+    end
+
+    vim.notify("Unable to determine current buffer directory", vim.log.levels.ERROR)
+    return nil
+end
+
 return {
     'nvim-telescope/telescope.nvim',
     dependencies = {
@@ -16,7 +32,10 @@ return {
     keys = {
         { "<leader>ff", function() require('telescope.builtin').find_files() end, desc = "Find files" },
         { "<leader>fF", function()
-            local cwd = require("telescope.utils").buffer_dir()
+            local cwd = current_buffer_dir()
+            if not cwd then
+                return
+            end
             require('telescope.builtin').find_files({
                 cwd = cwd,
                 prompt_title = "Files in " .. cwd,
@@ -24,7 +43,10 @@ return {
         end, desc = "Find files in opened buffer directory)" },
         { "<leader>fg", function() require('telescope').extensions.telescope_config.enhanced_live_grep() end, desc = "Live grep" },
         { "<leader>fG", function()
-            local cwd = require("telescope.utils").buffer_dir()
+            local cwd = current_buffer_dir()
+            if not cwd then
+                return
+            end
             require('telescope.builtin').live_grep({
                 cwd = cwd,
                 prompt_title = "Grep in " .. cwd,

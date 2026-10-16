@@ -150,20 +150,7 @@ return {
             "nvim-tree/nvim-web-devicons",     -- File type icons
             "nvim-treesitter/nvim-treesitter", -- Syntax highlighting and parsing
             "zbirenbaum/copilot.lua",          -- Required for copilot provider
-            -- Remember avante and codecompanion both use markdown config changes should be made in both
-            {
-                'MeanderingProgrammer/render-markdown.nvim',
-                --ft = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
-                --    "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
-                opts = {
-                    file_types = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
-                        "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
-                    render_modes = true,
-                },
-                config = function(_, opts)
-                    require("render-markdown").setup(opts)
-                end,
-            },
+            { "MeanderingProgrammer/render-markdown.nvim" }, -- Markdown rendering configured centrally
         },
     },
 }

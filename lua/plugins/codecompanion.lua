@@ -105,21 +105,7 @@ return {
             lazy = false,
             build = ":TSUpdate",
         },
-        -- Markdown is used for chat and action palette formatting
-        -- Remember avante and codecompanion both use markdown config changes should be made in both
-        {
-            'MeanderingProgrammer/render-markdown.nvim',
-            -- ft = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
-            -- "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
-            opts = {
-                file_types = { "markdown", "Avante", "AvanteSelectedFiles", "AvanteInput",
-                "AvanteConfirm", "AvantePromptInput", "AvanteTodos", "codecompanion" },
-                render_modes = true,
-            },
-            config = function(_, opts)
-                require("render-markdown").setup(opts)
-            end,
-        },
+        { "MeanderingProgrammer/render-markdown.nvim" }, -- Markdown rendering configured centrally
         -- Mark view is heavier and gives more decorations but is not as stable as render-markdown
         --{
         --    "OXY2DEV/markview.nvim",

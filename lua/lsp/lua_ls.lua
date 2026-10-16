@@ -1,4 +1,6 @@
--- Install lua-language-server using the following command:
+-- Install lua-language-server somehow as the apt or snap doesn't have it
+-- Download the latest release from internet and extract it to a folder and add that folder to your $PATH
+--                              OR
 -- We can either install using Mason which I don't prefer or manually clone and build it and put in your $PATH
 return {
     cmd = {

@@ -3,10 +3,11 @@ return {
         "CopilotC-Nvim/CopilotChat.nvim",
         --event = "VeryLazy", -- Uncommenting this will make copilotchat always load immediately after nvim starts
         --event = "InsertEnter", -- This will load copilotchat when you enter insert mode for the first time
-        cmd = { "CopilotChat", "CopilotChatCommit", "CopilotChatExplain", "CopilotChatReview", "CopilotChatFix", "CopilotChatOptimize", "CopilotChatDocs", "CopilotChatTests" },
+        cmd = { "CopilotChat", "CopilotChatSave", "CopilotChatLoad", "CopilotChatLoadTracked", "CopilotChatCommit", "CopilotChatExplain", "CopilotChatReview", "CopilotChatFix", "CopilotChatOptimize", "CopilotChatDocs", "CopilotChatTests" },
         dependencies = {
             { "zbirenbaum/copilot.lua" }, -- or zbirenbaum/copilot.lua or github/copilot.vim
             { "nvim-lua/plenary.nvim" },  -- for curl, log and async functions
+            { "MeanderingProgrammer/render-markdown.nvim" }, -- Markdown rendering configured centrally
         },
         --build = "make tiktoken",                            -- Only on MacOS or Linux
         opts = {
@@ -59,13 +60,137 @@ return {
                 },
             },
         },
+        -- Saving the copilot chat session on exit at ~/.local/share/nvim/copilotchat_history/.
+        -- Enabling load option to load the needed session on start up.
+        config = function(_, opts)
+            require("CopilotChat").setup(opts)
+
+            local group = vim.api.nvim_create_augroup("CopilotChatAutoSave", {
+                clear = true,
+            })
+
+            local last_file = vim.api.nvim_buf_get_name(0)
+            local loaded_session
+            local history_path = vim.fs.normalize(
+                opts.history_path
+                    or (vim.fn.stdpath("data") .. "/copilotchat_history")
+            )
+
+            local function session_path(name)
+                return vim.fs.joinpath(history_path, name .. ".json")
+            end
+
+            local function load_session(name)
+                if not name or name == "" then
+                    return
+                end
+
+                name = vim.fs.basename(name):gsub("%.json$", "")
+                if vim.fn.filereadable(session_path(name)) ~= 1 then
+                    vim.notify(
+                        "CopilotChat session not found: " .. name,
+                        vim.log.levels.ERROR
+                    )
+                    return
+                end
+
+                require("CopilotChat").load(name, history_path)
+                loaded_session = name
+            end
+
+            local function list_sessions()
+                local sessions = {}
+
+                if vim.fn.isdirectory(history_path) == 1 then
+                    for name, entry_type in vim.fs.dir(history_path) do
+                        if entry_type == "file" and name:sub(-5) == ".json" then
+                            table.insert(sessions, name:sub(1, -6))
+                        end
+                    end
+                end
+
+                table.sort(sessions)
+                return sessions
+            end
+
+            vim.api.nvim_create_user_command("CopilotChatLoadTracked", function(command)
+                if command.args ~= "" then
+                    load_session(command.args)
+                    return
+                end
+
+                local sessions = list_sessions()
+                if vim.tbl_isempty(sessions) then
+                    vim.notify("No saved CopilotChat sessions found", vim.log.levels.INFO)
+                    return
+                end
+
+                vim.ui.select(sessions, {
+                    prompt = "Load CopilotChat session:",
+                }, load_session)
+            end, {
+                nargs = "?",
+                force = true,
+                complete = function(arg_lead)
+                    return vim.tbl_filter(function(name)
+                        return vim.startswith(name, arg_lead)
+                    end, list_sessions())
+                end,
+            })
+
+            vim.api.nvim_create_autocmd("BufEnter", {
+                group = group,
+                callback = function(args)
+                    local name = vim.api.nvim_buf_get_name(args.buf)
+                    local buftype = vim.bo[args.buf].buftype
+
+                    if buftype == "" and name ~= "" then
+                        last_file = name
+                    end
+                end,
+            })
+
+            vim.api.nvim_create_autocmd("VimLeavePre", {
+                group = group,
+                once = true,
+                callback = function()
+                    local project = vim.fs.basename(vim.fn.getcwd())
+                    local filename = last_file ~= ""
+                            and vim.fs.basename(last_file)
+                        or "no-file"
+
+                    project = project:gsub("[^%w._-]", "_")
+                    filename = filename:gsub("[^%w._-]", "_")
+
+                    local session_name = string.format(
+                        "%s-%s-%s-%s",
+                        project,
+                        filename,
+                        os.date("%Y%m%d-%H%M%S"),
+                        vim.fn.getpid()
+                    )
+
+                    local chat = require("CopilotChat")
+                    local saved = pcall(chat.save, session_name, history_path)
+                    local new_path = session_path(session_name)
+
+                    if saved
+                        and vim.fn.filereadable(new_path) == 1
+                        and loaded_session
+                        and loaded_session ~= session_name
+                    then
+                        vim.fn.delete(session_path(loaded_session))
+                    end
+                end,
+            })
+        end,
         keys = {
             { "<leader>cc", "<cmd>CopilotChat<CR>", mode = { "n", "v" }, desc = "Chat with Copilot" },
             { "<leader>cx", "<cmd>delmarks < ><CR>", mode = "n", desc = "Clear selection marks in buffer" },
             { "<leader>cg", "<cmd>CopilotChat /reviewgitchanges<CR>", mode = "n", desc = "Review Git Changes" },
             { "<leader>co", "<cmd>CopilotChat /commentonchanges<CR>", mode = "n", desc = "Comment on Changes" },
             { "<leader>cs", "<cmd>CopilotChatSave<CR>", mode = "n", desc = "Save Copilot Chat" },
-            { "<leader>cl", "<cmd>CopilotChatLoad<CR>", mode = "n", desc = "Load Copilot Chat" },
+            { "<leader>cl", "<cmd>CopilotChatLoadTracked<CR>", mode = "n", desc = "Load Copilot Chat" },
             --{ "<leader>cm", "<cmd>CopilotChatCommit<CR>",   mode = { "n", "v"},   desc = "Generate Commit Message" },
             --{ "<leader>ce", "<cmd>CopilotChatExplain<CR>",  mode = "v",           desc = "Explain Code" },
             --{ "<leader>cr", "<cmd>CopilotChatReview<CR>",   mode = "v",           desc = "Review Code" },

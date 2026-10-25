@@ -57,7 +57,7 @@ return {
                 },
             },
             filetypes = {
-                ["*"] = true,
+                ["*"] = true, -- This accepts all filetypes for copilot suggestions e.g. .py .lua
             },
             should_attach = function(bufnr, _)
                 if ai_chat_filetypes[vim.bo[bufnr].filetype] then

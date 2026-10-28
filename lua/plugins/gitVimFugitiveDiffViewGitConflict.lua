@@ -40,7 +40,8 @@ return {
             --dX              delete all conflict regions in file
             --R               refresh Diffview file/conflict list
             { '<leader>gmc',  '<cmd>DiffviewOpen<cr>',          desc = 'Git merge conflict resolver to show uncommited changes' },
-            { '<leader>gd', '<cmd>DiffviewOpen master<cr>',   desc = 'Git show diff comparing master' },
+            { '<leader>gdm', function() vim.notify('Reminder: update local master before comparing', vim.log.levels.WARN); vim.cmd('DiffviewOpen master') end, desc = 'Git show diff comparing master' },
+            { '<leader>gdd', function() vim.notify('Reminder: update local develop before comparing', vim.log.levels.WARN); vim.cmd('DiffviewOpen develop') end, desc = 'Git show diff comparing develop' },
             { '<leader>gc',  '<cmd>DiffviewClose<cr>',         desc = 'Git Close Diffview' },
             { '<leader>gt',  '<cmd>DiffviewToggleFiles<cr>',   desc = 'Git Toggle Diffview File Explorer' },
             { '<leader>grh', '<cmd>DiffviewFileHistory<cr>',   desc = 'Git Repository History' },

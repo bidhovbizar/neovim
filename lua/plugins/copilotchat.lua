@@ -100,17 +100,39 @@ return {
 
             local function list_sessions()
                 local sessions = {}
+                local uv = vim.uv or vim.loop
 
                 if vim.fn.isdirectory(history_path) == 1 then
                     for name, entry_type in vim.fs.dir(history_path) do
                         if entry_type == "file" and name:sub(-5) == ".json" then
-                            table.insert(sessions, name:sub(1, -6))
+                            local session_name = name:sub(1, -6)
+                            local stat = uv.fs_stat(session_path(session_name))
+                            local mtime = stat and stat.mtime or {}
+
+                            table.insert(sessions, {
+                                name = session_name,
+                                sec = mtime.sec or 0,
+                                nsec = mtime.nsec or 0,
+                            })
                         end
                     end
                 end
 
-                table.sort(sessions)
-                return sessions
+                table.sort(sessions, function(a, b)
+                    if a.sec == b.sec then
+                        if a.nsec == b.nsec then
+                            return a.name > b.name
+                        end
+
+                        return a.nsec > b.nsec
+                    end
+
+                    return a.sec > b.sec
+                end)
+
+                return vim.tbl_map(function(session)
+                    return session.name
+                end, sessions)
             end
 
             vim.api.nvim_create_user_command("CopilotChatLoadTracked", function(command)

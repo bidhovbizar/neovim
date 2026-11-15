@@ -256,18 +256,29 @@ return {
                 local ls = require("luasnip")
 
                 local function jump(direction)
+                    if direction > 0 then
+                        local destination = ls.jump_destination(direction)
+                        local parent = destination and destination.parent
+
+                        -- LuaSnip detaches when jumping to a root snippet's exit node.
+                        if destination and destination.pos == 0 and parent and parent.parent_node == nil then
+                            return
+                        end
+                    end
+
                     if ls.locally_jumpable(direction) then
                         ls.jump(direction)
                     end
                 end
 
                 -- We don't do <M-h> and <M-l> because they are used for harpoon list <M-h>
+                -- We did <M-j> and <M-k> in this order even though it is opposite the order of keyboard as j is down and k is up so vim motion intuitive this is right
 
-                vim.keymap.set({ "i", "s" }, "<M-k>", function()
+                vim.keymap.set({ "i", "s" }, "<M-j>", function()
                     jump(1)
                 end, { silent = true, desc = "LuaSnip: next placeholder" })
 
-                vim.keymap.set({ "i", "s" }, "<M-j>", function()
+                vim.keymap.set({ "i", "s" }, "<M-k>", function()
                     jump(-1)
                 end, { silent = true, desc = "LuaSnip: previous placeholder" })
             end)

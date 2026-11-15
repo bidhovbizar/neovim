@@ -255,37 +255,21 @@ return {
             vim.schedule(function()
                 local ls = require("luasnip")
 
-                -- Map functionality to <M-k> combination
-                vim.keymap.set({ "i", "s" }, "<M-k>", function()
-                    --local blink = require("blink.cmp")
-                    -- Commenting below line as <M-k> was also cycling through the autocompletion menu
-                    --if blink.is_visible() then
-                    --    blink.select_next()
-                    --elseif ls.jumpable(1) then
-                    if ls.jumpable(1) then
-                        ls.jump(1)
-                    else
-                        --return "<M-k>"
-                        -- Feed the key normally when not in a snippet
-                        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<M-k>", true, false, true), "n", false)
+                local function jump(direction)
+                    if ls.locally_jumpable(direction) then
+                        ls.jump(direction)
                     end
-                end, { expr = true, silent = true })
+                end
 
-                -- Map functionality to <M-j> combination
+                -- We don't do <M-h> and <M-l> because they are used for harpoon list <M-h>
+
+                vim.keymap.set({ "i", "s" }, "<M-k>", function()
+                    jump(1)
+                end, { silent = true, desc = "LuaSnip: next placeholder" })
+
                 vim.keymap.set({ "i", "s" }, "<M-j>", function()
-                    --local blink = require("blink.cmp")
-                    -- Commenting below line as <M-j> was also cycling through the autocompletion menu
-                    --if blink.is_visible() then
-                    --    blink.select_prev()
-                    --elseif ls.jumpable(-1) then
-                    if ls.jumpable(-1) then
-                        ls.jump(-1)
-                    else
-                        --return "<M-j>"
-                        -- Feed the key normally when not in a snippet
-                        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<M-j>", true, false, true), "n", false)
-                    end
-                end, { expr = true, silent = true })
+                    jump(-1)
+                end, { silent = true, desc = "LuaSnip: previous placeholder" })
             end)
         end,
     },

@@ -152,7 +152,7 @@ return {
                             auth_method = "chat-gpt",
                             -- gpt-6-astra is Codex CLI's new default and is API-key only.
                             session_config_options = {
-                                model = "gpt-5.5",
+                                model = "gpt-5.6-sol",
                                 -- remember if you give gty in chat buffer it will accept everything
                                 -- mode = "Full Access",
                             },

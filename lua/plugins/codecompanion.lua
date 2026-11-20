@@ -10,7 +10,7 @@ local function run_prompt_in_chat(alias)
         return vim.notify("CodeCompanion: could not open chat", vim.log.levels.WARN)
     end
 
-    local context = require("codecompanion.utils.context").get(vim.api.nvim_get_current_buf())
+    local context = context_for_chat(vim.api.nvim_get_current_buf())
     local prompt = require("codecompanion.action_palette").resolve_from_alias(alias, context)
 
     if not prompt then
@@ -212,6 +212,59 @@ local function requested_chat_adapter(args)
     return adapter
 end
 
+-- nvim <dir> uses netrw: buftype is empty, so CodeCompanion treats the
+-- directory as #{buffer} ("file `…` (with buffer number: 1)").
+local function is_file_buffer(bufnr)
+    if not bufnr or bufnr == 0 then
+        bufnr = vim.api.nvim_get_current_buf()
+    end
+    if not vim.api.nvim_buf_is_valid(bufnr) then
+        return false
+    end
+    local name = vim.api.nvim_buf_get_name(bufnr)
+    if name == "" or vim.fn.isdirectory(name) == 1 then
+        return false
+    end
+    local ft = vim.bo[bufnr].filetype
+    local bt = vim.bo[bufnr].buftype
+    if bt ~= "" then
+        return false
+    end
+    if ft == "netrw" or ft == "codecompanion" or ft == "help" or ft == "qf" then
+        return false
+    end
+    return true
+end
+
+local function context_for_chat(bufnr)
+    bufnr = bufnr or vim.api.nvim_get_current_buf()
+    if is_file_buffer(bufnr) then
+        return require("codecompanion.utils.context").get(bufnr)
+    end
+    -- Valid table so Chat.new can index it; empty path so #{buffer} is not a directory.
+    return {
+        bufnr = bufnr,
+        buftype = vim.bo[bufnr].buftype or "",
+        code = nil,
+        cursor_pos = { 1, 0 },
+        end_col = 0,
+        end_line = 1,
+        filetype = "",
+        filename = "",
+        is_visual = false,
+        is_normal = true,
+        lines = {},
+        line_count = 0,
+        mode = "n",
+        path = "",
+        relative_path = "",
+        start_col = 0,
+        start_line = 1,
+        winnr = vim.api.nvim_get_current_win(),
+        user_prompt = "",
+    }
+end
+
 local function toggle_chat(adapter_name, formatted_name)
     local codecompanion = require("codecompanion")
     local chat = find_chat(adapter_name)
@@ -227,6 +280,10 @@ local function toggle_chat(adapter_name, formatted_name)
         return chat.ui:hide()
     end
     vim.notify("CodeCompanion: reopening " .. formatted_name .. " chat", vim.log.levels.INFO)
+    if vim.api.nvim_buf_is_valid(chat.bufnr) then
+        vim.bo[chat.bufnr].buflisted = true
+        vim.bo[chat.bufnr].bufhidden = "hide"
+    end
     return codecompanion.restore(chat.bufnr)
 end
 
@@ -500,6 +557,17 @@ return {
             },
             shared = {
                 editor_context = {
+                    opts = {
+                        excluded = {
+                            -- Replaces the default fts list; keep CodeCompanion's entries.
+                            fts = {
+                                "codecompanion",
+                                "help",
+                                "terminal",
+                                "netrw",
+                            },
+                        },
+                    },
                     ["buffer"] = {
                         opts = {
                             -- Used by #{buffer}. Accepted values:
@@ -784,7 +852,16 @@ return {
                     return nil
                 end
             end
-            return orig_chat(args)
+            if not args.context or not is_file_buffer(args.context.bufnr) then
+                args.context = context_for_chat(args.context and args.context.bufnr)
+            end
+            local chat = orig_chat(args)
+            -- Chat.new copies buffer_context into the global "current file" if it
+            -- is still unset; do not leave a directory listing there.
+            if not is_file_buffer(_G.codecompanion_current_context) then
+                _G.codecompanion_current_context = nil
+            end
+            return chat
         end
 
         vim.api.nvim_create_autocmd("VimLeavePre", {
@@ -793,7 +870,7 @@ return {
         })
 
         -- Pre-warm the default Cursor ACP session so it is ready before you open the chat.
-        -- The chat is created hidden; <leader>cc restores it (find_chat reuses it).
+        -- hidden=true: do not split/steal the window (nvim <dir> would otherwise cover netrw).
         -- Skip silently if another nvim already holds Cursor ACP.
         vim.defer_fn(function()
             if find_chat("cursor_cli") then
@@ -803,18 +880,12 @@ return {
             if not ok then
                 return
             end
-            local win = vim.api.nvim_get_current_win()
-            local chat = codecompanion.chat({
+            codecompanion.chat({
                 params = { adapter = "cursor_cli" },
                 approval_mode = acp_approval_mode.cursor_cli or "ask",
+                hidden = true,
                 _cursor_lock_silent = true,
             })
-            if chat then
-                chat.ui:hide()
-            end
-            if vim.api.nvim_win_is_valid(win) then
-                vim.api.nvim_set_current_win(win)
-            end
         end, 500)
 
         -- ACP session startup can be slow. Enter during auth races it and kills the session.
@@ -1047,6 +1118,19 @@ return {
             end
         end
 
+        -- #{buffer} is expanded from chat.buffer_context (frozen at create). Follow
+        -- the last real file so nvim <dir> does not keep the netrw listing as context.
+        if ok_chat and Chat and Chat.replace_user_inputs then
+            local orig_replace_user_inputs = Chat.replace_user_inputs
+            Chat.replace_user_inputs = function(self, message)
+                local bufnr = _G.codecompanion_current_context
+                if is_file_buffer(bufnr) then
+                    self.buffer_context = require("codecompanion.utils.context").get(bufnr)
+                end
+                return orig_replace_user_inputs(self, message)
+            end
+        end
+
         -- ...and when the approval mode changes (gty, toggle, or set on chat creation).
         local ok_appr, Approvals = pcall(require, "codecompanion.interactions.chat.tools.approvals")
         if ok_appr and Approvals and Approvals.set_mode then
@@ -1071,15 +1155,35 @@ return {
 
         vim.api.nvim_create_autocmd("User", {
             group = group,
+            pattern = "CodeCompanionContextChanged",
+            callback = function(args)
+                local bufnr = args.data and args.data.bufnr
+                if not is_file_buffer(bufnr) then
+                    return
+                end
+                local ctx = require("codecompanion.utils.context").get(bufnr)
+                for _, entry in ipairs(require("codecompanion").buf_get_chat()) do
+                    if entry.chat then
+                        entry.chat.buffer_context = ctx
+                    end
+                end
+            end,
+        })
+
+        vim.api.nvim_create_autocmd("User", {
+            group = group,
             pattern = "CodeCompanionChatCreated",
             callback = function(args)
                 local chat = require("codecompanion").buf_get_chat(args.data.bufnr)
                 if not chat then
                     return
                 end
-                -- :q on an unlisted scratch buffer can wipe it and kill the ACP session.
-                vim.bo[chat.bufnr].buflisted = true
+                -- Keep pre-warm chats unlisted so nvim <dir> does not cycle onto them.
+                -- List them when shown (toggle_chat) so :q hides instead of wiping ACP.
                 vim.bo[chat.bufnr].bufhidden = "hide"
+                if not chat.hidden and chat.ui and chat.ui:is_visible() then
+                    vim.bo[chat.bufnr].buflisted = true
+                end
                 if chat.adapter.type ~= "acp" then
                     return
                 end

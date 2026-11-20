@@ -34,7 +34,7 @@ end
 
 -- Per-adapter approval for a new chat. Change it later in the buffer with `gty`.
 local acp_approval_mode = {
-    cursor_cli = "ask",
+    cursor_cli = "auto",
     codex = "auto",
 }
 
@@ -67,6 +67,149 @@ local function acp_session_ready(chat)
         and chat.adapter.type == "acp"
         and chat.acp_connection
         and chat.acp_connection.session_id
+end
+
+-- One Cursor ACP (`agent acp`) per user: the first nvim that starts it keeps it
+-- until that nvim exits. A second nvim skips pre-warm and will not start another.
+-- Scoped by hostname so NFS-shared home directories between Ubuntu/RHEL do not cross-lock.
+local cursor_acp_lock = {
+    dir = vim.fn.stdpath("cache") .. "/codecompanion-cursor-acp-" .. (vim.uv.os_gethostname() or "default") .. ".lock",
+    held = false,
+}
+
+local function proc_starttime(pid)
+    local f = io.open("/proc/" .. pid .. "/stat", "r")
+    if not f then
+        return nil
+    end
+    local line = f:read("*l")
+    f:close()
+    if not line then
+        return nil
+    end
+    -- /proc/pid/stat: field 22 is starttime. Field 2 is comm in parentheses.
+    local rest = line:match("%)%s+(.+)$")
+    if not rest then
+        return nil
+    end
+    local fields = vim.split(rest, " ", { plain = true, trimempty = false })
+    return fields[20]
+end
+
+local function cursor_acp_self()
+    local pid = vim.fn.getpid()
+    return {
+        pid = pid,
+        starttime = proc_starttime(pid),
+        cwd = vim.fn.getcwd(),
+        time = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+    }
+end
+
+local function read_cursor_acp_holder()
+    local path = cursor_acp_lock.dir .. "/holder.json"
+    local ok, lines = pcall(vim.fn.readfile, path)
+    if not ok or not lines or not lines[1] then
+        return nil
+    end
+    local success, holder = pcall(vim.json.decode, lines[1])
+    if success and type(holder) == "table" then
+        return holder
+    end
+    return nil
+end
+
+local function holder_is_alive(holder)
+    if not holder or not holder.pid then
+        return false
+    end
+    if vim.uv.kill(holder.pid, 0) ~= 0 then
+        return false
+    end
+    if holder.starttime then
+        return tostring(proc_starttime(holder.pid)) == tostring(holder.starttime)
+    end
+    return true
+end
+
+local function holder_is_self(holder)
+    if not holder then
+        return false
+    end
+    local self = cursor_acp_self()
+    return holder.pid == self.pid and (not holder.starttime or holder.starttime == self.starttime)
+end
+
+local function release_cursor_acp_lock()
+    if not cursor_acp_lock.held then
+        return
+    end
+    cursor_acp_lock.held = false
+    vim.fn.delete(cursor_acp_lock.dir, "rf")
+end
+
+-- Returns true if this nvim owns (or just acquired) the Cursor ACP lock.
+local function claim_cursor_acp()
+    if cursor_acp_lock.held then
+        return true
+    end
+
+    local holder = read_cursor_acp_holder()
+    if holder_is_self(holder) then
+        cursor_acp_lock.held = true
+        return true
+    end
+
+    if holder_is_alive(holder) then
+        return false, holder
+    end
+
+    -- Stale lock from a crashed nvim, or no lock yet.
+    if vim.fn.isdirectory(cursor_acp_lock.dir) == 1 then
+        vim.fn.delete(cursor_acp_lock.dir, "rf")
+    end
+
+    local mkdir_ok = vim.uv.fs_mkdir(cursor_acp_lock.dir, 448) -- 0700
+    if not mkdir_ok then
+        holder = read_cursor_acp_holder()
+        if holder_is_self(holder) then
+            cursor_acp_lock.held = true
+            return true
+        end
+        if holder_is_alive(holder) then
+            return false, holder
+        end
+        return false, holder
+    end
+
+    local self = cursor_acp_self()
+    vim.fn.writefile({ vim.json.encode(self) }, cursor_acp_lock.dir .. "/holder.json")
+    cursor_acp_lock.held = true
+    return true
+end
+
+local function format_cursor_acp_busy(holder)
+    local where = holder and holder.cwd or "another Neovim"
+    local pid = holder and holder.pid
+    if pid then
+        return string.format(
+            "CodeCompanion: Cursor ACP is already in use by nvim pid %s (%s). Close that instance to use it here.",
+            pid,
+            where
+        )
+    end
+    return "CodeCompanion: Cursor ACP is already in use by another Neovim. Close that instance to use it here."
+end
+
+local function requested_chat_adapter(args)
+    args = args or {}
+    local adapter = args.adapter
+        or (args.params and args.params.adapter)
+        or require("codecompanion.config").interactions.chat.adapter
+    if type(adapter) == "table" then
+        return adapter.name
+    end
+    return adapter
 end
 
 local function toggle_chat(adapter_name, formatted_name)
@@ -623,16 +766,48 @@ return {
         -- Expand 'cc' into 'CodeCompanion' in command line
         vim.cmd([[cab cc CodeCompanion]])
 
+        -- Refuse to start a second Cursor ACP from another nvim. Reopening an
+        -- existing chat in this instance is always allowed.
+        local codecompanion = require("codecompanion")
+        local orig_chat = codecompanion.chat
+        codecompanion.chat = function(args)
+            args = args or {}
+            local silent = args._cursor_lock_silent
+            args._cursor_lock_silent = nil
+            local adapter_name = requested_chat_adapter(args)
+            if adapter_name == "cursor_cli" and not find_chat("cursor_cli") then
+                local ok, holder = claim_cursor_acp()
+                if not ok then
+                    if not silent then
+                        vim.notify(format_cursor_acp_busy(holder), vim.log.levels.WARN)
+                    end
+                    return nil
+                end
+            end
+            return orig_chat(args)
+        end
+
+        vim.api.nvim_create_autocmd("VimLeavePre", {
+            group = vim.api.nvim_create_augroup("BidhovCursorAcpLock", { clear = true }),
+            callback = release_cursor_acp_lock,
+        })
+
         -- Pre-warm the default Cursor ACP session so it is ready before you open the chat.
         -- The chat is created hidden; <leader>cc restores it (find_chat reuses it).
+        -- Skip silently if another nvim already holds Cursor ACP.
         vim.defer_fn(function()
             if find_chat("cursor_cli") then
                 return
             end
+            local ok = claim_cursor_acp()
+            if not ok then
+                return
+            end
             local win = vim.api.nvim_get_current_win()
-            local chat = require("codecompanion").chat({
+            local chat = codecompanion.chat({
                 params = { adapter = "cursor_cli" },
                 approval_mode = acp_approval_mode.cursor_cli or "ask",
+                _cursor_lock_silent = true,
             })
             if chat then
                 chat.ui:hide()

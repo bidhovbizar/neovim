@@ -61,6 +61,14 @@ local function find_chat(adapter_name)
     return found
 end
 
+local function acp_session_ready(chat)
+    return chat
+        and chat.adapter
+        and chat.adapter.type == "acp"
+        and chat.acp_connection
+        and chat.acp_connection.session_id
+end
+
 local function toggle_chat(adapter_name, formatted_name)
     local codecompanion = require("codecompanion")
     local chat = find_chat(adapter_name)
@@ -96,7 +104,8 @@ end
 
 local function resume_acp_chat(adapter_name)
     local codecompanion = require("codecompanion")
-    local current = codecompanion.buf_get_chat(0) or codecompanion.last_chat()
+    -- Prefer the current chat buffer; do not call last_chat() (it can close an unloaded session).
+    local current = codecompanion.buf_get_chat(0)
     remember_approval(current)
     if not adapter_name then
         if current and current.adapter and current.adapter.type == "acp" then
@@ -107,28 +116,110 @@ local function resume_acp_chat(adapter_name)
     end
 
     local formatted = adapter_name == "codex" and "Codex" or "Cursor"
-    local group = vim.api.nvim_create_augroup("BidhovCodeCompanionResume", { clear = true })
-    local resumed = false
 
-    -- Wait until session/new finishes so /resume does not race it.
-    vim.api.nvim_create_autocmd("User", {
-        group = group,
-        pattern = "CodeCompanionACPSessionPost",
-        once = true,
-        callback = function()
-            resumed = true
-            local chat = codecompanion.last_chat()
-            if not chat then
-                return vim.notify("CodeCompanion: could not open " .. formatted .. " chat", vim.log.levels.WARN)
-            end
-            require("codecompanion.interactions.chat.slash_commands").new():execute({
+    local function run_resume(chat)
+        if not chat then
+            return vim.notify("CodeCompanion: could not open " .. formatted .. " chat", vim.log.levels.WARN)
+        end
+        if chat.ui and not chat.ui:is_visible() then
+            codecompanion.restore(chat.bufnr)
+        else
+            chat.ui:open()
+        end
+        -- Builtin /resume refuses a chat that already has messages. Load on this
+        -- connection anyway; picking a session replaces the buffer, cancel keeps it.
+        if not chat.acp_connection then
+            return require("codecompanion.interactions.chat.slash_commands").new():execute({
                 label = "/resume",
                 type = "slash_command",
                 config = require("codecompanion.config").interactions.chat.slash_commands.resume,
             }, chat)
-        end,
-    })
+        end
+        local listed = chat.acp_connection:session_list({ max_sessions = 500 })
+        if #listed == 0 then
+            return vim.notify("CodeCompanion: no previous sessions found", vim.log.levels.INFO)
+        end
+        local utils = require("codecompanion.utils")
+        local choices, session_map = {}, {}
+        for i, session in ipairs(listed) do
+            local parts = {}
+            if session.updatedAt then
+                local ts = utils.timestamp_from_iso(session.updatedAt)
+                if ts then
+                    table.insert(parts, "(" .. utils.make_relative(ts) .. ")")
+                end
+            end
+            table.insert(parts, session.title or session.sessionId)
+            choices[i] = table.concat(parts, " ")
+            session_map[i] = session
+        end
+        vim.ui.select(choices, {
+            prompt = "Resume Session",
+            kind = "codecompanion.nvim",
+        }, function(_, idx)
+            if not idx then
+                return
+            end
+            local selected = session_map[idx]
+            local updates = {}
+            local ok = chat.acp_connection:load_session(selected.sessionId, {
+                on_session_update = function(update)
+                    table.insert(updates, update)
+                end,
+            })
+            if not ok then
+                return vim.notify("Failed to load session", vim.log.levels.ERROR)
+            end
+            require("codecompanion.interactions.chat.acp.commands").link_buffer_to_session(
+                chat.bufnr,
+                chat.acp_connection.session_id
+            )
+            require("codecompanion.interactions.chat.acp.render").restore_session(chat, updates)
+            if selected.title then
+                chat:set_title(selected.title)
+            end
+            vim.notify("Resumed session: " .. (selected.title or selected.sessionId), vim.log.levels.INFO)
+        end)
+    end
 
+    local function wait_then_resume(chat)
+        local group = vim.api.nvim_create_augroup("BidhovCodeCompanionResume", { clear = true })
+        local resumed = false
+
+        -- Wait until session/new finishes so /resume does not race it.
+        vim.api.nvim_create_autocmd("User", {
+            group = group,
+            pattern = "CodeCompanionACPSessionPost",
+            callback = function()
+                if not acp_session_ready(chat) then
+                    return
+                end
+                resumed = true
+                pcall(vim.api.nvim_del_augroup_by_id, group)
+                run_resume(chat)
+            end,
+        })
+
+        vim.defer_fn(function()
+            if not resumed then
+                pcall(vim.api.nvim_del_augroup_by_id, group)
+                vim.notify("CodeCompanion: ACP session was not ready for /resume", vim.log.levels.WARN)
+            end
+        end, 20000)
+    end
+
+    local existing = find_chat(adapter_name)
+    if existing then
+        if acp_session_ready(existing) then
+            return run_resume(existing)
+        end
+        if existing.ui and not existing.ui:is_visible() then
+            codecompanion.restore(existing.bufnr)
+        end
+        return wait_then_resume(existing)
+    end
+
+    -- No connected chat for this adapter: open one, then run /resume.
     local chat = codecompanion.chat({
         params = { adapter = adapter_name },
         approval_mode = last_acp_approval_mode[adapter_name]
@@ -136,20 +227,15 @@ local function resume_acp_chat(adapter_name)
             or "ask",
     })
     if not chat then
-        pcall(vim.api.nvim_del_augroup_by_id, group)
         return vim.notify("CodeCompanion: could not open " .. formatted .. " chat", vim.log.levels.WARN)
     end
-
-    vim.defer_fn(function()
-        if not resumed then
-            pcall(vim.api.nvim_del_augroup_by_id, group)
-            vim.notify("CodeCompanion: ACP session was not ready for /resume", vim.log.levels.WARN)
-        end
-    end, 20000)
+    wait_then_resume(chat)
 end
 
 return {
     "olimorris/codecompanion.nvim",
+    -- v20+ requires Neovim 0.12+; stay on the last 19.x release for Neovim 0.11.
+    version = "^19.0.0",
     dependencies = {
         { "nvim-lua/plenary.nvim" },
         {
@@ -182,7 +268,6 @@ return {
             end,
         },
     },
-    version = "*",
     opts = {
         adapters = {
             http = {
@@ -361,7 +446,7 @@ return {
         },
         display = {
             chat = {
-                intro_message = "Welcome to CodeCompanion ✨! Press g? for help ✨! gtx to change mode <leader>gm to change model/mode",
+                intro_message = "Welcome to CodeCompanion ✨! g? help | ga model | <leader>cm mode (Agent/Plan/Ask) | gty approval (Ask/Auto/YOLO)",
                 separator = "-",              -- The separator between the different messages in the chat buffer
                 show_context = true,          -- Show context (from slash commands and variables) in the chat buffer
                 show_header_separator = true, -- Show header separators in the chat buffer? Set this to false if you're using an external markdown formatting plugin
@@ -516,7 +601,7 @@ return {
         -- CodeCompanion Help
         { "<leader>ch", "<cmd>help CodeCompanion<cr>",       mode = "n",          desc = "cc Open CodeCompanion Documentation" },
 
-        -- Resume an ACP session in a fresh chat (current ACP adapter, else Cursor)
+        -- Resume an ACP session on the connected chat (current ACP adapter, else Cursor)
         { "<leader>cr", function()
             resume_acp_chat()
         end, mode = "n", desc = "cc Resume ACP session" },
@@ -560,6 +645,242 @@ return {
         -- ACP session startup can be slow. Enter during auth races it and kills the session.
         -- Block send until session_id exists, and show status in the chat winbar (not :messages).
         local group = vim.api.nvim_create_augroup("BidhovCodeCompanionStatus", { clear = true })
+        local ns_user_model = vim.api.nvim_create_namespace("BidhovCodeCompanionUserModel")
+
+        local function get_chat_model(chat)
+            if not chat then
+                return nil
+            end
+
+            -- 1. Check ACP connection if available
+            if chat.acp_connection then
+                -- Check get_config_options first (updated by /acp_session_options)
+                if chat.acp_connection.get_config_options then
+                    local ok, opts_list = pcall(chat.acp_connection.get_config_options, chat.acp_connection)
+                    if ok and type(opts_list) == "table" then
+                        for _, opt in ipairs(opts_list) do
+                            if (opt.id == "model" or opt.category == "model") and opt.currentValue then
+                                if opt.options then
+                                    for _, o in ipairs(opt.options) do
+                                        if o.value == opt.currentValue then
+                                            return o.name or o.value
+                                        end
+                                    end
+                                end
+                                return opt.currentValue
+                            end
+                        end
+                    end
+                end
+
+                -- Check get_models
+                if chat.acp_connection.get_models then
+                    local ok, m = pcall(chat.acp_connection.get_models, chat.acp_connection)
+                    if ok and m and m.currentModelId then
+                        if m.availableModels then
+                            for _, am in ipairs(m.availableModels) do
+                                if am.modelId == m.currentModelId then
+                                    return am.name or am.modelId
+                                end
+                            end
+                        end
+                        return m.currentModelId
+                    end
+                end
+            end
+
+            -- 2. Check metadata table
+            if chat.bufnr and _G.codecompanion_chat_metadata then
+                local meta = _G.codecompanion_chat_metadata[chat.bufnr]
+                if meta then
+                    if meta.config_options and meta.config_options.model and meta.config_options.model.name then
+                        return meta.config_options.model.name
+                    end
+                    if meta.adapter and meta.adapter.model and meta.adapter.model ~= "default" then
+                        return meta.adapter.model
+                    end
+                end
+            end
+
+            -- 3. Check adapter settings/schema/model
+            local adapter = chat.adapter
+            if adapter then
+                if adapter.schema and adapter.schema.model and adapter.schema.model.default then
+                    return adapter.schema.model.default
+                end
+                if adapter.model then
+                    if type(adapter.model) == "table" and adapter.model.default then
+                        return adapter.model.default
+                    elseif type(adapter.model) == "string" then
+                        return adapter.model
+                    end
+                end
+            end
+
+            return nil
+        end
+
+        local function format_model_display(model)
+            if not model or model == "" or model == "default" then
+                return nil
+            end
+            if model:lower():match("^auto") then
+                return "auto"
+            end
+            local clean = model:gsub("%[.-%]", ""):gsub("%s+$", "")
+            return clean ~= "" and clean or model
+        end
+
+        -- ACP session mode from the agent's "mode" config option: Agent | Plan | Ask
+        local function get_chat_session_mode(chat)
+            if not (chat.acp_connection and chat.acp_connection.get_config_options) then
+                return nil
+            end
+            local ok, opts_list = pcall(chat.acp_connection.get_config_options, chat.acp_connection)
+            if not ok or type(opts_list) ~= "table" then
+                return nil
+            end
+            for _, opt in ipairs(opts_list) do
+                if (opt.id == "mode" or opt.category == "mode") and opt.currentValue then
+                    for _, o in ipairs(opt.options or {}) do
+                        if o.value == opt.currentValue then
+                            return o.name or o.value
+                        end
+                    end
+                    return opt.currentValue
+                end
+            end
+            return nil
+        end
+
+        -- CodeCompanion tool approval for this buffer (changed with gty): Ask | Auto | YOLO
+        local approval_labels = { ask = "Ask", auto = "Auto", yolo = "YOLO" }
+        local function get_chat_approval(chat)
+            if not chat.bufnr then
+                return nil
+            end
+            local ok, approvals = pcall(require, "codecompanion.interactions.chat.tools.approvals")
+            if not ok then
+                return nil
+            end
+            local mode = approvals:get_mode(chat.bufnr)
+            return approval_labels[mode] or mode
+        end
+
+        -- Text shown after the user header: " (model) [session mode | approval]"
+        local function get_header_status(chat)
+            local model = format_model_display(get_chat_model(chat))
+            local text = model and (" (" .. model .. ")") or ""
+            local flags = {}
+            if chat.adapter and chat.adapter.type == "acp" then
+                local mode = get_chat_session_mode(chat)
+                if mode then
+                    table.insert(flags, mode)
+                end
+            end
+            local approval = get_chat_approval(chat)
+            if approval then
+                table.insert(flags, approval)
+            end
+            if #flags > 0 then
+                text = text .. " [" .. table.concat(flags, " | ") .. "]"
+            end
+            return text ~= "" and text or nil
+        end
+
+        local function update_user_model_header(bufnr)
+            if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+                return
+            end
+            local ok, codecompanion = pcall(require, "codecompanion")
+            if not ok then
+                return
+            end
+            local chat = codecompanion.buf_get_chat(bufnr)
+            if not chat then
+                return
+            end
+
+            local model_text = get_header_status(chat)
+            if not model_text then
+                vim.api.nvim_buf_clear_namespace(bufnr, ns_user_model, 0, -1)
+                return
+            end
+            local model_len = vim.fn.strwidth(model_text)
+            local separator = require("codecompanion.config").display.chat.separator or "-"
+            local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+            vim.api.nvim_buf_clear_namespace(bufnr, ns_user_model, 0, -1)
+
+            local ns_header = vim.api.nvim_create_namespace("CodeCompanion-headers")
+            local user_role = (chat.roles and chat.roles.user)
+                or (chat.ui and chat.ui.roles and chat.ui.roles.user)
+                or "Bidhov"
+
+            for line_idx, content in ipairs(lines) do
+                if content:match("^##%s+" .. vim.pesc(user_role)) then
+                    local role_end = content:find("%s*" .. vim.pesc(separator) .. "$") or (#content + 1)
+                    local insert_col = role_end - 1
+
+                    -- Clear CodeCompanion's default separator extmark on this line so it doesn't overwrite
+                    vim.api.nvim_buf_clear_namespace(bufnr, ns_header, line_idx - 1, line_idx)
+
+                    -- Add inline model extmark right beside the user name
+                    vim.api.nvim_buf_set_extmark(bufnr, ns_user_model, line_idx - 1, insert_col, {
+                        virt_text_pos = "inline",
+                        virt_text = { { model_text, "Special" } },
+                        priority = 150,
+                    })
+
+                    -- Header highlight up to insert_col
+                    vim.api.nvim_buf_set_extmark(bufnr, ns_user_model, line_idx - 1, 0, {
+                        end_col = insert_col,
+                        hl_group = "CodeCompanionChatHeader",
+                    })
+
+                    -- Re-add shifted separator
+                    local orig_col = vim.fn.strwidth(content) - vim.fn.strwidth(separator)
+                    local shifted_win_col = orig_col + model_len
+                    vim.api.nvim_buf_set_extmark(bufnr, ns_user_model, line_idx - 1, orig_col, {
+                        virt_text_win_col = shifted_win_col,
+                        virt_text = { { string.rep(separator, vim.go.columns), "CodeCompanionChatSeparator" } },
+                        priority = 100,
+                    })
+                end
+            end
+        end
+
+        -- Wrap UI.render_headers so that anytime CodeCompanion re-renders headers,
+        -- the user model decoration is automatically applied and kept in sync.
+        local ok_ui, UI = pcall(require, "codecompanion.interactions.chat.ui")
+        if ok_ui and UI and UI.render_headers then
+            local orig_render_headers = UI.render_headers
+            UI.render_headers = function(self)
+                orig_render_headers(self)
+                pcall(update_user_model_header, self.chat_bufnr)
+            end
+        end
+
+        -- Refresh the header when the agent's session mode/model changes (update_metadata runs after those)...
+        local ok_chat, Chat = pcall(require, "codecompanion.interactions.chat")
+        if ok_chat and Chat and Chat.update_metadata then
+            local orig_update_metadata = Chat.update_metadata
+            Chat.update_metadata = function(self, ...)
+                local result = orig_update_metadata(self, ...)
+                pcall(update_user_model_header, self.bufnr)
+                return result
+            end
+        end
+
+        -- ...and when the approval mode changes (gty, toggle, or set on chat creation).
+        local ok_appr, Approvals = pcall(require, "codecompanion.interactions.chat.tools.approvals")
+        if ok_appr and Approvals and Approvals.set_mode then
+            local orig_set_mode = Approvals.set_mode
+            Approvals.set_mode = function(self, bufnr, opts)
+                orig_set_mode(self, bufnr, opts)
+                pcall(update_user_model_header, bufnr)
+            end
+        end
 
         local function set_acp_winbar(bufnr, text, hl)
             if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
@@ -571,14 +892,6 @@ return {
                     vim.wo[win].winbar = "%#" .. (hl or "WarningMsg") .. "#" .. text
                 end
             end
-        end
-
-        local function acp_session_ready(chat)
-            return chat
-                and chat.adapter
-                and chat.adapter.type == "acp"
-                and chat.acp_connection
-                and chat.acp_connection.session_id
         end
 
         vim.api.nvim_create_autocmd("User", {
@@ -686,8 +999,29 @@ return {
                 local chat = require("codecompanion").last_chat()
                 if chat and chat.adapter.type == "acp" then
                     local name = chat.adapter.formatted_name or chat.adapter.name or "ACP agent"
-                    vim.notify("CodeCompanion: " .. name .. " session ready", vim.log.levels.INFO)
-                    set_acp_winbar(chat.bufnr, name .. " ready — press Enter", "DiagnosticOk")
+                    local model_disp = format_model_display(get_chat_model(chat))
+                    local status_model = model_disp and (" (" .. model_disp .. ")") or ""
+                    vim.notify("CodeCompanion: " .. name .. status_model .. " session ready", vim.log.levels.INFO)
+                    set_acp_winbar(chat.bufnr, name .. status_model .. " ready — press Enter", "DiagnosticOk")
+                    pcall(update_user_model_header, chat.bufnr)
+                end
+            end,
+        })
+
+        vim.api.nvim_create_autocmd("User", {
+            group = group,
+            pattern = "CodeCompanionChatModel",
+            callback = function(args)
+                local bufnr = args and args.data and args.data.bufnr
+                if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
+                    local chat = require("codecompanion").buf_get_chat(bufnr)
+                    if chat and acp_session_ready(chat) then
+                        local name = chat.adapter.formatted_name or chat.adapter.name or "ACP agent"
+                        local model_disp = format_model_display(get_chat_model(chat))
+                        local status_model = model_disp and (" (" .. model_disp .. ")") or ""
+                        set_acp_winbar(chat.bufnr, name .. status_model .. " ready — press Enter", "DiagnosticOk")
+                    end
+                    pcall(update_user_model_header, bufnr)
                 end
             end,
         })

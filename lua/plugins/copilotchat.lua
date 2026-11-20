@@ -207,10 +207,10 @@ return {
             })
         end,
         keys = {
-            { "<leader>cc", "<cmd>CopilotChat<CR>", mode = { "n", "v" }, desc = "Chat with Copilot" },
+            { "<leader>CC", "<cmd>CopilotChat<CR>", mode = { "n", "v" }, desc = "Chat with Copilot" },
             { "<leader>cx", "<cmd>delmarks < ><CR>", mode = "n", desc = "Clear selection marks in buffer" },
-            { "<leader>cg", "<cmd>CopilotChat /reviewgitchanges<CR>", mode = "n", desc = "Review Git Changes" },
-            { "<leader>co", "<cmd>CopilotChat /commentonchanges<CR>", mode = "n", desc = "Comment on Changes" },
+            { "<leader>cG", "<cmd>CopilotChat /reviewgitchanges<CR>", mode = "n", desc = "Review Git Changes" },
+            { "<leader>cO", "<cmd>CopilotChat /commentonchanges<CR>", mode = "n", desc = "Comment on Changes" },
             { "<leader>cs", "<cmd>CopilotChatSave<CR>", mode = "n", desc = "Save Copilot Chat" },
             { "<leader>cl", "<cmd>CopilotChatLoadTracked<CR>", mode = "n", desc = "Load Copilot Chat" },
             --{ "<leader>cm", "<cmd>CopilotChatCommit<CR>",   mode = { "n", "v"},   desc = "Generate Commit Message" },

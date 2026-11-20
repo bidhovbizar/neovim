@@ -32,34 +32,81 @@ local function run_prompt_in_chat(alias)
     end
 end
 
-local function find_codex_chat()
+-- Per-adapter approval for a new chat. Change it later in the buffer with `gty`.
+local acp_approval_mode = {
+    cursor_cli = "ask",
+    codex = "auto",
+}
+
+-- Last `gty` choice per adapter, restored when resuming (not when opening a new chat).
+local last_acp_approval_mode = {}
+
+local function remember_approval(chat)
+    if not chat or not chat.adapter or chat.adapter.type ~= "acp" then
+        return
+    end
+    last_acp_approval_mode[chat.adapter.name] =
+        require("codecompanion.interactions.chat.tools.approvals"):get_mode(chat.bufnr)
+end
+
+local function find_chat(adapter_name)
     -- Do not call last_chat() first: if :q unloaded the buffer, last_chat() destroys the session.
     local found
     for _, entry in ipairs(require("codecompanion").buf_get_chat()) do
         local chat = entry.chat
-        if chat.adapter and chat.adapter.name == "codex" and vim.api.nvim_buf_is_valid(chat.bufnr) then
+        if chat.adapter and chat.adapter.name == adapter_name and vim.api.nvim_buf_is_valid(chat.bufnr) then
             found = chat
         end
     end
     return found
 end
 
-local function toggle_codex_chat()
+local function toggle_chat(adapter_name, formatted_name)
     local codecompanion = require("codecompanion")
-    local chat = find_codex_chat()
+    local chat = find_chat(adapter_name)
     if not chat then
-        return codecompanion.chat({ params = { adapter = "codex" } })
+        return codecompanion.chat({
+            params = { adapter = adapter_name },
+            approval_mode = acp_approval_mode[adapter_name] or "ask",
+        })
     end
     if chat.ui:is_visible() then
-        vim.notify("CodeCompanion: hiding Codex chat", vim.log.levels.INFO)
+        remember_approval(chat)
+        vim.notify("CodeCompanion: hiding " .. formatted_name .. " chat", vim.log.levels.INFO)
         return chat.ui:hide()
     end
-    vim.notify("CodeCompanion: reopening Codex chat", vim.log.levels.INFO)
+    vim.notify("CodeCompanion: reopening " .. formatted_name .. " chat", vim.log.levels.INFO)
     return codecompanion.restore(chat.bufnr)
 end
 
-local function resume_acp_chat()
+-- Open the ACP session options picker (Agent/Plan/Ask, model, reasoning, ...) for the current chat.
+local function acp_session_options()
     local codecompanion = require("codecompanion")
+    local chat = codecompanion.buf_get_chat(0) or codecompanion.last_chat()
+    if not chat or not chat.adapter or chat.adapter.type ~= "acp" then
+        return vim.notify("CodeCompanion: open an ACP chat first (<leader>cc or <leader>cC)", vim.log.levels.WARN)
+    end
+    chat.ui:open()
+    require("codecompanion.interactions.chat.slash_commands").run({
+        label = "/acp_session_options",
+        type = "slash_command",
+        config = require("codecompanion.config").interactions.chat.slash_commands["acp_session_options"],
+    }, chat)
+end
+
+local function resume_acp_chat(adapter_name)
+    local codecompanion = require("codecompanion")
+    local current = codecompanion.buf_get_chat(0) or codecompanion.last_chat()
+    remember_approval(current)
+    if not adapter_name then
+        if current and current.adapter and current.adapter.type == "acp" then
+            adapter_name = current.adapter.name
+        else
+            adapter_name = "cursor_cli"
+        end
+    end
+
+    local formatted = adapter_name == "codex" and "Codex" or "Cursor"
     local group = vim.api.nvim_create_augroup("BidhovCodeCompanionResume", { clear = true })
     local resumed = false
 
@@ -72,7 +119,7 @@ local function resume_acp_chat()
             resumed = true
             local chat = codecompanion.last_chat()
             if not chat then
-                return vim.notify("CodeCompanion: could not open Codex chat", vim.log.levels.WARN)
+                return vim.notify("CodeCompanion: could not open " .. formatted .. " chat", vim.log.levels.WARN)
             end
             require("codecompanion.interactions.chat.slash_commands").new():execute({
                 label = "/resume",
@@ -82,10 +129,15 @@ local function resume_acp_chat()
         end,
     })
 
-    local chat = codecompanion.chat({ params = { adapter = "codex" } })
+    local chat = codecompanion.chat({
+        params = { adapter = adapter_name },
+        approval_mode = last_acp_approval_mode[adapter_name]
+            or acp_approval_mode[adapter_name]
+            or "ask",
+    })
     if not chat then
         pcall(vim.api.nvim_del_augroup_by_id, group)
-        return vim.notify("CodeCompanion: could not open Codex chat", vim.log.levels.WARN)
+        return vim.notify("CodeCompanion: could not open " .. formatted .. " chat", vim.log.levels.WARN)
     end
 
     vim.defer_fn(function()
@@ -133,43 +185,35 @@ return {
     version = "*",
     opts = {
         adapters = {
-            copilot = {
-                opts = {
-                    show_model_choices = true,
-                },
+            http = {
+                copilot = function()
+                    return require("codecompanion.adapters").extend("copilot", {
+                        opts = {
+                            show_model_choices = true,
+                        },
+                    })
+                end,
             },
             acp = {
                 codex = function()
                     return require("codecompanion.adapters").extend("codex", {
-                        env = {
-                            -- Use the `codex` on PATH (npm pin), not a CLI bundled inside codex-acp.
-                            CODEX_PATH = function()
-                                return vim.fn.exepath("codex")
-                            end,
-                        },
                         defaults = {
                             -- This `codex-acp` advertises chat-gpt (not chatgpt).
                             auth_method = "chat-gpt",
-                            -- gpt-6-astra is Codex CLI's new default and is API-key only.
-                            session_config_options = {
-                                model = "gpt-5.6-sol",
-                                -- remember if you give gty in chat buffer it will accept everything
-                                -- mode = "Full Access",
-                            },
+                            -- press `ga` to list models the agent currently offers, then pick one.
+                            -- `/acp_session_options` can also change the model mid-session.
+                            -- Uncomment to chose a specific model you get from ga
+                            -- session_config_options = {
+                            --     model = "gpt-5.6-sol",
+                            -- },
                         },
                     })
                 end,
             },
         },
-        --interactions = {
-            --    chat = {
-                --        adapter = {
-                    --            name = "codex",
-                    --            model = "gpt-5.4",
-                    --        },
-        --    },
-        --},
-        strategies = {
+        -- `strategies` was renamed to `interactions` in CodeCompanion v18.0.0.
+        -- Do not keep both keys: if `strategies` is present, it replaces this table.
+        interactions = {
             chat = {
                 roles = {
                     user = "Bidhov",
@@ -177,15 +221,19 @@ return {
                         return "CodeCompanion (" .. adapter.formatted_name .. ")"
                     end,
                 },
-                adapter = {
-                    -- Uncomment the adapter you want
-                    -- Copilot
-                    name = "copilot",
-                    model = "gpt-5.6-sol",
+                -- Uncomment the following for copilot chat adapter
+                --adapter = {
+                --    -- Uncomment the adapter you want
+                --    -- Copilot
+                --    name = "copilot",
+                --    model = "gpt-5.6-sol",
 
-                    --Codex
-                    --name = "codex",
-                },
+                --    --Codex
+                --    --name = "codex",
+                --},
+                -- Default chat is Cursor. Press `ga` in the chat buffer to list
+                -- models (and switch adapter). Do not pin a model here.
+                adapter = "cursor_cli",
                 keymaps = {
                     options = {
                         modes = { n = "g?" }, -- Change from ? to g?
@@ -196,7 +244,7 @@ return {
                 },
                 slash_commands = {
                     ["file"] = {
-                        --callback = "strategies.chat.slash_commands.file",
+                        --callback = "interactions.chat.slash_commands.file",
                         description = "Select a file using Telescope",
                         opts = {
                             provider = "telescope", -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks"
@@ -204,61 +252,47 @@ return {
                         },
                     },
                 },
-                variables = {
+            },
+            inline = {
+                adapter = {
+                    -- Keeping copilot for inline as codex and cursor is an ACP adapter; inline interactions require HTTP.
+                    name = "copilot",
+                    -- Commenting models it takes default value
+                    --model = "gpt-5.6-sol",
+                },
+            },
+            -- Used by the Auto-mode tools judge. Chat titles stay off unless
+            -- background.chat.opts.enabled is set true. Needs an HTTP adapter.
+            background = {
+                adapter = {
+                    name = "copilot",
+                    -- Commenting models it takes default value
+                    -- model = "gpt-5.6-sol",
+                },
+            },
+            shared = {
+                editor_context = {
                     ["buffer"] = {
                         opts = {
-                            -- While using #buffer in CodeCompanion chat the context can be controlled with:
-                            -- pin: Is used to pins the entire buffer (sends entire buffer on changes)
-                            -- watch: Is used to watches the change in the buffer (sends only diffs on changes)
-                            pin = true,
+                            -- Used by #{buffer}. Accepted values:
+                            --   "all"  send the whole buffer (works without git)
+                            --   "diff" send only changes since it was last shared
+                            -- Override in a message with #{buffer}{all} or #{buffer}{diff}.
+                            default_params = "all",
                         },
                     },
                 },
             },
-            inline = {
-                adapter = {
-                    -- Uncomment the adapter you want
-                    -- copilot
-                    name = "copilot",
-                    model = "gpt-5.6-sol",
-                    --model = 'claude-sonnet-5', -- This is thinking model which is slow
-
-                    -- codex
-                    --name = "codex",
-                },
-                keymaps = {
-                    accept_change = {
-                        modes = { n = "ct" }, -- To accept incoming change
-                    },
-                    reject_change = {
-                        modes = { n = "co" }, -- To reject incoming change
-                    },
-                    always_accept = {
-                        modes = { n = "cT" }, -- To accept all incoming changes without further prompts
-                    },
-                },
-            },
-            agent = {
-                adapter = {
-                    -- Uncomment the adapter you want
-                    -- copilot
-                    name = "copilot",
-                    model = "gpt-5.6-sol",
-                    --model = 'claude-sonnet-5', -- This is thinking model which is slow
-
-                    -- codex
-                    --name = "codex",
-                },
-            },
-        },
-        memory = {
-            enabled = true,
         },
         prompt_library = {
             ["Comment On Changes"] = {
-                strategy = "chat",
+                interaction = "chat",
                 description = "Review current buffer for issues and verify against prior discussion",
                 opts = {
+                    -- To force use of an adapter uncomment
+                    --adapter = {
+                    --    name = "codex",  -- Use Codex: "codex" or Cursor: "cursor_cli"
+                    --},
                     alias = "commentonchanges",
                     auto_submit = true,
                     is_slash_cmd = true,
@@ -271,9 +305,13 @@ return {
                 },
             },
             ["Review Git Changes"] = {
-                strategy = "chat",
+                interaction = "chat",
                 description = "Review all git changes across the repo",
                 opts = {
+                    -- To force use of an adapter uncomment
+                    --adapter = {
+                    --    name = "codex",  -- Use Codex: "codex" or Cursor: "cursor_cli"
+                    --},
                     alias = "reviewgitchanges",
                     auto_submit = true,
                     is_slash_cmd = true,
@@ -286,12 +324,13 @@ return {
                 },
             },
             ["Cisco Code Review"] = {
-                strategy = "chat",
+                interaction = "chat",
                 description = "Cisco Code Review",
                 opts = {
-                    adapter = {
-                        name = "codex",  -- Use Codex instead of default
-                    },
+                    -- To force use of an adapter uncomment
+                    --adapter = {
+                    --    name = "codex",  -- Use Codex: "codex" or Cursor: "cursor_cli"
+                    --},
                     modes = { "v" },
                     alias = "ciscocodereview",
                     auto_submit = true,
@@ -322,7 +361,7 @@ return {
         },
         display = {
             chat = {
-                intro_message = "Welcome to CodeCompanion ✨! Press ? for help",
+                intro_message = "Welcome to CodeCompanion ✨! Press g? for help ✨! gtx to change mode <leader>gm to change model/mode",
                 separator = "-",              -- The separator between the different messages in the chat buffer
                 show_context = true,          -- Show context (from slash commands and variables) in the chat buffer
                 show_header_separator = true, -- Show header separators in the chat buffer? Set this to false if you're using an external markdown formatting plugin
@@ -332,7 +371,9 @@ return {
                 start_in_insert_mode = false, -- Open the chat buffer in insert mode?
                 auto_scroll = true,           -- Automatically scroll to the bottom of the chat buffer on new messages
                 fold_context = false,         -- Fold context messages by default if set to true
-                fold_reasoning = false,       -- Fold reasoning messages by default if set to true
+                --show_reasoning = false,     -- don't render reasoning at all
+                fold_reasoning = true,        -- Fold reasoning messages by default if set to true
+                show_tools_processing = false, -- hide the "processing tools" loader line
                 icons = {
                     chat_context = "📎 ",
                     chat_fold = " ",
@@ -437,11 +478,30 @@ return {
         { "<leader>cA", "<cmd>CodeCompanionActions<cr>",     mode = { "n", "v" }, desc = "cc list all code actions" },
 
         -- Toggle chat buffer
-        { "<leader>CC", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "cc Toggle Chat copilot" },
+        -- In chat:
+        -- | `g?` | Options menu (your config moved it from `?`) |
+        -- | `ga` | Change adapter and model (lists the agent's models) |
+        -- | `gty` | Pick approval mode: Ask, Auto, or YOLO |
+        -- | `gtx` | Reset cached approvals |
+        -- | `gr` | Regenerate last response |
+        -- | `q` | Stop the current request |
+        -- | `gm` | Send a follow-up while the agent is streaming |
+        -- | `gx` | Clear all messages |
+        -- | `<C-c>` | Close the chat |
+        -- | `{` / `}` | Previous / next chat |
+        -- | `]]` / `[[` | Next / previous header |
+        { "<leader>cc", function()
+            toggle_chat("cursor_cli", "Cursor")
+        end, mode = { "n", "v" }, desc = "cc Toggle Cursor Chat" },
         -- Open chat with Codex explicitly
         { "<leader>cC", function()
-            toggle_codex_chat()
+            toggle_chat("codex", "Codex")
         end, mode = { "n", "v" }, desc = "cc Chat with Codex" },
+
+        -- Pick the agent's session mode (Agent/Plan/Ask), model, etc. for the current ACP chat
+        { "<leader>cm", function()
+            acp_session_options()
+        end, mode = "n", desc = "cc Session mode/model options" },
 
         -- Add visual selection to chat
         { "<leader>ca", "<cmd>CodeCompanionChat Add<cr>",    mode = "v",          desc = "cc add to Chat" },
@@ -456,35 +516,56 @@ return {
         -- CodeCompanion Help
         { "<leader>ch", "<cmd>help CodeCompanion<cr>",       mode = "n",          desc = "cc Open CodeCompanion Documentation" },
 
-        -- Resume an ACP session in a fresh Codex chat
+        -- Resume an ACP session in a fresh chat (current ACP adapter, else Cursor)
         { "<leader>cr", function()
             resume_acp_chat()
         end, mode = "n", desc = "cc Resume ACP session" },
 
         -- Custom prompts (using different keys to avoid copilotchat conflicts)
-        { "<leader>cG", function()
+        { "<leader>cg", function()
             run_prompt_in_chat("reviewgitchanges")
         end, mode = "n", desc = "cc Review Git Changes" },
-        { "<leader>cO", function()
+        { "<leader>co", function()
             run_prompt_in_chat("commentonchanges")
         end, mode = "n", desc = "cc Comment on Changes" },
 
     },
+    -- Load at startup (not only on first key) so the Cursor ACP session can warm up in the background.
+    event = "VeryLazy",
     config = function(_, opts)
         require("codecompanion").setup(opts)
 
         -- Expand 'cc' into 'CodeCompanion' in command line
         vim.cmd([[cab cc CodeCompanion]])
 
-        -- Codex ACP: session/new is slow. Enter during auth races it and kills the session.
+        -- Pre-warm the default Cursor ACP session so it is ready before you open the chat.
+        -- The chat is created hidden; <leader>cc restores it (find_chat reuses it).
+        vim.defer_fn(function()
+            if find_chat("cursor_cli") then
+                return
+            end
+            local win = vim.api.nvim_get_current_win()
+            local chat = require("codecompanion").chat({
+                params = { adapter = "cursor_cli" },
+                approval_mode = acp_approval_mode.cursor_cli or "ask",
+            })
+            if chat then
+                chat.ui:hide()
+            end
+            if vim.api.nvim_win_is_valid(win) then
+                vim.api.nvim_set_current_win(win)
+            end
+        end, 500)
+
+        -- ACP session startup can be slow. Enter during auth races it and kills the session.
         -- Block send until session_id exists, and show status in the chat winbar (not :messages).
         local group = vim.api.nvim_create_augroup("BidhovCodeCompanionStatus", { clear = true })
 
-        local function set_codex_winbar(bufnr, text, hl)
+        local function set_acp_winbar(bufnr, text, hl)
             if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
                 return
             end
-            vim.b[bufnr].codex_acp_status = text
+            -- vim.b[bufnr].acp_status = text
             for _, win in ipairs(vim.api.nvim_list_wins()) do
                 if vim.api.nvim_win_get_buf(win) == bufnr then
                     vim.wo[win].winbar = "%#" .. (hl or "WarningMsg") .. "#" .. text
@@ -514,7 +595,8 @@ return {
                 if chat.adapter.type ~= "acp" then
                     return
                 end
-                set_codex_winbar(chat.bufnr, "Codex connecting… wait, Enter is blocked", "WarningMsg")
+                local name = chat.adapter.formatted_name or chat.adapter.name or "ACP agent"
+                set_acp_winbar(chat.bufnr, name .. " connecting… wait, Enter is blocked", "WarningMsg")
                 chat:add_callback("on_before_submit", function(c)
                     if c.adapter.type ~= "acp" then
                         return
@@ -522,8 +604,9 @@ return {
                     if acp_session_ready(c) then
                         return
                     end
-                    set_codex_winbar(c.bufnr, "Codex still connecting… Enter is blocked", "WarningMsg")
-                    vim.notify("CodeCompanion: Codex session not ready, Enter is blocked", vim.log.levels.WARN)
+                    local adapter_name = c.adapter.formatted_name or c.adapter.name or "ACP agent"
+                    set_acp_winbar(c.bufnr, adapter_name .. " still connecting… Enter is blocked", "WarningMsg")
+                    vim.notify("CodeCompanion: " .. adapter_name .. " session not ready, Enter is blocked", vim.log.levels.WARN)
                     return false
                 end)
             end,
@@ -537,6 +620,7 @@ return {
                 if not chat then
                     return
                 end
+                remember_approval(chat)
                 vim.bo[bufnr].buflisted = true
                 vim.bo[bufnr].bufhidden = "hide"
             end,
@@ -551,12 +635,15 @@ return {
                 end
                 local bufnr = vim.api.nvim_win_get_buf(win)
                 local chat = require("codecompanion").buf_get_chat(bufnr)
-                if not chat or not chat.adapter or chat.adapter.name ~= "codex" then
+                if not chat or not chat.adapter or chat.adapter.type ~= "acp" then
                     return
                 end
+                remember_approval(chat)
                 vim.bo[bufnr].buflisted = true
                 vim.bo[bufnr].bufhidden = "hide"
-                vim.notify("CodeCompanion: Codex chat hidden, <leader>cC to reopen", vim.log.levels.INFO)
+                local reopen = chat.adapter.name == "codex" and "<leader>cC" or "<leader>cc"
+                local name = chat.adapter.formatted_name or chat.adapter.name
+                vim.notify("CodeCompanion: " .. name .. " chat hidden, " .. reopen .. " to reopen", vim.log.levels.INFO)
             end,
         })
 
@@ -583,10 +670,11 @@ return {
             group = group,
             pattern = "CodeCompanionACPSessionPre",
             callback = function()
-                vim.notify("CodeCompanion: Codex session starting, wait before pressing Enter...", vim.log.levels.INFO)
                 local chat = require("codecompanion").last_chat()
                 if chat and chat.adapter.type == "acp" then
-                    set_codex_winbar(chat.bufnr, "Codex connecting… wait, Enter is blocked", "WarningMsg")
+                    local name = chat.adapter.formatted_name or chat.adapter.name or "ACP agent"
+                    vim.notify("CodeCompanion: " .. name .. " session starting, wait before pressing Enter...", vim.log.levels.INFO)
+                    set_acp_winbar(chat.bufnr, name .. " connecting… wait, Enter is blocked", "WarningMsg")
                 end
             end,
         })
@@ -595,10 +683,11 @@ return {
             group = group,
             pattern = "CodeCompanionACPSessionPost",
             callback = function()
-                vim.notify("CodeCompanion: Codex session ready", vim.log.levels.INFO)
                 local chat = require("codecompanion").last_chat()
                 if chat and chat.adapter.type == "acp" then
-                    set_codex_winbar(chat.bufnr, "Codex ready — press Enter", "DiagnosticOk")
+                    local name = chat.adapter.formatted_name or chat.adapter.name or "ACP agent"
+                    vim.notify("CodeCompanion: " .. name .. " session ready", vim.log.levels.INFO)
+                    set_acp_winbar(chat.bufnr, name .. " ready — press Enter", "DiagnosticOk")
                 end
             end,
         })

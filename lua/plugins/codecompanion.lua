@@ -1,3 +1,6 @@
+-- Forward declaration: defined further down, but used by run_prompt_in_chat below.
+local context_for_chat
+
 local function run_prompt_in_chat(alias)
     local codecompanion = require("codecompanion")
     local chat = codecompanion.buf_get_chat(0) or codecompanion.last_chat()
@@ -236,7 +239,7 @@ local function is_file_buffer(bufnr)
     return true
 end
 
-local function context_for_chat(bufnr)
+function context_for_chat(bufnr)
     bufnr = bufnr or vim.api.nvim_get_current_buf()
     if is_file_buffer(bufnr) then
         return require("codecompanion.utils.context").get(bufnr)
@@ -1129,6 +1132,13 @@ return {
                 local bufnr = _G.codecompanion_current_context
                 if is_file_buffer(bufnr) then
                     self.buffer_context = require("codecompanion.utils.context").get(bufnr)
+                elseif
+                    type(message.content) == "string"
+                    and not is_file_buffer(self.buffer_context and self.buffer_context.bufnr)
+                then
+                    -- No real file has been opened yet (still in netrw): drop the pre-filled
+                    -- #{buffer} so the directory listing is not sent as file content.
+                    message.content = message.content:gsub("#{buffer}{[^}]*}%s?", ""):gsub("#{buffer}%s?", "")
                 end
                 return orig_replace_user_inputs(self, message)
             end
@@ -1180,6 +1190,31 @@ return {
                 local chat = require("codecompanion").buf_get_chat(args.data.bufnr)
                 if not chat then
                     return
+                end
+                -- Pin the active file: pre-fill the new chat's input with `#{buffer}` so it is
+                -- visible (delete it before <CR> if you don't want the file). With
+                -- default_params = "all", later turns only re-send the file when it changes.
+                -- Set `vim.g.codecompanion_pin_buffer = false` to turn this off.
+                if vim.g.codecompanion_pin_buffer ~= false and not (args.data and args.data.from_prompt_library) then
+                    vim.schedule(function()
+                        local bufnr = chat.bufnr
+                        if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+                            return
+                        end
+                        -- Also pre-filled when started from netrw: the file you open next becomes
+                        -- the context on submit (see the replace_user_inputs wrapper).
+                        local last = vim.api.nvim_buf_line_count(bufnr)
+                        local line = vim.api.nvim_buf_get_lines(bufnr, last - 1, last, false)[1]
+                        if line ~= "" then
+                            return
+                        end
+                        local text = "#{buffer} "
+                        vim.api.nvim_buf_set_lines(bufnr, last - 1, last, false, { text })
+                        local win = vim.fn.bufwinid(bufnr)
+                        if win ~= -1 then
+                            pcall(vim.api.nvim_win_set_cursor, win, { last, #text })
+                        end
+                    end)
                 end
                 -- Keep pre-warm chats unlisted so nvim <dir> does not cycle onto them.
                 -- List them when shown (toggle_chat) so :q hides instead of wiping ACP.

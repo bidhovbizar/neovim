@@ -831,6 +831,9 @@ return {
     config = function(_, opts)
         require("codecompanion").setup(opts)
 
+        -- #{selection} uses the last visual selection from any file buffer (survives window switches)
+        require("utils.codecompanion_selection").setup()
+
         -- Expand 'cc' into 'CodeCompanion' in command line
         vim.cmd([[cab cc CodeCompanion]])
 
